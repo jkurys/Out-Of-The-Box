@@ -13,7 +13,7 @@ pub enum GameObject {
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub enum Floor {
-    HiddenWall,
+    HiddenWall{hidden_by_default: bool},
     Tile,
     Ice,
     Goal,

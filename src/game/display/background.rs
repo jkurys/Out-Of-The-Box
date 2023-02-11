@@ -118,7 +118,7 @@ pub fn render_board(
                         FLOOR_Z_INDEX,
                     );
                 }
-                Floor::HiddenWall => {
+                Floor::HiddenWall{hidden_by_default: _} => {
                     render_entity(
                         HiddenWall,
                         &mut commands,

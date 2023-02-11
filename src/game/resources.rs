@@ -165,16 +165,32 @@ impl Board {
         }
     }
 
-    pub fn toggle_hiding_wall(&mut self) {
+    pub fn rise_hiding_wall(&mut self) {
         for map in 0..MAX_MAPS {
             let floors = self.boards[map].floors.clone();
             for (position, floor) in floors.iter() {
-                if floor == &Floor::HiddenWall {
-                    if self.get_object_type(*position) == GameObject::Empty {
+                if let &Floor::HiddenWall{hidden_by_default} = floor {
+                    if self.get_object_type(*position) == GameObject::Empty && hidden_by_default {
                         self.boards[map].objects.insert(*position, GameObject::HidingWall);
                     }
-                    else {
-                        self.delete_object(*position);
+                    else if self.get_object_type(*position) == GameObject::HidingWall && !hidden_by_default {
+                        self.boards[map].objects.remove(position);
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn hide_hiding_wall(&mut self) {
+        for map in 0..MAX_MAPS {
+            let floors = self.boards[map].floors.clone();
+            for (position, floor) in floors.iter() {
+                if let &Floor::HiddenWall{hidden_by_default} = floor {
+                    if self.get_object_type(*position) == GameObject::Empty && !hidden_by_default {
+                        self.boards[map].objects.insert(*position, GameObject::HidingWall);
+                    }
+                    else if self.get_object_type(*position) == GameObject::HidingWall && hidden_by_default {
+                        self.boards[map].objects.remove(position);
                     }
                 }
             }

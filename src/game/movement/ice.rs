@@ -8,7 +8,6 @@ use super::resources::AnimationTimer;
 // checks which entities should move if they are on ice
 pub fn handle_ice(
     mut moved_writer: EventWriter<ExitedFloorEvent>,
-    // mut moved_reader: EventReader<EnteredFloorEvent>,
     mut position_reader: EventReader<EnteredFloorEvent>,
     timer: ResMut<AnimationTimer>,
     board: Res<Board>,
