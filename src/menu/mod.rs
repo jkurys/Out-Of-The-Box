@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+mod sprite_select;
 mod level_select;
 mod main_menu;
 use crate::{exit::handle_esc, state::DisplayState, utils::delete_all_components};
@@ -7,7 +8,7 @@ use crate::{exit::handle_esc, state::DisplayState, utils::delete_all_components}
 use level_select::{handle_level_click, setup_level_select};
 use main_menu::{handle_menu_click, setup_main_menu};
 
-use self::{level_select::LevelSelectItem, main_menu::MainMenuItem};
+use self::{level_select::LevelSelectItem, main_menu::MainMenuItem, sprite_select::{setup_sprite_select, handle_sprite_click, SpriteSelectItem}};
 
 pub struct MenusPlugin;
 
@@ -50,6 +51,12 @@ impl Plugin for MenusPlugin {
             SystemSet::on_pause(DisplayState::LevelSelect)
                 .with_system(delete_all_components::<LevelSelectItem>),
         );
+
+        app.add_system_set(SystemSet::on_enter(DisplayState::SpriteSelect).with_system(setup_sprite_select))
+            .add_system_set(SystemSet::on_resume(DisplayState::SpriteSelect).with_system(setup_sprite_select))
+            .add_system_set(SystemSet::on_update(DisplayState::SpriteSelect).with_system(handle_sprite_click))
+            .add_system_set(SystemSet::on_exit(DisplayState::SpriteSelect).with_system(delete_all_components::<SpriteSelectItem>))
+            .add_system_set(SystemSet::on_pause(DisplayState::SpriteSelect).with_system(delete_all_components::<SpriteSelectItem>));
     }
 }
 

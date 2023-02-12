@@ -4,6 +4,7 @@ pub enum DisplayState {
     MainMenu,
     LevelSelect,
     Victory,
+    SpriteSelect,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash)]

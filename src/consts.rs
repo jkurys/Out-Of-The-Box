@@ -1,5 +1,5 @@
 /** TEXTURES */
-pub const PLAYER_TEXTURE: &str = "textures/player.png";
+pub const PLAYER_TEXTURES: [&str; 3] = ["textures/player.png", "textures/white_sprite.png", "textures/black_sprite.png"];
 pub const TILE_TEXTURE: &str = "textures/tile.png";
 pub const WALL_TEXTURE: &str = "textures/wall.png";
 pub const BOX_TEXTURE: &str = "textures/box.png";

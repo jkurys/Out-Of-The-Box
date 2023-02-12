@@ -10,13 +10,8 @@ pub struct MainMenuItem;
 pub enum MenuItemType {
     LevelSelect,
     Exit,
+    SpriteSelect,
 }
-
-// pub fn delete_main_menu(mut commands: Commands, query: Query<Entity, With<MainMenuItem>>) {
-//     for entity in query.iter() {
-//         commands.entity(entity).despawn_recursive();
-//     }
-// }
 
 pub fn handle_menu_click(
     mut app_state: ResMut<State<DisplayState>>,
@@ -33,6 +28,9 @@ pub fn handle_menu_click(
                     app_state
                         .push(DisplayState::LevelSelect)
                         .expect("Could not load level select");
+                }
+                MenuItemType::SpriteSelect => {
+                    app_state.push(DisplayState::SpriteSelect).expect("Could not load sprite select");
                 }
                 MenuItemType::Exit => {
                     app_exit.send(AppExit);
@@ -89,6 +87,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 menu_font.clone(),
                 "Level Select",
             );
+            spawn_button(parent, MenuItemType::SpriteSelect, menu_font.clone(), "Sprite Select");
             spawn_button(parent, MenuItemType::Exit, menu_font.clone(), "Exit");
         });
 }

@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
 use crate::consts::*;
+use std::io::Read;
+use std::fs::File;
 
 #[derive(Resource)]
 pub struct CurrentLevel {
@@ -28,7 +30,10 @@ impl FromWorld for Images {
         let asset_server = world
             .get_resource::<AssetServer>()
             .expect("Asset server not found in world");
-        let player_image = asset_server.load(PLAYER_TEXTURE);
+        let mut file = File::open("assets/saves/save.txt").unwrap();
+        let mut buf = [0 as u8; 1];
+        file.read(&mut buf).unwrap();
+        let player_image = asset_server.load(PLAYER_TEXTURES[buf[0] as usize]);
         let box_image = asset_server.load(BOX_TEXTURE);
         let wall_image = asset_server.load(WALL_TEXTURE);
         let goal_image = asset_server.load(GOAL_TEXTURE);
