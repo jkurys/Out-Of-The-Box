@@ -21,7 +21,11 @@ pub fn handle_ice(
         positions.push(event.position);
         events.push(event);
     }
-    events.sort_by(|event1, event2| event1.position.cmp_to_other(&event2.position, event1.direction));
+    events.sort_by(|event1, event2| {
+        event1
+            .position
+            .cmp_to_other(&event2.position, event1.direction)
+    });
     for event in events.iter() {
         let (position, direction) = (event.position, event.direction);
         if event.floor != Floor::Ice {
@@ -31,13 +35,22 @@ pub fn handle_ice(
         let object = board.get_object_type(object_position);
         match object {
             GameObject::Empty => {
-                moved_writer.send(ExitedFloorEvent { floor: Floor::Ice, position, object: event.object, direction: event.direction });
+                moved_writer.send(ExitedFloorEvent {
+                    floor: Floor::Ice,
+                    position,
+                    object: event.object,
+                    direction: event.direction,
+                });
             }
             GameObject::Box => {
-                if positions.contains(&object_position)
-                {
+                if positions.contains(&object_position) {
                     //found box is already moving
-                    moved_writer.send(ExitedFloorEvent { floor: Floor::Ice, position, object: event.object, direction: event.direction });
+                    moved_writer.send(ExitedFloorEvent {
+                        floor: Floor::Ice,
+                        position,
+                        object: event.object,
+                        direction: event.direction,
+                    });
                 } else if board.get_floor_type(object_position) == Floor::Ice {
                     // if there are multiple stationary boxes ahead, either the last one moves
                     // (if it's on ice) or they remain stationary otherwise
@@ -54,7 +67,12 @@ pub fn handle_ice(
                         next_object = board.get_object_type(next_object_position);
                     }
                     if next_object == GameObject::Empty {
-                        moved_writer.send(ExitedFloorEvent { floor: Floor::Ice, position: last_box_position, object: event.object, direction: event.direction });
+                        moved_writer.send(ExitedFloorEvent {
+                            floor: Floor::Ice,
+                            position: last_box_position,
+                            object: event.object,
+                            direction: event.direction,
+                        });
                     }
                     break;
                     //either way the entity that encountered a stationary entity in front of it must stop, and so do entities before it

@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 
+use std::fs::File;
+use std::io::Read;
+
 use crate::{
-    consts::{LEVEL_AMOUNT, MAIN_MENU_FONT, MAP_NAMES},
+    consts::{LEVEL_AMOUNT, LEVEL_SAVE, MAIN_MENU_FONT, MAP_NAMES},
     resources::CurrentLevel,
     state::DisplayState,
 };
@@ -75,6 +78,12 @@ pub fn handle_level_click(
     >,
     mut current_level: ResMut<CurrentLevel>,
 ) {
+    let file = File::open(LEVEL_SAVE);
+    let mut buf = [0; LEVEL_AMOUNT];
+    if let Ok(mut file) = file {
+        file.read_exact(&mut buf).unwrap();
+    }
+    let bool_buf = buf.map(|value| value != 0);
     query.for_each_mut(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Clicked => match item.as_ref() {
@@ -92,10 +101,28 @@ pub fn handle_level_click(
                 }
             },
             Interaction::Hovered => {
-                *color = BackgroundColor(Color::GRAY);
+                *color = match item.as_ref() {
+                    LevelSelectItemType::Level(level_no) => {
+                        if bool_buf[*level_no - 1] {
+                            BackgroundColor(Color::DARK_GREEN)
+                        } else {
+                            BackgroundColor(Color::GRAY)
+                        }
+                    }
+                    _ => BackgroundColor(Color::GRAY),
+                }
             }
             Interaction::None => {
-                *color = BackgroundColor(Color::WHITE);
+                *color = match item.as_ref() {
+                    LevelSelectItemType::Level(level_no) => {
+                        if bool_buf[*level_no - 1] {
+                            BackgroundColor(Color::GREEN)
+                        } else {
+                            BackgroundColor(Color::WHITE)
+                        }
+                    }
+                    _ => BackgroundColor(Color::WHITE),
+                }
             }
         },
     )

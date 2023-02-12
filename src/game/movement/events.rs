@@ -1,4 +1,4 @@
-use crate::game::game_objects::{Direction, Position, Floor, GameObject};
+use crate::game::game_objects::{Direction, Floor, GameObject, Position};
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub struct EnteredFloorEvent {

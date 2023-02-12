@@ -1,5 +1,9 @@
 /** TEXTURES */
-pub const PLAYER_TEXTURES: [&str; 3] = ["textures/player.png", "textures/white_sprite.png", "textures/black_sprite.png"];
+pub const PLAYER_TEXTURES: [&str; 3] = [
+    "textures/player.png",
+    "textures/white_sprite.png",
+    "textures/black_sprite.png",
+];
 pub const TILE_TEXTURE: &str = "textures/tile.png";
 pub const WALL_TEXTURE: &str = "textures/wall.png";
 pub const BOX_TEXTURE: &str = "textures/box.png";
@@ -27,6 +31,10 @@ pub const MAP_NAMES: [&str; LEVEL_AMOUNT as usize] = [
     "maps/8.txt",
     "maps/9.txt",
 ];
+
+/** SAVES */
+pub const PLAYER_TEXTURE_SAVE: &str = "assets/saves/player.txt";
+pub const LEVEL_SAVE: &str = "assets/saves/level.txt";
 //for sure this can be done in a better way, I just haven't found it yet
 
 /** DIMENSIONS */

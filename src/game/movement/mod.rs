@@ -12,15 +12,20 @@ use warp::handle_warp;
 
 use crate::game::game_objects::{Box, Player};
 
-use self::{position_updating::handle_move, events::{ExitedFloorEvent, EnteredFloorEvent}, resources::AnimationTimer, button::handle_button};
+use self::{
+    button::handle_button,
+    events::{EnteredFloorEvent, ExitedFloorEvent},
+    position_updating::handle_move,
+    resources::AnimationTimer,
+};
 
 use super::display::{
     background::{render_board, render_border},
     despawn_board,
 };
 
-
 mod animation;
+mod button;
 pub mod consts;
 mod events;
 mod ice;
@@ -28,7 +33,6 @@ mod keyboard;
 mod position_updating;
 pub mod resources;
 mod warp;
-mod button;
 
 pub type MovableInQuery = Or<(With<Box>, With<Player>)>;
 pub struct MovementPlugin;
@@ -38,7 +42,12 @@ impl Plugin for MovementPlugin {
         app.add_system_set(
             SystemSet::on_update(GameState(Some(Move::Moving)))
                 .with_system(handle_move.before(move_animation))
-                .with_system(move_animation.before(handle_warp).before(handle_ice).before(handle_button))
+                .with_system(
+                    move_animation
+                        .before(handle_warp)
+                        .before(handle_ice)
+                        .before(handle_button),
+                )
                 .with_system(handle_button.before(despawn_board))
                 .with_system(handle_warp.before(despawn_board))
                 .with_system(handle_ice.before(despawn_board)) //otherwise it could ignore the positions_on_ice and end the animation

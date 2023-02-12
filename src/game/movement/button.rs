@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game::{resources::Board, game_objects::Floor};
+use crate::game::{game_objects::Floor, resources::Board};
 
 use super::events::{EnteredFloorEvent, ExitedFloorEvent};
 
@@ -11,14 +11,14 @@ pub fn handle_button(
 ) {
     let mut do_once = false;
     for event in exited_reader.iter() {
-        if event.floor == Floor::Button && !do_once{
+        if event.floor == Floor::Button && !do_once {
             board.hide_hiding_wall();
             do_once = true;
         }
     }
     do_once = false;
     for event in entered_reader.iter() {
-        if event.floor == Floor::Button  && !do_once {
+        if event.floor == Floor::Button && !do_once {
             board.rise_hiding_wall();
             do_once = true;
         }

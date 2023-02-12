@@ -30,7 +30,9 @@ pub fn handle_menu_click(
                         .expect("Could not load level select");
                 }
                 MenuItemType::SpriteSelect => {
-                    app_state.push(DisplayState::SpriteSelect).expect("Could not load sprite select");
+                    app_state
+                        .push(DisplayState::SpriteSelect)
+                        .expect("Could not load sprite select");
                 }
                 MenuItemType::Exit => {
                     app_exit.send(AppExit);
@@ -87,7 +89,12 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 menu_font.clone(),
                 "Level Select",
             );
-            spawn_button(parent, MenuItemType::SpriteSelect, menu_font.clone(), "Sprite Select");
+            spawn_button(
+                parent,
+                MenuItemType::SpriteSelect,
+                menu_font.clone(),
+                "Sprite Select",
+            );
             spawn_button(parent, MenuItemType::Exit, menu_font.clone(), "Exit");
         });
 }

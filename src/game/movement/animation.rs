@@ -1,4 +1,4 @@
-use super::{resources::AnimationTimer, events::EnteredFloorEvent};
+use super::{events::EnteredFloorEvent, resources::AnimationTimer};
 use crate::consts::TILE_SIZE;
 use crate::game::resources::Board;
 use bevy::prelude::*;
@@ -72,12 +72,11 @@ pub fn move_animation(
                     direction,
                     &timer,
                     position.previous_position(direction),
-                    event.floor
+                    event.floor,
                 );
             }
         }
-    }
-    else {
+    } else {
         for event in &events {
             let (position, direction) = (event.position, event.direction);
             let entity_opt = board.get_entity(event.position);
@@ -88,7 +87,7 @@ pub fn move_animation(
                     direction,
                     &timer,
                     position.previous_position(direction),
-                    event.floor
+                    event.floor,
                 );
             }
         }

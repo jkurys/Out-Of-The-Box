@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 
+use std::fs::File;
+use std::io::{Read, Write};
+
 use super::resources::{Board, VictoryTimer};
-use crate::consts::MAIN_MENU_FONT;
+use crate::consts::{LEVEL_AMOUNT, LEVEL_SAVE, MAIN_MENU_FONT};
+use crate::resources::CurrentLevel;
 use crate::state::DisplayState;
 
 use super::game_objects::GameObject;
@@ -14,6 +18,7 @@ pub fn handle_win(
     mut display_state: ResMut<State<DisplayState>>,
     mut timer: ResMut<VictoryTimer>,
     time: Res<Time>,
+    current_level: Res<CurrentLevel>,
 ) {
     let mut is_win = true;
     for position in board.get_all_goals().iter() {
@@ -27,6 +32,29 @@ pub fn handle_win(
         timer.0.reset();
     }
     if timer.0.finished() {
+        let file_read = File::open(LEVEL_SAVE);
+        let mut buf = [0_u8; LEVEL_AMOUNT];
+        if let Ok(mut read) = file_read {
+            let result = read.read_exact(&mut buf);
+            if let Ok(()) = result {
+                if buf[current_level.level_number - 1] == 0 {
+                    let mut file_write = File::create(LEVEL_SAVE).unwrap();
+                    buf[current_level.level_number - 1] = 1;
+                    file_write.write_all(&buf).unwrap();
+                }
+            } else {
+                let mut file_write = File::create(LEVEL_SAVE).unwrap();
+                let mut buf = [0_u8; LEVEL_AMOUNT];
+                buf[current_level.level_number - 1] = 1;
+                file_write.write_all(&buf).unwrap();
+            }
+        } else {
+            let mut file_write = File::create(LEVEL_SAVE).unwrap();
+            let mut buf = [0_u8; LEVEL_AMOUNT];
+            buf[current_level.level_number - 1] = 1;
+            file_write.write_all(&buf).unwrap();
+        }
+
         display_state
             .set(DisplayState::Victory)
             .expect("Could not set state to victory");

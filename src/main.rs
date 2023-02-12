@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 use consts::*;
-use std::fs::File;
-use std::io::Read;
 use game::display::DisplayPlugin;
 use game::movement::MovementPlugin;
 use game::GamePlugin;
 use menu::MenusPlugin;
 use resources::*;
 use state::{CurrentMap, DisplayState, GameState};
+use std::fs::File;
+use std::io::Read;
 mod consts;
 mod exit;
 mod game;
@@ -41,8 +41,8 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 fn update_images(asset_server: ResMut<AssetServer>, mut images: ResMut<Images>) {
-        let mut file = File::open("assets/saves/save.txt").unwrap();
-        let mut buf = [0 as u8; 1];
-        file.read(&mut buf).unwrap();
-        images.player_image = asset_server.load(PLAYER_TEXTURES[buf[0] as usize]);
+    let mut file = File::open(PLAYER_TEXTURE_SAVE).unwrap();
+    let mut buf = [0_u8; 1];
+    file.read_exact(&mut buf).unwrap();
+    images.player_image = asset_server.load(PLAYER_TEXTURES[buf[0] as usize]);
 }

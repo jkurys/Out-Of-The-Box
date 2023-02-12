@@ -13,7 +13,7 @@ pub enum GameObject {
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub enum Floor {
-    HiddenWall{hidden_by_default: bool},
+    HiddenWall { hidden_by_default: bool },
     Tile,
     Ice,
     Goal,
@@ -114,49 +114,45 @@ impl Position {
     pub fn cmp_to_other(&self, other: &Self, dir: Direction) -> Ordering {
         match dir {
             Direction::Up => {
-                if self.y > other.y {
-                    Ordering::Less
-                }
-                else if self.y == other.y {
-                    Ordering::Equal
-                }
-                else {
-                    Ordering::Greater
-                }
-            },
+                other.y.cmp(&self.y)
+                // if self.y > other.y {
+                //     Ordering::Less
+                // } else if self.y == other.y {
+                //     Ordering::Equal
+                // } else {
+                //     Ordering::Greater
+                // }
+            }
             Direction::Down => {
-                if self.y > other.y {
-                    Ordering::Greater
-                }
-                else if self.y == other.y {
-                    Ordering::Equal
-                }
-                else {
-                    Ordering::Less
-                }
-            },
+                self.y.cmp(&other.y)
+                // if self.y > other.y {
+                //     Ordering::Greater
+                // } else if self.y == other.y {
+                //     Ordering::Equal
+                // } else {
+                //     Ordering::Less
+                // }
+            }
             Direction::Left => {
-                if self.x < other.x {
-                    Ordering::Less
-                }
-                else if self.x == other.x {
-                    Ordering::Equal
-                }
-                else {
-                    Ordering::Greater
-                }
-            },
+                self.x.cmp(&other.x)
+                // if self.x < other.x {
+                //     Ordering::Less
+                // } else if self.x == other.x {
+                //     Ordering::Equal
+                // } else {
+                //     Ordering::Greater
+                // }
+            }
             Direction::Right => {
-                if self.x > other.x {
-                    Ordering::Less
-                }
-                else if self.x == other.x {
-                    Ordering::Equal
-                }
-                else {
-                    Ordering::Greater
-                }
-            },
+                other.x.cmp(&self.x)
+                // if self.x > other.x {
+                //     Ordering::Less
+                // } else if self.x == other.x {
+                //     Ordering::Equal
+                // } else {
+                //     Ordering::Greater
+                // }
+            }
         }
     }
 }

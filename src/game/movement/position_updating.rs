@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::game::resources::Board;
 
-use super::events::{ExitedFloorEvent, EnteredFloorEvent};
+use super::events::{EnteredFloorEvent, ExitedFloorEvent};
 
 pub fn handle_move(
     mut reader: EventReader<ExitedFloorEvent>,

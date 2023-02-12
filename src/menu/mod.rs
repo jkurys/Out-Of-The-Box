@@ -1,14 +1,19 @@
 use bevy::prelude::*;
 
-mod sprite_select;
+mod level_editor;
 mod level_select;
 mod main_menu;
+mod sprite_select;
 use crate::{exit::handle_esc, state::DisplayState, utils::delete_all_components};
 
 use level_select::{handle_level_click, setup_level_select};
 use main_menu::{handle_menu_click, setup_main_menu};
 
-use self::{level_select::LevelSelectItem, main_menu::MainMenuItem, sprite_select::{setup_sprite_select, handle_sprite_click, SpriteSelectItem}};
+use self::{
+    level_select::LevelSelectItem,
+    main_menu::MainMenuItem,
+    sprite_select::{handle_sprite_click, setup_sprite_select, SpriteSelectItem},
+};
 
 pub struct MenusPlugin;
 
@@ -52,11 +57,23 @@ impl Plugin for MenusPlugin {
                 .with_system(delete_all_components::<LevelSelectItem>),
         );
 
-        app.add_system_set(SystemSet::on_enter(DisplayState::SpriteSelect).with_system(setup_sprite_select))
-            .add_system_set(SystemSet::on_resume(DisplayState::SpriteSelect).with_system(setup_sprite_select))
-            .add_system_set(SystemSet::on_update(DisplayState::SpriteSelect).with_system(handle_sprite_click))
-            .add_system_set(SystemSet::on_exit(DisplayState::SpriteSelect).with_system(delete_all_components::<SpriteSelectItem>))
-            .add_system_set(SystemSet::on_pause(DisplayState::SpriteSelect).with_system(delete_all_components::<SpriteSelectItem>));
+        app.add_system_set(
+            SystemSet::on_enter(DisplayState::SpriteSelect).with_system(setup_sprite_select),
+        )
+        .add_system_set(
+            SystemSet::on_resume(DisplayState::SpriteSelect).with_system(setup_sprite_select),
+        )
+        .add_system_set(
+            SystemSet::on_update(DisplayState::SpriteSelect).with_system(handle_sprite_click),
+        )
+        .add_system_set(
+            SystemSet::on_exit(DisplayState::SpriteSelect)
+                .with_system(delete_all_components::<SpriteSelectItem>),
+        )
+        .add_system_set(
+            SystemSet::on_pause(DisplayState::SpriteSelect)
+                .with_system(delete_all_components::<SpriteSelectItem>),
+        );
     }
 }
 

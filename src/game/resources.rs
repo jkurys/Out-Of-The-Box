@@ -169,11 +169,14 @@ impl Board {
         for map in 0..MAX_MAPS {
             let floors = self.boards[map].floors.clone();
             for (position, floor) in floors.iter() {
-                if let &Floor::HiddenWall{hidden_by_default} = floor {
+                if let &Floor::HiddenWall { hidden_by_default } = floor {
                     if self.get_object_type(*position) == GameObject::Empty && hidden_by_default {
-                        self.boards[map].objects.insert(*position, GameObject::HidingWall);
-                    }
-                    else if self.get_object_type(*position) == GameObject::HidingWall && !hidden_by_default {
+                        self.boards[map]
+                            .objects
+                            .insert(*position, GameObject::HidingWall);
+                    } else if self.get_object_type(*position) == GameObject::HidingWall
+                        && !hidden_by_default
+                    {
                         self.boards[map].objects.remove(position);
                     }
                 }
@@ -185,11 +188,14 @@ impl Board {
         for map in 0..MAX_MAPS {
             let floors = self.boards[map].floors.clone();
             for (position, floor) in floors.iter() {
-                if let &Floor::HiddenWall{hidden_by_default} = floor {
+                if let &Floor::HiddenWall { hidden_by_default } = floor {
                     if self.get_object_type(*position) == GameObject::Empty && !hidden_by_default {
-                        self.boards[map].objects.insert(*position, GameObject::HidingWall);
-                    }
-                    else if self.get_object_type(*position) == GameObject::HidingWall && hidden_by_default {
+                        self.boards[map]
+                            .objects
+                            .insert(*position, GameObject::HidingWall);
+                    } else if self.get_object_type(*position) == GameObject::HidingWall
+                        && hidden_by_default
+                    {
                         self.boards[map].objects.remove(position);
                     }
                 }

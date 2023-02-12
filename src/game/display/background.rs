@@ -118,7 +118,9 @@ pub fn render_board(
                         FLOOR_Z_INDEX,
                     );
                 }
-                Floor::HiddenWall{hidden_by_default: _} => {
+                Floor::HiddenWall {
+                    hidden_by_default: _,
+                } => {
                     render_entity(
                         HiddenWall,
                         &mut commands,
@@ -128,7 +130,13 @@ pub fn render_board(
                     );
                 }
                 Floor::Button => {
-                    render_entity(BoxButton, &mut commands, images.button_image.clone(), position, FLOOR_Z_INDEX);
+                    render_entity(
+                        BoxButton,
+                        &mut commands,
+                        images.button_image.clone(),
+                        position,
+                        FLOOR_Z_INDEX,
+                    );
                 }
             }
         }
