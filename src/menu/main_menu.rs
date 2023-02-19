@@ -11,6 +11,7 @@ pub enum MenuItemType {
     LevelSelect,
     Exit,
     SpriteSelect,
+    LevelEditor,
 }
 
 pub fn handle_menu_click(
@@ -36,6 +37,11 @@ pub fn handle_menu_click(
                 }
                 MenuItemType::Exit => {
                     app_exit.send(AppExit);
+                }
+                MenuItemType::LevelEditor => {
+                    app_state
+                        .push(DisplayState::LevelEditorInput)
+                        .expect("Could not enter level editor");
                 }
             },
             Interaction::Hovered => {
@@ -94,6 +100,12 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 MenuItemType::SpriteSelect,
                 menu_font.clone(),
                 "Sprite Select",
+            );
+            spawn_button(
+                parent,
+                MenuItemType::LevelEditor,
+                menu_font.clone(),
+                "Level Editor",
             );
             spawn_button(parent, MenuItemType::Exit, menu_font.clone(), "Exit");
         });

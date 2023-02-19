@@ -5,6 +5,8 @@ pub enum DisplayState {
     LevelSelect,
     Victory,
     SpriteSelect,
+    LevelEditorInput,
+    LevelEditorBoard(u32, u32),
 }
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash)]

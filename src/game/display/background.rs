@@ -6,12 +6,13 @@ use crate::resources::Images;
 
 use crate::game::movement::resources::AnimationTimer;
 use crate::game::resources::Board;
+use crate::utils::offset_coordinate;
 
 use super::render_entity;
 
-fn offset_coordinate(coord: i32, max: i32) -> i32 {
-    coord - (max / 2)
-}
+// fn offset_coordinate(coord: i32, max: i32) -> i32 {
+//     coord - (max / 2)
+// }
 
 //render the entire map based on Board
 pub fn render_board(

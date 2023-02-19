@@ -41,6 +41,8 @@ pub const LEVEL_SAVE: &str = "assets/saves/level.txt";
 pub const TILE_SIZE: f32 = 50.;
 pub const IMAGE_SIZE: f32 = 16.;
 pub const MOVE_ANIMATION_TIME: f32 = 0.2;
+pub const MAX_WIDTH: u32 = 20;
+pub const MAX_HEIGHT: u32 = 20;
 
 /** Z_INDICES */
 pub const OBJECT_Z_INDEX: f32 = 2.0;
