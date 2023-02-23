@@ -1,15 +1,14 @@
-2
-7 7
-       
- ww ww 
- wwbww 
- g 1   
- ww ww 
- ww ww 
-p      
-5 5
-   h 
- u H 
-  0h 
-     
-     
+1
+12 12
+            
+  bb b uuu  
+ bb         
+      Hh    
+   h h   h  
+            
+  h h hH    
+    H    h  
+  h    h p  
+     h    g 
+            
+            

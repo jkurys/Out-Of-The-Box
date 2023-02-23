@@ -11,10 +11,19 @@ use crate::{
     utils::offset_coordinate,
 };
 
-use super::resources::LevelEditorBoard;
+use super::{
+    resources::LevelEditorBoard,
+    utils::{spawn_small_button, spawn_small_image},
+};
 
 #[derive(Component)]
 pub struct LevelEditorItem;
+
+#[derive(Component)]
+pub struct LevelEditorTabs;
+
+#[derive(Component)]
+pub struct LevelEditorTabPlus;
 
 #[derive(Component, Clone, Copy, Debug)]
 pub enum GameEntity {
@@ -114,7 +123,6 @@ pub fn setup_level_editor_board(
     let top_border = offset_coordinate(height as i32 - 1, height as i32);
     let left_border = offset_coordinate(0, width as i32);
     let right_border = offset_coordinate(width as i32 - 1, width as i32);
-    // let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
         // main separation between 2 compartments
         .spawn(NodeBundle {
@@ -144,22 +152,26 @@ pub fn setup_level_editor_board(
                             width: Val::Percent(70.0),
                             height: Val::Percent(100.0),
                         },
-                        flex_direction: FlexDirection::Row,
+                        flex_direction: FlexDirection::Column,
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
                         ..default()
                     },
                     ..default()
                 })
-                .insert(LevelEditorItem)
-                // board
+                // two compartments: tabs and board
                 .with_children(|parent| {
+                    // board, component holding all columns
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::GRAY),
                             visibility: Visibility { is_visible: true },
                             style: Style {
-                                flex_direction: FlexDirection::Column,
+                                size: Size {
+                                    width: Val::Percent(70.0),
+                                    height: Val::Percent(100.0),
+                                },
+                                flex_direction: FlexDirection::Row,
                                 align_items: AlignItems::Center,
                                 justify_content: JustifyContent::Center,
                                 ..default()
@@ -167,108 +179,117 @@ pub fn setup_level_editor_board(
                             ..default()
                         })
                         .with_children(|parent| {
-                            for _ in 0..height + 2 {
-                                //left-most column, all walls
-                                parent.spawn(ImageBundle {
-                                    image: UiImage(images.wall_image.clone()),
+                            // component for a left-most column
+                            parent
+                                .spawn(NodeBundle {
+                                    background_color: BackgroundColor(Color::GRAY),
+                                    visibility: Visibility { is_visible: true },
                                     style: Style {
-                                        size: Size {
-                                            height: Val::Px(50.),
-                                            width: Val::Px(50.),
-                                        },
+                                        flex_direction: FlexDirection::Column,
+                                        align_items: AlignItems::Center,
+                                        justify_content: JustifyContent::Center,
                                         ..default()
                                     },
                                     ..default()
+                                })
+                                .with_children(|parent| {
+                                    for _ in 0..height + 2 {
+                                        //left-most column, all walls
+                                        spawn_small_image(parent, images.wall_image.clone());
+                                    }
                                 });
+                            for x in left_border..(right_border + 1) {
+                                // middle columns
+                                parent
+                                    .spawn(NodeBundle {
+                                        background_color: BackgroundColor(Color::GRAY),
+                                        visibility: Visibility { is_visible: true },
+                                        style: Style {
+                                            flex_direction: FlexDirection::Column,
+                                            align_items: AlignItems::Center,
+                                            justify_content: JustifyContent::Center,
+                                            ..default()
+                                        },
+                                        ..default()
+                                    })
+                                    .with_children(|parent| {
+                                        //top wall
+                                        spawn_small_image(parent, images.wall_image.clone());
+                                        // inside tiles
+                                        for y in bottom_border..(top_border + 1) {
+                                            spawn_small_button(
+                                                parent,
+                                                images.tile_image.clone(),
+                                                LevelEditorChangable(Position { x, y, map: 0 }),
+                                            );
+                                        }
+                                        // bottom wall
+                                        spawn_small_image(parent, images.wall_image.clone());
+                                    });
                             }
+                            // right-most column, all walls
+                            parent
+                                .spawn(NodeBundle {
+                                    background_color: BackgroundColor(Color::GRAY),
+                                    visibility: Visibility { is_visible: true },
+                                    style: Style {
+                                        flex_direction: FlexDirection::Column,
+                                        align_items: AlignItems::Center,
+                                        justify_content: JustifyContent::Center,
+                                        ..default()
+                                    },
+                                    ..default()
+                                })
+                                .with_children(|parent| {
+                                    for _ in 0..height + 2 {
+                                        spawn_small_image(parent, images.wall_image.clone());
+                                    }
+                                });
                         });
-                    for x in left_border..(right_border + 1) {
-                        // middle columns
-                        parent
-                            .spawn(NodeBundle {
-                                background_color: BackgroundColor(Color::GRAY),
-                                visibility: Visibility { is_visible: true },
+                    // map tabs
+                    parent
+                        .spawn(NodeBundle {
+                            background_color: BackgroundColor(Color::BLUE),
+                            style: Style {
+                                flex_direction: FlexDirection::Row,
+                                align_items: AlignItems::Center,
+                                justify_content: JustifyContent::FlexStart,
+                                size: Size {
+                                    width: Val::Percent(100.),
+                                    height: Val::Percent(5.),
+                                },
+                                ..default()
+                            },
+                            ..default()
+                        })
+                        .insert(LevelEditorTabs)
+                        // first tab
+                        .with_children(|parent| {
+                            parent.spawn(NodeBundle {
+                                background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
                                 style: Style {
-                                    flex_direction: FlexDirection::Column,
-                                    align_items: AlignItems::Center,
-                                    justify_content: JustifyContent::Center,
+                                    size: Size {
+                                        height: Val::Percent(100.),
+                                        width: Val::Percent(10.),
+                                    },
                                     ..default()
                                 },
                                 ..default()
-                            })
-                            .with_children(|parent| {
-                                //top wall
-                                parent.spawn(ImageBundle {
-                                    image: UiImage(images.wall_image.clone()),
-                                    style: Style {
-                                        size: Size {
-                                            height: Val::Px(50.),
-                                            width: Val::Px(50.),
-                                        },
-                                        ..default()
-                                    },
-                                    ..default()
-                                });
-                                // inside tiles
-                                for y in bottom_border..(top_border + 1) {
-                                    parent
-                                        .spawn(ButtonBundle::default())
-                                        .insert(ImageBundle {
-                                            image: UiImage(images.tile_image.clone()),
-                                            style: Style {
-                                                size: Size {
-                                                    height: Val::Px(50.),
-                                                    width: Val::Px(50.),
-                                                },
-                                                ..default()
-                                            },
-                                            ..default()
-                                        })
-                                        .insert(LevelEditorChangable(Position { x, y, map: 0 }));
-                                }
-                                // bottom wall
-                                parent.spawn(ImageBundle {
-                                    image: UiImage(images.wall_image.clone()),
-                                    style: Style {
-                                        size: Size {
-                                            height: Val::Px(50.),
-                                            width: Val::Px(50.),
-                                        },
-                                        ..default()
-                                    },
-                                    ..default()
-                                });
                             });
-                    }
-                    // right-most column, all walls
-                    parent
-                        .spawn(NodeBundle {
-                            background_color: BackgroundColor(Color::GRAY),
-                            visibility: Visibility { is_visible: true },
-                            style: Style {
-                                flex_direction: FlexDirection::Column,
-                                align_items: AlignItems::Center,
-                                justify_content: JustifyContent::Center,
-                                ..default()
-                            },
-                            ..default()
-                        })
-                        .with_children(|parent| {
-                            for _ in 0..height + 2 {
-                                parent.spawn(ImageBundle {
-                                    image: UiImage(images.wall_image.clone()),
-                                    style: Style {
-                                        size: Size {
-                                            height: Val::Px(50.),
-                                            width: Val::Px(50.),
-                                        },
-                                        ..default()
+                            parent.spawn(ButtonBundle::default()).insert(ImageBundle {
+                                image: UiImage(images.tile_image.clone()),      // tu będzie plusik
+                                style: Style {
+                                    size: Size {
+                                        width: Val::Px(20.),
+                                        height: Val::Px(20.)
                                     },
                                     ..default()
-                                });
-                            }
+                                },
+                                ..default()
+                            }).insert(LevelEditorTabPlus);
                         });
                 });
+            // right section of the editor
             parent
                 .spawn(NodeBundle {
                     background_color: BackgroundColor(Color::GREEN),
@@ -278,7 +299,7 @@ pub fn setup_level_editor_board(
                             width: Val::Percent(30.0),
                             height: Val::Percent(100.0),
                         },
-                        flex_direction: FlexDirection::Column,
+                        flex_direction: FlexDirection::Row,
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::SpaceEvenly,
                         ..default()
@@ -286,48 +307,96 @@ pub fn setup_level_editor_board(
                     ..default()
                 })
                 .with_children(|parent| {
+                    // objects
                     parent
-                        .spawn(ButtonBundle::default())
-                        .insert(ImageBundle {
-                            image: UiImage(images.box_image.clone()),
+                        .spawn(NodeBundle {
+                            background_color: BackgroundColor(Color::DARK_GREEN),
+                            visibility: Visibility { is_visible: true },
                             style: Style {
                                 size: Size {
-                                    height: Val::Px(50.),
-                                    width: Val::Px(50.),
+                                    width: Val::Percent(50.0),
+                                    height: Val::Percent(100.0),
                                 },
+                                flex_direction: FlexDirection::Column,
+                                align_items: AlignItems::Center,
+                                justify_content: JustifyContent::SpaceEvenly,
                                 ..default()
                             },
                             ..default()
                         })
-                        .insert(GameEntity::Object(GameObject::Box));
+                        .with_children(|parent| {
+                            spawn_small_button(
+                                parent,
+                                images.box_image.clone(),
+                                GameEntity::Object(GameObject::Box),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.shown_hidden_wall_image.clone(),
+                                GameEntity::Object(GameObject::HidingWall),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.wall_image.clone(),
+                                GameEntity::Object(GameObject::Wall),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.player_image.clone(),
+                                GameEntity::Object(GameObject::Player),
+                            );
+                        });
+                    // floors
                     parent
-                        .spawn(ButtonBundle::default())
-                        .insert(ImageBundle {
-                            image: UiImage(images.goal_image.clone()),
+                        .spawn(NodeBundle {
+                            background_color: BackgroundColor(Color::GREEN),
+                            visibility: Visibility { is_visible: true },
                             style: Style {
                                 size: Size {
-                                    height: Val::Px(50.),
-                                    width: Val::Px(50.),
+                                    width: Val::Percent(50.0),
+                                    height: Val::Percent(100.0),
                                 },
+                                flex_direction: FlexDirection::Column,
+                                align_items: AlignItems::Center,
+                                justify_content: JustifyContent::SpaceEvenly,
                                 ..default()
                             },
                             ..default()
                         })
-                        .insert(GameEntity::Floor(Floor::Goal));
-                    parent
-                        .spawn(ButtonBundle::default())
-                        .insert(ImageBundle {
-                            image: UiImage(images.ice_image.clone()),
-                            style: Style {
-                                size: Size {
-                                    height: Val::Px(50.),
-                                    width: Val::Px(50.),
-                                },
-                                ..default()
-                            },
-                            ..default()
-                        })
-                        .insert(GameEntity::Floor(Floor::Ice));
+                        .with_children(|parent| {
+                            spawn_small_button(
+                                parent,
+                                images.goal_image.clone(),
+                                GameEntity::Floor(Floor::Goal),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.ice_image.clone(),
+                                GameEntity::Floor(Floor::Ice),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.button_image.clone(),
+                                GameEntity::Floor(Floor::Button),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.hidden_wall_image.clone(),
+                                GameEntity::Floor(Floor::HiddenWall {
+                                    hidden_by_default: true,
+                                }),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.tile_image.clone(),
+                                GameEntity::Floor(Floor::Tile),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.warp_image.clone(),
+                                GameEntity::Floor(Floor::Warp(1)),
+                            );
+                        });
                 });
         });
 }
@@ -340,12 +409,23 @@ pub fn handle_level_editor_click(
     clickable_query: Query<(&Interaction, &UiImage, &GameEntity), Without<LevelEditorChangable>>,
     mut board: ResMut<LevelEditorBoard>,
     mut current_object: Local<GameEntity>,
+    mut last_added_player: Local<(Option<Position>, bool)>,
+    images: Res<Images>,
 ) {
     for (changable, interaction, mut image) in changable_query.iter_mut() {
         let position = changable.0;
         if *interaction == Interaction::Clicked {
+            if let (Some(prev_position), false) = *last_added_player {
+                *last_added_player = (Some(prev_position), true);
+            } else if let GameEntity::Object(GameObject::Player) = *current_object {
+                *last_added_player = (Some(position), false);
+            }
             *image = board.image.clone();
             board.objects.insert(position, *current_object);
+        }
+        if let (Some(position), true) = *last_added_player {
+            *image = UiImage(images.tile_image.clone());
+            board.objects.remove(&position);
         }
     }
     for (interaction, image, object_or_floor) in clickable_query.iter() {
@@ -356,7 +436,8 @@ pub fn handle_level_editor_click(
     }
 }
 
-pub fn position_to_index(pos: Position, width: u32, height: u32) -> usize {
+// translates the position to index in a 1d array with '\n' at the end of each line
+fn position_to_index(pos: Position, width: u32, height: u32) -> usize {
     let x = pos.x + (width / 2) as i32;
     let y = pos.y + (height / 2) as i32;
     x as usize
@@ -365,7 +446,14 @@ pub fn position_to_index(pos: Position, width: u32, height: u32) -> usize {
 }
 
 pub fn save_board_to_file(board: Res<LevelEditorBoard>) {
-    let mut buf = vec!['.'; (board.width + 1) as usize * board.height as usize];
+    let mut height_string: Vec<char> = board.height.to_string().chars().collect();
+    let mut width_string: Vec<char> = board.width.to_string().chars().collect();
+    let mut map_prelude = vec!['1', '\n'];
+    map_prelude.append(&mut height_string);
+    map_prelude.append(&mut vec![' ']);
+    map_prelude.append(&mut width_string);
+    map_prelude.append(&mut vec!['\n']);
+    let mut buf = vec![' '; (board.width + 1) as usize * board.height as usize];
     for i in 0..board.height {
         buf[(board.width + i * (board.width + 1)) as usize] = '\n';
     }
@@ -391,8 +479,8 @@ pub fn save_board_to_file(board: Res<LevelEditorBoard>) {
             },
         }
     }
-    // let s: String = buf.iter().collect();
     let mut file = File::create("assets/saves/map.txt").unwrap();
-    let buf = buf.iter().map(|c| *c as u8).collect::<Vec<_>>();
+    map_prelude.append(&mut buf);
+    let buf = map_prelude.iter().map(|c| *c as u8).collect::<Vec<_>>();
     file.write_all(&buf[..]).unwrap();
 }

@@ -5,6 +5,7 @@ mod level_select;
 mod main_menu;
 mod resources;
 mod sprite_select;
+mod utils;
 use crate::{
     consts::{MAX_HEIGHT, MAX_WIDTH},
     exit::handle_esc,

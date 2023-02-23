@@ -4,9 +4,6 @@ use crate::{consts::WALL_TEXTURE, game::game_objects::Position};
 
 use super::level_editor::GameEntity;
 
-// #[derive(Resource)]
-// pub struct CurrentImage(pub UiImage);
-
 #[derive(Resource, Debug)]
 pub struct LevelEditorBoard {
     pub objects: HashMap<Position, GameEntity>,
