@@ -276,17 +276,20 @@ pub fn setup_level_editor_board(
                                 },
                                 ..default()
                             });
-                            parent.spawn(ButtonBundle::default()).insert(ImageBundle {
-                                image: UiImage(images.tile_image.clone()),      // tu będzie plusik
-                                style: Style {
-                                    size: Size {
-                                        width: Val::Px(20.),
-                                        height: Val::Px(20.)
+                            parent
+                                .spawn(ButtonBundle::default())
+                                .insert(ImageBundle {
+                                    image: UiImage(images.tile_image.clone()), // tu będzie plusik
+                                    style: Style {
+                                        size: Size {
+                                            width: Val::Px(20.),
+                                            height: Val::Px(20.),
+                                        },
+                                        ..default()
                                     },
                                     ..default()
-                                },
-                                ..default()
-                            }).insert(LevelEditorTabPlus);
+                                })
+                                .insert(LevelEditorTabPlus);
                         });
                 });
             // right section of the editor
@@ -416,16 +419,22 @@ pub fn handle_level_editor_click(
         let position = changable.0;
         if *interaction == Interaction::Clicked {
             if let (Some(prev_position), false) = *last_added_player {
-                *last_added_player = (Some(prev_position), true);
+                if let GameEntity::Object(GameObject::Player) = *current_object {
+                    if position != prev_position {
+                        *last_added_player = (Some(prev_position), true);
+                    }
+                }
             } else if let GameEntity::Object(GameObject::Player) = *current_object {
                 *last_added_player = (Some(position), false);
             }
             *image = board.image.clone();
             board.objects.insert(position, *current_object);
         }
-        if let (Some(position), true) = *last_added_player {
-            *image = UiImage(images.tile_image.clone());
-            board.objects.remove(&position);
+        if let (Some(player_position), true) = *last_added_player {
+            if player_position == position {
+                *image = UiImage(images.tile_image.clone());
+                board.objects.remove(&position);
+            }
         }
     }
     for (interaction, image, object_or_floor) in clickable_query.iter() {
