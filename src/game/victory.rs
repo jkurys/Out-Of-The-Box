@@ -3,9 +3,9 @@ use bevy::prelude::*;
 use std::fs::File;
 use std::io::{Read, Write};
 
-use super::resources::{Board, VictoryTimer};
+use super::resources::VictoryTimer;
 use crate::consts::{LEVEL_AMOUNT, LEVEL_SAVE, MAIN_MENU_FONT};
-use crate::resources::CurrentLevel;
+use crate::resources::{CurrentLevel, Board};
 use crate::state::DisplayState;
 
 use super::game_objects::GameObject;

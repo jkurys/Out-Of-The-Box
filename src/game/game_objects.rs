@@ -57,7 +57,7 @@ pub struct BoxButton;
 pub struct Position {
     pub x: i32,
     pub y: i32,
-    pub map: usize,
+    // pub map: usize,
 }
 
 impl Position {
@@ -66,22 +66,22 @@ impl Position {
             Direction::Up => Position {
                 x: self.x,
                 y: self.y + 1,
-                map: self.map,
+                // map: self.map,
             },
             Direction::Down => Position {
                 x: self.x,
                 y: self.y - 1,
-                map: self.map,
+                // map: self.map,
             },
             Direction::Left => Position {
                 x: self.x - 1,
                 y: self.y,
-                map: self.map,
+                // map: self.map,
             },
             Direction::Right => Position {
                 x: self.x + 1,
                 y: self.y,
-                map: self.map,
+                // map: self.map,
             },
         }
     }
@@ -91,22 +91,22 @@ impl Position {
             Direction::Up => Position {
                 x: self.x,
                 y: self.y - 1,
-                map: self.map,
+                // map: self.map,
             },
             Direction::Down => Position {
                 x: self.x,
                 y: self.y + 1,
-                map: self.map,
+                // map: self.map,
             },
             Direction::Left => Position {
                 x: self.x + 1,
                 y: self.y,
-                map: self.map,
+                // map: self.map,
             },
             Direction::Right => Position {
                 x: self.x - 1,
                 y: self.y,
-                map: self.map,
+                // map: self.map,
             },
         }
     }
@@ -115,43 +115,15 @@ impl Position {
         match dir {
             Direction::Up => {
                 other.y.cmp(&self.y)
-                // if self.y > other.y {
-                //     Ordering::Less
-                // } else if self.y == other.y {
-                //     Ordering::Equal
-                // } else {
-                //     Ordering::Greater
-                // }
             }
             Direction::Down => {
                 self.y.cmp(&other.y)
-                // if self.y > other.y {
-                //     Ordering::Greater
-                // } else if self.y == other.y {
-                //     Ordering::Equal
-                // } else {
-                //     Ordering::Less
-                // }
             }
             Direction::Left => {
                 self.x.cmp(&other.x)
-                // if self.x < other.x {
-                //     Ordering::Less
-                // } else if self.x == other.x {
-                //     Ordering::Equal
-                // } else {
-                //     Ordering::Greater
-                // }
             }
             Direction::Right => {
                 other.x.cmp(&self.x)
-                // if self.x > other.x {
-                //     Ordering::Less
-                // } else if self.x == other.x {
-                //     Ordering::Equal
-                // } else {
-                //     Ordering::Greater
-                // }
             }
         }
     }

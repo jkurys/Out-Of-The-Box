@@ -1,6 +1,7 @@
-use self::resources::{Board, BoardStates, VictoryTimer};
+use self::resources::{BoardStates, VictoryTimer};
 use crate::consts::MOVE_ANIMATION_TIME;
 use crate::exit::handle_esc;
+use crate::resources::Board;
 use crate::utils::delete_all_components;
 use crate::{
     consts::INITIAL_MAP,

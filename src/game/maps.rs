@@ -1,5 +1,5 @@
 use super::game_objects::{Floor, GameObject, Position};
-use super::resources::{Board, MapSize};
+use crate::resources::{Board, MapSize};
 use crate::{consts::INITIAL_MAP, resources::CurrentLevel};
 use bevy::prelude::*;
 use std::fs;
@@ -38,47 +38,50 @@ pub fn load_starting_map(mut board: ResMut<Board>, current_level: Res<CurrentLev
                 if y <= (height as i32 - 1) / 2 - height as i32 {
                     panic!("Map provided invalid height");
                 }
-                let position = Position { x, y, map };
+                let position = Position { x, y};
                 match character {
                     'b' => {
-                        board.insert_object(position, GameObject::Box);
+                        board.insert_object_to_map(position, GameObject::Box, map);
                     }
                     'w' => {
-                        board.insert_object(position, GameObject::Wall);
+                        board.insert_object_to_map(position, GameObject::Wall, map);
                     }
                     'p' => {
-                        board.insert_object(position, GameObject::Player);
+                        board.insert_object_to_map(position, GameObject::Player, map);
                     }
                     'g' => {
-                        board.insert_floor(position, Floor::Goal);
+                        board.insert_floor_to_map(position, Floor::Goal, map);
                     }
                     'i' => {
-                        board.insert_floor(position, Floor::Ice);
+                        board.insert_floor_to_map(position, Floor::Ice, map);
                     }
                     'u' => {
-                        board.insert_floor(position, Floor::Button);
+                        board.insert_floor_to_map(position, Floor::Button, map);
                     }
                     'h' => {
-                        board.insert_floor(
+                        board.insert_floor_to_map(
                             position,
                             Floor::HiddenWall {
                                 hidden_by_default: true,
                             },
+                            map
                         );
                     }
                     'H' => {
-                        board.insert_floor(
+                        board.insert_floor_to_map(
                             position,
                             Floor::HiddenWall {
                                 hidden_by_default: false,
                             },
+                            map
                         );
-                        board.insert_object(position, GameObject::HidingWall);
+                        board.insert_object_to_map(position, GameObject::HidingWall, map);
                     }
                     char if char.is_ascii_digit() => {
-                        board.insert_floor(
+                        board.insert_floor_to_map(
                             position,
                             Floor::Warp(char.to_digit(10).unwrap() as usize),
+                            map
                         );
                     }
                     _ => (),

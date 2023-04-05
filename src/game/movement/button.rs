@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::game::{game_objects::Floor, resources::Board};
+use crate::{game::game_objects::Floor, resources::Board};
 
 use super::events::{EnteredFloorEvent, ExitedFloorEvent};
 

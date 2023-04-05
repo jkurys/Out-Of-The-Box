@@ -161,6 +161,7 @@ pub fn setup_level_editor_board(
                 })
                 // two compartments: tabs and board
                 .with_children(|parent| {
+                    
                     // board, component holding all columns
                     parent
                         .spawn(NodeBundle {
@@ -220,7 +221,7 @@ pub fn setup_level_editor_board(
                                             spawn_small_button(
                                                 parent,
                                                 images.tile_image.clone(),
-                                                LevelEditorChangable(Position { x, y, map: 0 }),
+                                                LevelEditorChangable(Position { x, y }),
                                             );
                                         }
                                         // bottom wall
@@ -451,7 +452,6 @@ fn position_to_index(pos: Position, width: u32, height: u32) -> usize {
     let y = pos.y + (height / 2) as i32;
     x as usize
         + y as usize * (width + 1) as usize
-        + pos.map as usize * (width + 1) as usize * height as usize
 }
 
 pub fn save_board_to_file(board: Res<LevelEditorBoard>) {

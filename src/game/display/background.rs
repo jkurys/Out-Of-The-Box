@@ -5,14 +5,10 @@ use crate::game::game_objects::*;
 use crate::resources::Images;
 
 use crate::game::movement::resources::AnimationTimer;
-use crate::game::resources::Board;
+use crate::resources::Board;
 use crate::utils::offset_coordinate;
 
 use super::render_entity;
-
-// fn offset_coordinate(coord: i32, max: i32) -> i32 {
-//     coord - (max / 2)
-// }
 
 //render the entire map based on Board
 pub fn render_board(
@@ -33,7 +29,7 @@ pub fn render_board(
     // render all objects found in board
     for y in bottom_border..(top_border + 1) {
         for x in left_border..(right_border + 1) {
-            let position = Position { x, y, map };
+            let position = Position { x, y };
             let game_object = board.get_object_type(position);
             match game_object {
                 GameObject::Box => {
@@ -80,7 +76,7 @@ pub fn render_board(
     }
     for y in bottom_border..(top_border + 1) {
         for x in left_border..(right_border + 1) {
-            let position = Position { x, y, map };
+            let position = Position { x, y};
             let floor = board.get_floor_type(position);
             match floor {
                 Floor::Ice => {
@@ -168,7 +164,6 @@ pub fn render_border(
             Position {
                 x: left_border,
                 y,
-                map,
             },
             OBJECT_Z_INDEX,
         );
@@ -179,7 +174,6 @@ pub fn render_border(
             Position {
                 x: right_border,
                 y,
-                map,
             },
             OBJECT_Z_INDEX,
         );
@@ -187,7 +181,6 @@ pub fn render_border(
             Position {
                 x: left_border,
                 y,
-                map,
             },
             GameObject::Wall,
         );
@@ -195,7 +188,6 @@ pub fn render_border(
             Position {
                 x: right_border,
                 y,
-                map,
             },
             GameObject::Wall,
         );
@@ -209,7 +201,6 @@ pub fn render_border(
             Position {
                 x,
                 y: top_border,
-                map,
             },
             OBJECT_Z_INDEX,
         );
@@ -220,7 +211,6 @@ pub fn render_border(
             Position {
                 x,
                 y: bottom_border,
-                map,
             },
             OBJECT_Z_INDEX,
         );
@@ -228,7 +218,6 @@ pub fn render_border(
             Position {
                 x,
                 y: top_border,
-                map,
             },
             GameObject::Wall,
         );
@@ -236,7 +225,6 @@ pub fn render_border(
             Position {
                 x,
                 y: bottom_border,
-                map,
             },
             GameObject::Wall,
         );
