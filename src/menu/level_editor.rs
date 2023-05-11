@@ -20,6 +20,9 @@ use super::{
 pub struct LevelEditorItem;
 
 #[derive(Component)]
+pub struct LevelEditorStartingPrompt;
+
+#[derive(Component)]
 pub struct LevelEditorTabs;
 
 #[derive(Component)]
@@ -67,7 +70,7 @@ pub fn setup_level_editor(asset_server: Res<AssetServer>, mut commands: Commands
                     font_size: 50.,
                     color: Color::WHITE,
                 },
-            ));
+            )).insert(LevelEditorStartingPrompt);
         });
 }
 
@@ -78,6 +81,7 @@ pub fn handle_level_editor_input(
     mut height: Local<u32>,
     mut is_width_provided: Local<bool>,
     mut app_state: ResMut<State<DisplayState>>,
+    mut change_prompt: Query<(&mut Text, With<LevelEditorStartingPrompt>)>,
 ) {
     for ev in char_reader.iter() {
         if ev.char.is_ascii_digit() && !*is_width_provided {
@@ -95,6 +99,8 @@ pub fn handle_level_editor_input(
     if input.just_pressed(KeyCode::Return) && !*is_width_provided {
         *is_width_provided = true;
         input.reset(KeyCode::Return);
+        let (mut text, _) = change_prompt.single_mut();
+        text.sections[0].value = "Please provide the level height".to_string();
     }
     if input.just_pressed(KeyCode::Return) && *is_width_provided {
         *is_width_provided = false;
