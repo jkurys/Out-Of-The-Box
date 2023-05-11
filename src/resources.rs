@@ -120,8 +120,12 @@ impl Board {
         self.boards[self.current].map_size = map_size;
     }
 
-    pub fn get_map_size(&self) -> MapSize {
-        self.boards[self.current].map_size
+    pub fn get_current_map_size(&self) -> MapSize {
+        self.get_map_size(self.current)
+    }
+
+    pub fn get_map_size(&self, map: usize) -> MapSize {
+        self.boards[map].map_size
     }
 
     pub fn get_player_position(&self) -> Position {

@@ -5,8 +5,8 @@ use std::io::Write;
 
 use crate::{
     consts::{MAIN_MENU_FONT, MAX_HEIGHT, MAX_WIDTH},
-    game::game_objects::{Floor, GameObject, Position},
-    resources::Images,
+    game::{game_objects::{Floor, GameObject, Position}, display::print_board::print_board},
+    resources::{Images, Board, MapSize},
     state::DisplayState,
     utils::offset_coordinate,
 };
@@ -110,15 +110,16 @@ pub fn setup_level_editor_board(
     mut commands: Commands,
     images: Res<Images>,
     state: Res<State<DisplayState>>,
-    mut board: ResMut<LevelEditorBoard>,
+    mut board: ResMut<Board>,
 ) {
     let (width, height) = if let DisplayState::LevelEditorBoard(width, height) = state.current() {
         (*width, *height)
     } else {
         (1, 1)
     };
-    board.width = width;
-    board.height = height;
+    board.set_map_size(MapSize{height, width});
+    // board.width = width;
+    // board.height = height;
     let bottom_border = offset_coordinate(0, height as i32);
     let top_border = offset_coordinate(height as i32 - 1, height as i32);
     let left_border = offset_coordinate(0, width as i32);
@@ -163,6 +164,9 @@ pub fn setup_level_editor_board(
                 .with_children(|parent| {
                     
                     // board, component holding all columns
+                    // parent.spawn(TransformBundle::default()).with_children(|mut parent|{
+                        // print_board(0, &mut board, &mut parent, &images);
+                    // });
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::GRAY),

@@ -13,6 +13,7 @@ use crate::utils::delete_all_components;
 
 pub mod background;
 mod text;
+pub mod print_board;
 
 pub struct DisplayPlugin;
 
@@ -37,9 +38,16 @@ impl Plugin for DisplayPlugin {
 }
 
 //render an object with a given image and position
+// pub fn render_entity<T>(
+//     component: T,
+//     parent: &mut ChildBuilder,
+//     image: Handle<Image>,
+//     position: Position,
+//     z_index: f32,
+// ) -> Entity
 pub fn render_entity<T>(
     component: T,
-    commands: &mut Commands,
+    parent: &mut Commands,
     image: Handle<Image>,
     position: Position,
     z_index: f32,
@@ -47,24 +55,45 @@ pub fn render_entity<T>(
 where
     T: Component,
 {
-    commands
-        .spawn((SpriteBundle {
-            texture: image,
-            transform: Transform::from_xyz(
-                position.x as f32 * TILE_SIZE,
-                position.y as f32 * TILE_SIZE,
-                z_index,
-            )
-            .with_scale(Vec3::new(
-                TILE_SIZE / IMAGE_SIZE,
-                TILE_SIZE / IMAGE_SIZE,
-                1.,
-            )),
-            ..default()
-        },))
-        .insert(component)
+    parent.spawn(SpriteBundle {
+        texture: image,
+
+        ..default()
+    }).insert(component)
         .insert(GameItem)
         .id()
+    // parent
+    //     .spawn((ImageBundle {
+    //         image: UiImage(image),
+    //         style: Style {
+    //             size: Size {
+    //                 height: Val::Px(50.),
+    //                 width: Val::Px(50.),
+    //             },
+    //             ..default()
+    //         },
+    //         transform: Transform::from_xyz(
+    //             position.x as f32 * TILE_SIZE,
+    //             position.y as f32 * TILE_SIZE,
+    //             z_index,
+    //         ).with_scale(Vec3 { x: IMAGE_SIZE/TILE_SIZE, y: IMAGE_SIZE/TILE_SIZE, z: 1. }),
+    //         ..default()
+    //     },))
+    //     .insert(component)
+    //     .insert(GameItem)
+    //     .id()
+
+        // parent.spawn(SpriteBundle {
+        //     texture: image,
+        //     transform: Transform::from_xyz( position.x as f32 * TILE_SIZE,
+        //         position.y as f32 * TILE_SIZE,
+        //         z_index,
+        //     ),
+        //     ..default()
+        // })
+        // .insert(GameItem)
+        // .insert(component)
+        // .id()
 }
 
 pub fn despawn_board(

@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 
 use crate::consts::*;
-use crate::game::game_objects::*;
+use crate::game::{game_objects::*, GameItem};
 use crate::resources::Images;
 
 use crate::game::movement::resources::AnimationTimer;
 use crate::resources::Board;
 use crate::utils::offset_coordinate;
 
+use super::print_board::print_board;
 use super::render_entity;
 
 //render the entire map based on Board
@@ -20,12 +21,11 @@ pub fn render_board(
     if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
         return;
     }
-    let map_size = board.get_map_size();
+    let map_size = board.get_current_map_size();
     let bottom_border = offset_coordinate(0, map_size.height as i32);
     let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
     let left_border = offset_coordinate(0, map_size.width as i32);
     let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
-    let map = board.get_current_map();
     // render all objects found in board
     for y in bottom_border..(top_border + 1) {
         for x in left_border..(right_border + 1) {
@@ -138,6 +138,9 @@ pub fn render_board(
             }
         }
     }
+    commands.spawn(TransformBundle::default()).with_children(|parent| {
+        print_board(board.get_current_map(), &mut board, parent, &images);
+    }).insert(GameItem);
 }
 
 pub fn render_border(
@@ -149,84 +152,85 @@ pub fn render_border(
     if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
         return;
     }
-    let map_size = board.get_map_size();
+    let map_size = board.get_current_map_size();
     let bottom_border = offset_coordinate(-1, map_size.height as i32);
     let top_border = offset_coordinate(map_size.height as i32, map_size.height as i32);
     let left_border = offset_coordinate(-1, map_size.width as i32);
     let right_border = offset_coordinate(map_size.width as i32, map_size.width as i32);
-    let map = board.get_current_map();
     //spawn horizontal border for the level and insert it to board
-    for y in bottom_border..(top_border + 1) {
-        render_entity(
-            Wall,
-            &mut commands,
-            images.wall_image.clone(),
-            Position {
-                x: left_border,
-                y,
-            },
-            OBJECT_Z_INDEX,
-        );
-        render_entity(
-            Wall,
-            &mut commands,
-            images.wall_image.clone(),
-            Position {
-                x: right_border,
-                y,
-            },
-            OBJECT_Z_INDEX,
-        );
-        board.insert_object(
-            Position {
-                x: left_border,
-                y,
-            },
-            GameObject::Wall,
-        );
-        board.insert_object(
-            Position {
-                x: right_border,
-                y,
-            },
-            GameObject::Wall,
-        );
-    }
-    //spawn vertical borders for the level and insert it to board
-    for x in left_border..(right_border + 1) {
-        render_entity(
-            Wall,
-            &mut commands,
-            images.wall_image.clone(),
-            Position {
-                x,
-                y: top_border,
-            },
-            OBJECT_Z_INDEX,
-        );
-        render_entity(
-            Wall,
-            &mut commands,
-            images.wall_image.clone(),
-            Position {
-                x,
-                y: bottom_border,
-            },
-            OBJECT_Z_INDEX,
-        );
-        board.insert_object(
-            Position {
-                x,
-                y: top_border,
-            },
-            GameObject::Wall,
-        );
-        board.insert_object(
-            Position {
-                x,
-                y: bottom_border,
-            },
-            GameObject::Wall,
-        );
-    }
+    commands.spawn(NodeBundle::default()).with_children(|parent|{
+        for y in bottom_border..(top_border + 1) {
+            render_entity(
+                Wall,
+                parent,
+                images.wall_image.clone(),
+                Position {
+                    x: left_border,
+                    y,
+                },
+                OBJECT_Z_INDEX,
+            );
+            render_entity(
+                Wall,
+                parent,
+                images.wall_image.clone(),
+                Position {
+                    x: right_border,
+                    y,
+                },
+                OBJECT_Z_INDEX,
+            );
+            board.insert_object(
+                Position {
+                    x: left_border,
+                    y,
+                },
+                GameObject::Wall,
+            );
+            board.insert_object(
+                Position {
+                    x: right_border,
+                    y,
+                },
+                GameObject::Wall,
+            );
+        }
+        //spawn vertical borders for the level and insert it to board
+        for x in left_border..(right_border + 1) {
+            render_entity(
+                Wall,
+                parent,
+                images.wall_image.clone(),
+                Position {
+                    x,
+                    y: top_border,
+                },
+                OBJECT_Z_INDEX,
+            );
+            render_entity(
+                Wall,
+                parent,
+                images.wall_image.clone(),
+                Position {
+                    x,
+                    y: bottom_border,
+                },
+                OBJECT_Z_INDEX,
+            );
+            board.insert_object(
+                Position {
+                    x,
+                    y: top_border,
+                },
+                GameObject::Wall,
+            );
+            board.insert_object(
+                Position {
+                    x,
+                    y: bottom_border,
+                },
+                GameObject::Wall,
+            );
+        }
+    });
 }
