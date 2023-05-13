@@ -10,7 +10,8 @@ use crate::consts::{INITIAL_MAP, MAX_MAPS};
 #[derive(Resource)]
 pub struct CurrentLevel {
     pub level_number: usize,
-    pub level_map_str: &'static str,
+    pub level_map_string: String,
+    pub level_amount: usize,
 }
 
 #[derive(Resource)]

@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.runnableEnv": {
+        "ENV_ROOT_DIR": "${workspaceFolder}"
+    }
+}

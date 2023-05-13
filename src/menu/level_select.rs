@@ -1,14 +1,16 @@
 use bevy::prelude::*;
 
 use std::fs::File;
+use std::fs::read_dir;
 use std::io::Read;
 
 use crate::{
-    consts::{LEVEL_AMOUNT, LEVEL_SAVE, MAIN_MENU_FONT, MAP_NAMES},
+    consts::{LEVEL_SAVE, MAIN_MENU_FONT},
     resources::CurrentLevel,
     state::DisplayState,
 };
 
+use super::resources::LevelNames;
 use super::spawn_button;
 #[derive(Component)]
 pub struct LevelSelectItem;
@@ -19,7 +21,28 @@ pub enum LevelSelectItemType {
     Back,
 }
 
-pub fn setup_level_select(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_level_select(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut level_names: ResMut<LevelNames>,
+    mut current_level: ResMut<CurrentLevel>,
+) {
+    let paths = read_dir("./assets/maps").unwrap();
+    let mut file_amount = 0;
+    let mut file_paths = Vec::new();
+    let mut first_name = "".to_string();
+    for path in paths {
+        let path_str = path.unwrap().path().file_name().unwrap().to_string_lossy().into_owned();
+        if first_name == "".to_string() {
+            first_name = path_str.clone();
+        }
+        // let path_str: &str = path.unwrap().into();
+        // file_paths.push(path_str);
+        // let path_string = path_os_string.into_string().unwrap();
+        // let path_str = &path_string[..];
+        file_paths.push(path_str);
+        file_amount += 1;
+    }
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
         .spawn(NodeBundle {
@@ -53,17 +76,32 @@ pub fn setup_level_select(mut commands: Commands, asset_server: Res<AssetServer>
                     horizontal: HorizontalAlign::Center,
                 }),
             );
-            for level_number in 0..LEVEL_AMOUNT {
+            // for level_number in 0..LEVEL_AMOUNT {
+            //     spawn_button(
+            //         parent,
+            //         LevelSelectItemType::Level(level_number + 1),
+            //         menu_font.clone(),
+            //         format!("Level {}", level_number + 1).as_str(),
+            //     );
+            // }
+            for level_number in 0..file_amount {
+                let level_name = &file_paths[level_number];
                 spawn_button(
                     parent,
                     LevelSelectItemType::Level(level_number + 1),
                     menu_font.clone(),
-                    format!("Level {}", level_number + 1).as_str(),
+                    &level_name[..&level_name.len() - 4],
                 );
             }
 
             spawn_button(parent, LevelSelectItemType::Back, menu_font.clone(), "back");
         });
+    level_names.0 = file_paths;
+    *current_level = CurrentLevel {
+        level_amount: file_amount,
+        level_number: 0,
+        level_map_string: first_name,
+    };
 }
 
 pub fn handle_level_click(
@@ -77,20 +115,23 @@ pub fn handle_level_click(
         With<LevelSelectItemType>,
     >,
     mut current_level: ResMut<CurrentLevel>,
+    level_names: Res<LevelNames>,
 ) {
     let file = File::open(LEVEL_SAVE);
-    let mut buf = [0; LEVEL_AMOUNT];
+    let level_amount = current_level.level_amount;
+    let mut buf = vec![0; level_amount];
     if let Ok(mut file) = file {
         file.read_exact(&mut buf).unwrap();
     }
-    let bool_buf = buf.map(|value| value != 0);
+    let bool_buf: Vec<bool> = buf.iter().map(|&value| value != 0).collect();
     query.for_each_mut(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Clicked => match item.as_ref() {
                 LevelSelectItemType::Level(number) => {
                     *current_level = CurrentLevel {
                         level_number: *number,
-                        level_map_str: MAP_NAMES[*number - 1],
+                        level_map_string: level_names.0[*number - 1].clone(),
+                        level_amount,
                     };
                     app_state
                         .push(DisplayState::Game)

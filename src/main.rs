@@ -21,7 +21,8 @@ fn main() {
     App::new()
         .insert_resource(CurrentLevel {
             level_number: 1,
-            level_map_str: MAP_NAMES[0],
+            level_amount: 0,
+            level_map_string: "".to_string(),
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(MenusPlugin)

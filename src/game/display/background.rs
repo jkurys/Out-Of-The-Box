@@ -25,7 +25,7 @@ pub fn render_board(
     let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
     let left_border = offset_coordinate(0, map_size.width as i32);
     let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
-    let map = board.get_current_map();
+    // let map = board.get_current_map();
     // render all objects found in board
     for y in bottom_border..(top_border + 1) {
         for x in left_border..(right_border + 1) {
@@ -154,7 +154,7 @@ pub fn render_border(
     let top_border = offset_coordinate(map_size.height as i32, map_size.height as i32);
     let left_border = offset_coordinate(-1, map_size.width as i32);
     let right_border = offset_coordinate(map_size.width as i32, map_size.width as i32);
-    let map = board.get_current_map();
+    // let map = board.get_current_map();
     //spawn horizontal border for the level and insert it to board
     for y in bottom_border..(top_border + 1) {
         render_entity(

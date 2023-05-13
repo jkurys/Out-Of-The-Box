@@ -19,11 +19,11 @@ use main_menu::{handle_menu_click, setup_main_menu};
 use self::{
     level_editor::{
         handle_level_editor_click, handle_level_editor_input, save_board_to_file,
-        setup_level_editor, setup_level_editor_board, LevelEditorItem,
+        setup_level_editor, setup_level_editor_board, LevelEditorItem, handle_plus_click, handle_tab_click,
     },
     level_select::LevelSelectItem,
     main_menu::MainMenuItem,
-    resources::LevelEditorBoard,
+    resources::{LevelEditorBoard, LevelNames},
     sprite_select::{handle_sprite_click, setup_sprite_select, SpriteSelectItem},
 };
 
@@ -120,6 +120,8 @@ impl Plugin for MenusPlugin {
                 .add_system_set(
                     SystemSet::on_update(DisplayState::LevelEditorBoard(i, j))
                         .with_system(handle_level_editor_click)
+                        .with_system(handle_tab_click)
+                        .with_system(handle_plus_click)
                         .with_system(handle_esc),
                 )
                 .add_system_set(
@@ -135,6 +137,7 @@ impl Plugin for MenusPlugin {
             }
         }
         app.init_resource::<LevelEditorBoard>();
+        app.insert_resource(LevelNames(Vec::new()));
     }
 }
 

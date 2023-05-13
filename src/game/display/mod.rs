@@ -82,6 +82,6 @@ pub fn despawn_board(
 }
 
 fn window_set_fullscreen(mut windows: ResMut<Windows>) {
-    let window = windows.get_primary_mut().unwrap();
-    window.set_mode(WindowMode::BorderlessFullscreen);
+    // let window = windows.get_primary_mut().unwrap();
+    // window.set_mode(WindowMode::BorderlessFullscreen);
 }
