@@ -9,6 +9,7 @@ use crate::resources::Board;
 use crate::utils::offset_coordinate;
 
 use super::render_entity;
+use super::render_2_5_d::render_object;
 
 //render the entire map based on Board
 pub fn render_board(
@@ -16,10 +17,13 @@ pub fn render_board(
     mut board: ResMut<Board>,
     images: Res<Images>,
     timer: Res<AnimationTimer>,
+    asset_server: Res<AssetServer>,
 ) {
     if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
         return;
     }
+    let (lower_wall_image, higher_wall_image) = (asset_server.load(WALL_TEXTURE), asset_server.load(HIGHER_WALL_TEXTURE));
+    // let lower_box_image = asset_server.load(LOWER_BOX_TEXTURE);
     let map_size = board.get_map_size();
     let bottom_border = offset_coordinate(0, map_size.height as i32);
     let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
@@ -33,22 +37,26 @@ pub fn render_board(
             let game_object = board.get_object_type(position);
             match game_object {
                 GameObject::Box => {
-                    let image = if board.get_floor_type(position) == Floor::Goal {
+                    let higher_image = if board.get_floor_type(position) == Floor::Goal {
                         images.box_on_goal_image.clone()
                     } else {
                         images.box_image.clone()
                     };
-                    let entity = render_entity(Box, &mut commands, image, position, OBJECT_Z_INDEX);
+                    let entity = render_entity(Box, &mut commands, higher_image, position, OBJECT_Z_INDEX);
                     board.insert_entity(position, entity);
+                    // let (entity, entity2) = render_object(&mut commands, higher_image, lower_box_image.clone(), position.x, position.y);
+                    // board.insert_entity(position, entity);
+                    // board.insert_entity(position, entity2);
                 }
                 GameObject::Wall => {
-                    render_entity(
-                        Wall,
-                        &mut commands,
-                        images.wall_image.clone(),
-                        position,
-                        OBJECT_Z_INDEX,
-                    );
+                    render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), position.x, position.y);
+                    // render_entity(
+                    //     Wall,
+                    //     &mut commands,
+                    //     images.wall_image.clone(),
+                    //     position,
+                    //     OBJECT_Z_INDEX,
+                    // );
                 }
                 GameObject::Player => {
                     let entity = render_entity(
@@ -143,12 +151,12 @@ pub fn render_board(
 pub fn render_border(
     mut commands: Commands,
     mut board: ResMut<Board>,
-    images: Res<Images>,
+    // images: Res<Images>,
     timer: Res<AnimationTimer>,
-        // asset_server: Res<AssetServer>,
+        asset_server: Res<AssetServer>,
 ) {
-        // let higher_wall_image = asset_server.load(HIGHER_WALL_TEXTURE);
-        // let lower_wall_image = asset_server.load(WALL_TEXTURE);
+        let higher_wall_image = asset_server.load(HIGHER_WALL_TEXTURE);
+        let lower_wall_image = asset_server.load(WALL_TEXTURE);
     if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
         return;
     }
@@ -157,29 +165,87 @@ pub fn render_border(
     let top_border = offset_coordinate(map_size.height as i32, map_size.height as i32);
     let left_border = offset_coordinate(-1, map_size.width as i32);
     let right_border = offset_coordinate(map_size.width as i32, map_size.width as i32);
-    // let map = board.get_current_map();
     //spawn horizontal border for the level and insert it to board
-    for y in bottom_border..(top_border + 1) {
-        render_entity(
-            Wall,
-            &mut commands,
-            images.wall_image.clone(),
+    for x in left_border..(right_border + 1) {
+        // render_entity(
+        //     Wall,
+        //     &mut commands,
+        //     // images.wall_image.clone(),
+        //     higher_wall_image.clone(),
+        //     Position {
+        //         x,
+        //         y: top_border,
+        //     },
+        //     UPPER_HALF_OBJECT_Z_INDEX,
+        // );
+        // render_entity(
+        //     Wall,
+        //     &mut commands,
+        //     // images.wall_image.clone(),
+        //     lower_wall_image.clone(),
+        //     Position {
+        //         x,
+        //         y: top_border,
+        //     },
+        //     LOWER_HALF_OBJECT_Z_INDEX,
+        // );
+        render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), x, top_border);
+        board.insert_object(
             Position {
-                x: left_border,
-                y,
+                x,
+                y: top_border,
             },
-            OBJECT_Z_INDEX,
+            GameObject::Wall,
         );
-        render_entity(
-            Wall,
-            &mut commands,
-            images.wall_image.clone(),
-            Position {
-                x: right_border,
-                y,
-            },
-            OBJECT_Z_INDEX,
-        );
+    }
+    for y in (bottom_border..=top_border).rev() {
+
+        // render_entity(
+        //     Wall,
+        //     &mut commands,
+        //     // images.wall_image.clone(),
+        //     lower_wall_image.clone(),
+        //     Position {
+        //         x: left_border,
+        //         y,
+        //     },
+        //     LOWER_HALF_OBJECT_Z_INDEX,
+        // );
+        // render_entity(
+        //     Wall,
+        //     &mut commands,
+        //     // images.wall_image.clone(),
+        //     higher_wall_image.clone(),
+        //     Position {
+        //         x: left_border,
+        //         y,
+        //     },
+        //     UPPER_HALF_OBJECT_Z_INDEX,
+        // );
+        // render_entity(
+        //     Wall,
+        //     &mut commands,
+        //     // images.wall_image.clone(),
+        //     higher_wall_image.clone(),
+        //     Position {
+        //         x: right_border,
+        //         y,
+        //     },
+        //     UPPER_HALF_OBJECT_Z_INDEX,
+        // );
+        // render_entity(
+        //     Wall,
+        //     &mut commands,
+        //     // images.wall_image.clone(),
+        //     lower_wall_image.clone(),
+        //     Position {
+        //         x: right_border,
+        //         y,
+        //     },
+        //     OBJECT_Z_INDEX,
+        // );
+        render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), left_border, y);
+        render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), right_border, y);
         board.insert_object(
             Position {
                 x: left_border,
@@ -197,33 +263,27 @@ pub fn render_border(
     }
     //spawn vertical borders for the level and insert it to board
     for x in left_border..(right_border + 1) {
-        render_entity(
-            Wall,
-            &mut commands,
-            images.wall_image.clone(),
-            Position {
-                x,
-                y: top_border,
-            },
-            OBJECT_Z_INDEX,
-        );
-        render_entity(
-            Wall,
-            &mut commands,
-            images.wall_image.clone(),
-            Position {
-                x,
-                y: bottom_border,
-            },
-            OBJECT_Z_INDEX,
-        );
-        board.insert_object(
-            Position {
-                x,
-                y: top_border,
-            },
-            GameObject::Wall,
-        );
+        render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), x, bottom_border);
+        // render_entity(
+        //     Wall,
+        //     &mut commands,
+        //     lower_wall_image.clone(),
+        //     Position {
+        //         x,
+        //         y: bottom_border,
+        //     },
+        //     OBJECT_Z_INDEX,
+        // );
+        // render_entity(
+        //     Wall,
+        //     &mut commands,
+        //     higher_wall_image.clone(),
+        //     Position {
+        //         x,
+        //         y: bottom_border,
+        //     },
+        //     UPPER_HALF_OBJECT_Z_INDEX,
+        // );
         board.insert_object(
             Position {
                 x,

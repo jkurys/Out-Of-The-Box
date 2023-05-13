@@ -12,6 +12,7 @@ use crate::state::{DisplayState, GameState, Move};
 use crate::utils::delete_all_components;
 
 pub mod background;
+mod render_2_5_d;
 mod text;
 
 pub struct DisplayPlugin;
@@ -47,12 +48,19 @@ pub fn render_entity<T>(
 where
     T: Component,
 {
+    let (x, y) = if z_index == UPPER_HALF_OBJECT_Z_INDEX {
+        (position.x as f32 * TILE_SIZE, (position.y as f32 + 0.25) * TILE_SIZE)
+    } else if z_index == LOWER_HALF_OBJECT_Z_INDEX {
+        (position.x as f32 * TILE_SIZE, (position.y as f32 - 0.375) * TILE_SIZE)
+    } else {
+        (position.x as f32 * TILE_SIZE, position.y as f32 * TILE_SIZE)
+    };
     commands
         .spawn((SpriteBundle {
             texture: image,
             transform: Transform::from_xyz(
-                position.x as f32 * TILE_SIZE,
-                position.y as f32 * TILE_SIZE,
+                x,
+                y,
                 z_index,
             )
             .with_scale(Vec3::new(
