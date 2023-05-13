@@ -1,0 +1,164 @@
+use std::{fs::File, io::Write};
+
+use bevy::prelude::*;
+
+use crate::{state::DisplayState, consts::MAIN_MENU_FONT, game::game_objects::{Position, GameObject, Floor}};
+
+use super::{events::FileSavedEvent, resources::LevelEditorBoard, editor::GameEntity};
+
+#[derive(Component)]
+pub struct LevelEditorSaveItem;
+
+#[derive(Component)]
+pub struct LevelEditorFileName;
+
+pub fn handle_exit_to_save(
+    mut keyboard_input: ResMut<Input<KeyCode>>,
+    mut app_state: ResMut<State<DisplayState>>,
+) {
+    if keyboard_input.just_pressed(KeyCode::Escape) {
+        app_state.set(DisplayState::LevelEditorSave).expect("Could not exit");
+        keyboard_input.reset(KeyCode::Escape);
+    }
+}
+
+pub fn setup_file_name_getter(
+    asset_server: Res<AssetServer>,
+    mut commands: Commands,
+) {
+    let menu_font = asset_server.load(MAIN_MENU_FONT);
+    commands
+        .spawn(NodeBundle {
+            background_color: BackgroundColor(Color::BLACK),
+            visibility: Visibility { is_visible: true },
+            style: Style {
+                size: Size {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                },
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceEvenly,
+                ..default()
+            },
+            ..default()
+        })
+        .insert(LevelEditorSaveItem)
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "Please provide the level name",
+                TextStyle {
+                    font: menu_font.clone(),
+                    font_size: 50.,
+                    color: Color::WHITE,
+                },
+            ));
+            parent.spawn(TextBundle::from_section(
+                "",
+                TextStyle {
+                    font: menu_font.clone(),
+                    font_size: 30.,
+                    color: Color::WHITE,
+                },
+            )).insert(LevelEditorFileName);
+        });
+}
+
+pub fn handle_file_get(
+    mut char_reader: EventReader<ReceivedCharacter>,
+    input: ResMut<Input<KeyCode>>,
+    mut file_name: Local<String>,
+    mut event_writer: EventWriter<FileSavedEvent>,
+    mut change_name: Query<&mut Text, With<LevelEditorFileName>>,
+) {
+    for ev in char_reader.iter() {
+        if ev.char.is_ascii_alphanumeric() {
+            let mut text = change_name.single_mut();
+            text.sections[0].value.push(ev.char);
+            file_name.push(ev.char);
+        }
+    }
+    if input.just_pressed(KeyCode::Return) {
+        event_writer.send(FileSavedEvent(file_name.clone()));
+        // input.reset(KeyCode::Return);
+        *file_name = "".to_string();
+    }
+    if input.just_pressed(KeyCode::Back) {
+        let mut text = change_name.single_mut();
+        text.sections[0].value.pop();
+        file_name.pop();
+    }
+}
+
+fn position_to_index(pos: Position, width: u32, height: u32) -> usize {
+    let x = pos.x + (width / 2) as i32;
+    let y = pos.y + (height / 2) as i32;
+    x as usize
+        + y as usize * (width + 1) as usize
+}
+
+pub fn save_board_to_file(
+    board: Res<LevelEditorBoard>,
+    mut reader: EventReader<FileSavedEvent>,
+    mut app_state: ResMut<State<DisplayState>>,
+) {
+    let mut file_name = "".to_string();
+    for ev in reader.iter() {
+        file_name = ev.0.clone();
+    }
+    if file_name == "".to_string() {
+        return;
+    }
+    let maps_char = char::from_digit(board.created_maps as u32, 10).unwrap();
+    let mut file_prelude = vec![maps_char, '\n'];
+
+    for n in 0..10 {
+        let option_map = board.give_map_n(n);
+        if let None = option_map {
+            continue;
+        }
+        let map = option_map.unwrap();
+        let ( width, height ) = (board.get_width_n(n), board.get_height_n(n));
+        let mut height_string: Vec<char> = height.to_string().chars().collect();
+        let mut width_string: Vec<char> = width.to_string().chars().collect();
+        let mut map_prelude = Vec::new();
+        map_prelude.append(&mut height_string);
+        map_prelude.append(&mut vec![' ']);
+        map_prelude.append(&mut width_string);
+        map_prelude.append(&mut vec!['\n']);
+        let mut buf = vec![' '; (width + 1) as usize * height as usize];
+        for i in 0..height {
+            buf[(width + i * (width + 1)) as usize] = '\n';
+        }
+        for (position, object) in map.iter() {
+            let index = position_to_index(*position, width, height);
+            buf[index] = match *object {
+                GameEntity::Object(object) => match object {
+                    GameObject::Box => 'b',
+                    GameObject::Wall => 'w',
+                    GameObject::HidingWall => 'H',
+                    GameObject::Empty => ' ',
+                    GameObject::Player => 'p',
+                },
+                GameEntity::Floor(floor) => match floor {
+                    Floor::HiddenWall {
+                        hidden_by_default: _,
+                    } => 'h',
+                    Floor::Tile => ' ',
+                    Floor::Ice => 'i',
+                    Floor::Goal => 'g',
+                    Floor::Warp(num) => char::from_digit(num as u32, 10).unwrap(),
+                    Floor::Button => 'u',
+                },
+            }
+        }
+        map_prelude.append(&mut buf);
+        file_prelude.append(&mut map_prelude);
+    }
+    let mut file = File::create(format!("assets/maps/{}.txt", file_name)).unwrap();
+    let buf = file_prelude.iter().map(|c| *c as u8).collect::<Vec<_>>();
+    file.write_all(&buf[..]).unwrap();
+    app_state
+        .pop()
+        .expect("Could not save file");
+}

@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 
-use std::fs::File;
-use std::io::Write;
-
 use crate::{
-    consts::{MAIN_MENU_FONT, MAX_HEIGHT, MAX_WIDTH, PLUS_TEXTURE, HOVERED_PLUS_TEXTURE},
+    consts::*,
     game::game_objects::{Floor, GameObject, Position},
     resources::Images,
     state::DisplayState,
@@ -13,7 +10,7 @@ use crate::{
 
 use super::{
     resources::LevelEditorBoard,
-    utils::{spawn_small_button, spawn_small_image},
+    super::utils::{spawn_small_button, spawn_small_image},
 };
 
 #[derive(Component)]
@@ -51,90 +48,6 @@ impl Default for GameEntity {
 
 #[derive(Component)]
 pub struct LevelEditorChangable(pub Position);
-
-pub fn setup_level_editor(asset_server: Res<AssetServer>, mut commands: Commands) {
-    let menu_font = asset_server.load(MAIN_MENU_FONT);
-    commands
-        .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility { is_visible: true },
-            style: Style {
-                size: Size {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                },
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::SpaceEvenly,
-                ..default()
-            },
-            ..default()
-        })
-        .insert(LevelEditorItem)
-        .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Please provide the level width",
-                TextStyle {
-                    font: menu_font.clone(),
-                    font_size: 50.,
-                    color: Color::WHITE,
-                },
-            )).insert(LevelEditorStartingPrompt);
-            parent.spawn(TextBundle::from_section(
-                "0",
-                TextStyle {
-                    font: menu_font.clone(),
-                    font_size: 50.,
-                    color: Color::WHITE,
-                },
-            )).insert(LevelEditorInputNumber);
-        });
-}
-
-pub fn handle_level_editor_input(
-    mut char_reader: EventReader<ReceivedCharacter>,
-    mut input: ResMut<Input<KeyCode>>,
-    mut width: Local<u32>,
-    mut height: Local<u32>,
-    mut is_width_provided: Local<bool>,
-    mut app_state: ResMut<State<DisplayState>>,
-    mut change_prompt: Query<(&mut Text, (With<LevelEditorStartingPrompt>, Without<LevelEditorInputNumber>))>,
-    mut change_number: Query<(&mut Text, (With<LevelEditorInputNumber>, Without<LevelEditorStartingPrompt>))>,
-) {
-    for ev in char_reader.iter() {
-        if ev.char.is_ascii_digit() && !*is_width_provided {
-            *width = *width * 10 + ev.char.to_digit(10).unwrap();
-            if *width > MAX_WIDTH {
-                *width = 0;
-            }
-            let (mut text, _) = change_number.single_mut();
-            text.sections[0].value = width.to_string();
-        } else if ev.char.is_ascii_digit() {
-            *height = *height * 10 + ev.char.to_digit(10).unwrap();
-            if *height > MAX_HEIGHT {
-                *height = 0;
-            }
-            let (mut text, _) = change_number.single_mut();
-            text.sections[0].value = height.to_string();
-        }
-    }
-    if input.just_pressed(KeyCode::Return) && !*is_width_provided {
-        *is_width_provided = true;
-        input.reset(KeyCode::Return);
-        let (mut text, _) = change_prompt.single_mut();
-        text.sections[0].value = "Please provide the level height".to_string();
-        let (mut text2, _) = change_number.single_mut();
-        text2.sections[0].value = 0.to_string();
-    }
-    if input.just_pressed(KeyCode::Return) && *is_width_provided {
-        *is_width_provided = false;
-        app_state
-            .set(DisplayState::LevelEditorBoard(*width, *height))
-            .expect("Could not get display state input");
-        *height = 0;
-        *width = 0;
-    }
-}
 
 pub fn setup_level_editor_board(
     mut commands: Commands,
@@ -559,63 +472,4 @@ pub fn handle_level_editor_click(
             *current_object = *object_or_floor;
         }
     }
-}
-
-// translates the position to index in a 1d array with '\n' at the end of each line
-fn position_to_index(pos: Position, width: u32, height: u32) -> usize {
-    let x = pos.x + (width / 2) as i32;
-    let y = pos.y + (height / 2) as i32;
-    x as usize
-        + y as usize * (width + 1) as usize
-}
-
-pub fn save_board_to_file(board: Res<LevelEditorBoard>) {
-    let maps_char = char::from_digit(board.created_maps as u32, 10).unwrap();
-    let mut file_prelude = vec![maps_char, '\n'];
-    for n in 0..10 {
-        let option_map = board.give_map_n(n);
-        if let None = option_map {
-            continue;
-        }
-        let map = option_map.unwrap();
-        let ( width, height ) = (board.get_width_n(n), board.get_height_n(n));
-        let mut height_string: Vec<char> = height.to_string().chars().collect();
-        let mut width_string: Vec<char> = width.to_string().chars().collect();
-        let mut map_prelude = Vec::new();
-        map_prelude.append(&mut height_string);
-        map_prelude.append(&mut vec![' ']);
-        map_prelude.append(&mut width_string);
-        map_prelude.append(&mut vec!['\n']);
-        let mut buf = vec![' '; (width + 1) as usize * height as usize];
-        for i in 0..height {
-            buf[(width + i * (width + 1)) as usize] = '\n';
-        }
-        for (position, object) in map.iter() {
-            let index = position_to_index(*position, width, height);
-            buf[index] = match *object {
-                GameEntity::Object(object) => match object {
-                    GameObject::Box => 'b',
-                    GameObject::Wall => 'w',
-                    GameObject::HidingWall => 'H',
-                    GameObject::Empty => ' ',
-                    GameObject::Player => 'p',
-                },
-                GameEntity::Floor(floor) => match floor {
-                    Floor::HiddenWall {
-                        hidden_by_default: _,
-                    } => 'h',
-                    Floor::Tile => ' ',
-                    Floor::Ice => 'i',
-                    Floor::Goal => 'g',
-                    Floor::Warp(num) => char::from_digit(num as u32, 10).unwrap(),
-                    Floor::Button => 'u',
-                },
-            }
-        }
-        map_prelude.append(&mut buf);
-        file_prelude.append(&mut map_prelude);
-    }
-    let mut file = File::create("assets/saves/map.txt").unwrap();
-    let buf = file_prelude.iter().map(|c| *c as u8).collect::<Vec<_>>();
-    file.write_all(&buf[..]).unwrap();
 }

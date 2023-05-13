@@ -16,21 +16,22 @@ use crate::{
 use level_select::{handle_level_click, setup_level_select};
 use main_menu::{handle_menu_click, setup_main_menu};
 
+use level_editor::editor::*;
+
+use level_editor::resources::LevelEditorBoard;
+
 use self::{
-    level_editor::{
-        handle_level_editor_click, handle_level_editor_input, save_board_to_file,
-        setup_level_editor, setup_level_editor_board, LevelEditorItem, handle_plus_click, handle_tab_click,
-    },
     level_select::LevelSelectItem,
     main_menu::MainMenuItem,
-    resources::{LevelEditorBoard, LevelNames},
-    sprite_select::{handle_sprite_click, setup_sprite_select, SpriteSelectItem},
+    resources::LevelNames,
+    sprite_select::{handle_sprite_click, setup_sprite_select, SpriteSelectItem}, level_editor::{save::{handle_exit_to_save, setup_file_name_getter, handle_file_get, save_board_to_file, LevelEditorSaveItem}, events::FileSavedEvent, editor_size_select::{setup_level_editor, handle_level_editor_input}},
 };
 
 pub struct MenusPlugin;
 
 impl Plugin for MenusPlugin {
     fn build(&self, app: &mut App) {
+        app.add_event::<FileSavedEvent>();
         app.add_system_set(
             SystemSet::on_enter(DisplayState::MainMenu).with_system(setup_main_menu),
         )
@@ -107,6 +108,27 @@ impl Plugin for MenusPlugin {
             SystemSet::on_pause(DisplayState::LevelEditorInput)
                 .with_system(delete_all_components::<LevelEditorItem>),
         );
+        app.add_system_set(
+            SystemSet::on_enter(DisplayState::LevelEditorSave)
+                .with_system(setup_file_name_getter)
+        )
+        .add_system_set(
+            SystemSet::on_resume(DisplayState::LevelEditorSave)
+                .with_system(setup_file_name_getter)
+        )
+        .add_system_set(
+            SystemSet::on_update(DisplayState::LevelEditorSave)
+                .with_system(handle_file_get)
+                .with_system(save_board_to_file)
+        )
+        .add_system_set(
+            SystemSet::on_exit(DisplayState::LevelEditorSave)
+                .with_system(delete_all_components::<LevelEditorSaveItem>)
+        )
+        .add_system_set(
+            SystemSet::on_pause(DisplayState::LevelEditorSave)
+                .with_system(delete_all_components::<LevelEditorSaveItem>)
+        );
         for i in 1..MAX_WIDTH {
             for j in 1..MAX_HEIGHT {
                 app.add_system_set(
@@ -122,17 +144,18 @@ impl Plugin for MenusPlugin {
                         .with_system(handle_level_editor_click)
                         .with_system(handle_tab_click)
                         .with_system(handle_plus_click)
-                        .with_system(handle_esc),
+                        // .with_system(handle_esc),
+                        .with_system(handle_exit_to_save)
                 )
                 .add_system_set(
                     SystemSet::on_exit(DisplayState::LevelEditorBoard(i, j))
                         .with_system(delete_all_components::<LevelEditorItem>)
-                        .with_system(save_board_to_file),
+                        // .with_system(save_board_to_file),
                 )
                 .add_system_set(
                     SystemSet::on_pause(DisplayState::LevelEditorBoard(i, j))
                         .with_system(delete_all_components::<LevelEditorItem>)
-                        .with_system(save_board_to_file),
+                        // .with_system(save_board_to_file),
                 );
             }
         }
