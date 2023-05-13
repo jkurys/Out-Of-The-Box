@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use std::fs;
 
 pub fn load_starting_map(mut board: ResMut<Board>, current_level: Res<CurrentLevel>) {
-    let map_text = fs::read_to_string(current_level.level_map_string.as_str()).expect("Did not find map file!");
+    let map_text = fs::read_to_string(format!("assets/maps/{}", current_level.level_map_string.as_str())).expect("Did not find map file!");
     let mut lines = map_text.lines();
     let maps_amount_str = lines.next().expect("Map file is broken");
     let maps_amount = maps_amount_str

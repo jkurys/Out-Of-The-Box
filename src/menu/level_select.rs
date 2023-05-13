@@ -36,10 +36,6 @@ pub fn setup_level_select(
         if first_name == "".to_string() {
             first_name = path_str.clone();
         }
-        // let path_str: &str = path.unwrap().into();
-        // file_paths.push(path_str);
-        // let path_string = path_os_string.into_string().unwrap();
-        // let path_str = &path_string[..];
         file_paths.push(path_str);
         file_amount += 1;
     }
@@ -76,14 +72,6 @@ pub fn setup_level_select(
                     horizontal: HorizontalAlign::Center,
                 }),
             );
-            // for level_number in 0..LEVEL_AMOUNT {
-            //     spawn_button(
-            //         parent,
-            //         LevelSelectItemType::Level(level_number + 1),
-            //         menu_font.clone(),
-            //         format!("Level {}", level_number + 1).as_str(),
-            //     );
-            // }
             for level_number in 0..file_amount {
                 let level_name = &file_paths[level_number];
                 spawn_button(

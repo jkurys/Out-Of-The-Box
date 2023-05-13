@@ -79,6 +79,7 @@ struct SingleBoard {
     objects: HashMap<Position, GameObject>,
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
+    buttons: Vec<Position>,
     map_size: MapSize,
     player_position: Position,
     warp_positions: [Position; MAX_MAPS],
@@ -99,6 +100,7 @@ impl Board {
                 objects: HashMap::new(),
                 floors: HashMap::new(),
                 goals: Vec::new(),
+                buttons: Vec::new(),
                 map_size: MapSize {
                     width: 0,
                     height: 0,
@@ -160,6 +162,10 @@ impl Board {
         goals_vec.concat() //realistically, this vector won't exceed 20 entries so cloning isn't a problem
     }
 
+    pub fn get_all_buttons(&self) -> Vec<Position> {
+        self.boards[self.current].buttons.clone()
+    }
+
     pub fn get_current_map(&self) -> usize {
         self.current
     }
@@ -187,6 +193,9 @@ impl Board {
         self.boards[map].floors.insert(position, floor);
         if floor == Floor::Goal {
             self.boards[map].goals.push(position);
+        }
+        if floor == Floor::Button {
+            self.boards[map].buttons.push(position);
         }
         if let Floor::Warp(next_map) = floor {
             self.boards[map].warp_positions[next_map] = position;
