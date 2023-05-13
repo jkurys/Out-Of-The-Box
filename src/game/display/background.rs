@@ -145,7 +145,10 @@ pub fn render_border(
     mut board: ResMut<Board>,
     images: Res<Images>,
     timer: Res<AnimationTimer>,
+        // asset_server: Res<AssetServer>,
 ) {
+        // let higher_wall_image = asset_server.load(HIGHER_WALL_TEXTURE);
+        // let lower_wall_image = asset_server.load(WALL_TEXTURE);
     if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
         return;
     }

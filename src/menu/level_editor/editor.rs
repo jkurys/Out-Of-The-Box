@@ -10,7 +10,7 @@ use crate::{
 
 use super::{
     resources::LevelEditorBoard,
-    super::utils::{spawn_small_button, spawn_small_image},
+    utils::{spawn_small_button, spawn_small_image},
 };
 
 #[derive(Component)]
@@ -29,7 +29,7 @@ pub struct LevelEditorStartingPrompt;
 pub struct LevelEditorTabs;
 
 #[derive(Component)]
-pub struct LevelEditorTab(usize);
+pub struct LevelEditorTab(pub usize);
 
 #[derive(Component)]
 pub struct LevelEditorTabPlus;
@@ -213,6 +213,7 @@ pub fn setup_level_editor_board(
                             parent.spawn(ButtonBundle::default())
                                 .insert(NodeBundle {
                                     background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
+                                    visibility: Visibility { is_visible: true },
                                     style: Style {
                                         size: Size {
                                             height: Val::Percent(100.),
@@ -222,12 +223,13 @@ pub fn setup_level_editor_board(
                                     },
                                     ..default()
                                 })
-                                .insert(LevelEditorTab(1))
-                                .insert(Invisibility(false));
+                                .insert(LevelEditorTab(1));
+                                // .insert(Invisibility(false));
                             for i in 2..11 {
                                 parent.spawn(ButtonBundle::default())
                                     .insert(NodeBundle {
                                         background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
+                                        visibility: Visibility { is_visible: false },
                                         style: Style {
                                             size: Size {
                                                 height: Val::Percent(100.),
@@ -238,8 +240,8 @@ pub fn setup_level_editor_board(
                                         },
                                         ..default()
                                     })
-                                .insert(LevelEditorTab(i))
-                                .insert(Invisibility(true));
+                                .insert(LevelEditorTab(i));
+                                // .insert(Invisibility(true));
                             }
                             parent
                                 .spawn(ButtonBundle::default())
@@ -371,105 +373,4 @@ pub fn setup_level_editor_board(
                         });
                 });
         });
-}
-
-pub fn handle_plus_click(
-    mut plus_query: Query<
-        (&mut Style, &Interaction, &mut UiImage),
-        (With<LevelEditorTabPlus>, Without<LevelEditorTab>),
-    >,
-    mut tab_query: Query<(&mut Style, &mut Invisibility), (With<LevelEditorTab>, Without<LevelEditorTabPlus>)>,
-    asset_server: Res<AssetServer>,
-    mut tabs_amount: Local<u32>,
-) {
-    let hovered_plus_image = asset_server.load(HOVERED_PLUS_TEXTURE);
-    let plus_image = asset_server.load(PLUS_TEXTURE);
-    let (mut plus_style, interaction, mut image) = plus_query.single_mut();
-    match interaction {
-        Interaction::Hovered => {
-            *image = UiImage(hovered_plus_image);
-        },
-        Interaction::None => {
-            *image = UiImage(plus_image);
-        }
-        Interaction::Clicked => {
-            *tabs_amount += 1;
-            for (mut style, mut is_invisible) in tab_query.iter_mut() {
-                if is_invisible.0 {
-                    style.display = Display::Flex;
-                    is_invisible.0 = false;
-                    if *tabs_amount >= 9 {
-                        plus_style.display = Display::None;
-                    }
-                    break;
-                }
-            }
-        }
-    }
-}
-
-pub fn handle_tab_click(
-    mut tab_query: Query<
-        (&LevelEditorTab, &Interaction, &mut BackgroundColor),
-        With<LevelEditorTab>,
-    >,
-    mut boards: ResMut<LevelEditorBoard>,
-    mut app_state: ResMut<State<DisplayState>>
-) {
-    for (tab_num, interaction, mut color) in tab_query.iter_mut() {
-        match *interaction {
-            Interaction::Clicked => {
-                boards.curr_map = tab_num.0 - 1;
-                boards.init_map_n(tab_num.0 - 1);
-                app_state.set(DisplayState::LevelEditorInput).expect("Could not go back to input");
-            }
-            Interaction::Hovered => {
-                *color = BackgroundColor(Color::rgb(0.25, 0.25, 1.));
-            }
-            Interaction::None => {
-                *color = BackgroundColor(Color::MIDNIGHT_BLUE);
-            }
-        }
-    }
-}
-
-pub fn handle_level_editor_click(
-    mut changable_query: Query<
-        (&LevelEditorChangable, &Interaction, &mut UiImage),
-        With<LevelEditorChangable>,
-    >,
-    clickable_query: Query<(&Interaction, &UiImage, &GameEntity), Without<LevelEditorChangable>>,
-    mut board: ResMut<LevelEditorBoard>,
-    mut current_object: Local<GameEntity>,
-    mut last_added_player: Local<(Option<Position>, bool)>,
-    images: Res<Images>,
-) {
-    for (changable, interaction, mut image) in changable_query.iter_mut() {
-        let position = changable.0;
-        if *interaction == Interaction::Clicked {
-            if let (Some(prev_position), false) = *last_added_player {
-                if let GameEntity::Object(GameObject::Player) = *current_object {
-                    if position != prev_position {
-                        *last_added_player = (Some(prev_position), true);
-                    }
-                }
-            } else if let GameEntity::Object(GameObject::Player) = *current_object {
-                *last_added_player = (Some(position), false);
-            }
-            *image = board.image.clone();
-            board.insert_object(position, *current_object);
-        }
-        if let (Some(player_position), true) = *last_added_player {
-            if player_position == position {
-                *image = UiImage(images.tile_image.clone());
-                board.remove_object(position);
-            }
-        }
-    }
-    for (interaction, image, object_or_floor) in clickable_query.iter() {
-        if *interaction == Interaction::Clicked {
-            board.image = image.clone();
-            *current_object = *object_or_floor;
-        }
-    }
 }

@@ -6,6 +6,8 @@ pub const PLAYER_TEXTURES: [&str; 3] = [
 ];
 pub const TILE_TEXTURE: &str = "textures/tile.png";
 pub const WALL_TEXTURE: &str = "textures/wall.png";
+// pub const WALL_TEXTURE: &str = "textures/wall_lower.png";
+// pub const HIGHER_WALL_TEXTURE: &str = "textures/wall_higher.png";
 pub const BOX_TEXTURE: &str = "textures/box.png";
 pub const GOAL_TEXTURE: &str = "textures/goal.png";
 pub const BOX_ON_GOAL_TEXTURE: &str = "textures/box_on_goal.png";
@@ -48,6 +50,7 @@ pub const MAX_HEIGHT: u32 = 20;
 
 /** Z_INDICES */
 pub const OBJECT_Z_INDEX: f32 = 2.0;
+pub const UPPER_HALF_OBJECT_Z_INDEX: f32 = 3.0;
 pub const FLOOR_Z_INDEX: f32 = 1.0;
 
 /** MISCELLANEOUS */

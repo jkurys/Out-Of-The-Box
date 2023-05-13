@@ -5,7 +5,6 @@ mod level_select;
 mod main_menu;
 mod resources;
 mod sprite_select;
-mod utils;
 use crate::{
     consts::{MAX_HEIGHT, MAX_WIDTH},
     exit::handle_esc,
@@ -17,6 +16,8 @@ use level_select::{handle_level_click, setup_level_select};
 use main_menu::{handle_menu_click, setup_main_menu};
 
 use level_editor::editor::*;
+
+use level_editor::tabs::*;
 
 use level_editor::resources::LevelEditorBoard;
 
@@ -120,6 +121,7 @@ impl Plugin for MenusPlugin {
             SystemSet::on_update(DisplayState::LevelEditorSave)
                 .with_system(handle_file_get)
                 .with_system(save_board_to_file)
+                .with_system(handle_esc)
         )
         .add_system_set(
             SystemSet::on_exit(DisplayState::LevelEditorSave)
