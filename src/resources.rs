@@ -17,16 +17,16 @@ pub struct CurrentLevel {
 #[derive(Resource)]
 pub struct Images {
     pub goal_image: Handle<Image>,
-    pub player_image: Handle<Image>,
-    pub box_image: Handle<Image>,
-    pub box_on_goal_image: Handle<Image>,
-    pub wall_image: Handle<Image>,
+    pub player_images: [Handle<Image>; 2],
+    pub box_images: [Handle<Image>; 2],
+    pub box_on_goal_images: [Handle<Image>; 2],
+    pub wall_images: [Handle<Image>; 2],
     pub tile_image: Handle<Image>,
     pub ice_image: Handle<Image>,
     pub warp_image: Handle<Image>,
     pub button_image: Handle<Image>,
     pub hidden_wall_image: Handle<Image>,
-    pub shown_hidden_wall_image: Handle<Image>,
+    pub shown_hidden_wall_images: [Handle<Image>; 2],
 }
 
 impl FromWorld for Images {
@@ -39,30 +39,30 @@ impl FromWorld for Images {
         if let Ok(mut file) = file_res {
             file.read_exact(&mut buf).unwrap();
         }
-        let player_image = asset_server.load(PLAYER_TEXTURES[buf[0] as usize]);
-        let box_image = asset_server.load(BOX_TEXTURE);
-        let wall_image = asset_server.load(WALL_TEXTURE);
+        let player_images = [asset_server.load(LOWER_PLAYER_TEXTURES[buf[0] as usize]), asset_server.load(PLAYER_TEXTURES[buf[0] as usize])];
+        let box_images = [asset_server.load(LOWER_BOX_TEXTURE), asset_server.load(HIGHER_BOX_TEXTURE)];
+        let wall_images = [asset_server.load(LOWER_WALL_TEXTURE), asset_server.load(HIGHER_WALL_TEXTURE)];
         let goal_image = asset_server.load(GOAL_TEXTURE);
-        let box_on_goal_image = asset_server.load(BOX_ON_GOAL_TEXTURE);
+        let box_on_goal_images = [asset_server.load(LOWER_BOX_TEXTURE), asset_server.load(HIGHER_BOX_ON_GOAL_TEXTURE)];
         let tile_image = asset_server.load(TILE_TEXTURE);
         let ice_image = asset_server.load(ICE_TEXTURE);
         let warp_image = asset_server.load(WARP_TEXTURE);
         let button_image = asset_server.load(BUTTON_TEXTURE);
         let hidden_wall_image = asset_server.load(HIDDEN_WALL_TEXTURE);
-        let shown_hidden_wall_image = asset_server.load(SHOWN_HIDDEN_WALL_TEXTURE);
+        let shown_hidden_wall_images = [asset_server.load(LOWER_SHOWN_HIDDEN_WALL_TEXTURE), asset_server.load(HIGHER_SHOWN_HIDDEN_WALL_TEXTURE)];
 
         Images {
-            player_image,
-            box_image,
-            wall_image,
+            player_images,
+            box_images,
+            wall_images,
             goal_image,
-            box_on_goal_image,
+            box_on_goal_images,
             tile_image,
             ice_image,
             warp_image,
             button_image,
             hidden_wall_image,
-            shown_hidden_wall_image,
+            shown_hidden_wall_images,
         }
     }
 }
@@ -75,7 +75,7 @@ pub struct MapSize {
 
 #[derive(Debug, Clone)]
 struct SingleBoard {
-    entities: HashMap<Position, Entity>,
+    entities: HashMap<Position, [Entity; 2]>,
     objects: HashMap<Position, GameObject>,
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
@@ -131,7 +131,7 @@ impl Board {
         self.boards[self.current].player_position
     }
 
-    pub fn get_entity(&self, position: Position) -> Option<Entity> {
+    pub fn get_entities(&self, position: Position) -> Option<[Entity; 2]> {
         self.boards[self.current].entities.get(&position).copied()
     }
 
@@ -181,13 +181,9 @@ impl Board {
         }
     }
 
-    pub fn insert_entity(&mut self, position: Position, entity: Entity) {
-        self.boards[self.current].entities.insert(position, entity);
+    pub fn insert_entities(&mut self, position: Position, entities: [Entity; 2]) {
+        self.boards[self.current].entities.insert(position, entities);
     }
-
-    // pub fn insert_floor(&mut self, position: Position, floor: Floor) {
-    //     self.insert_floor_to_map(position, floor, self.current)
-    // }
 
     pub fn insert_floor_to_map(&mut self, position: Position, floor: Floor, map: usize) {
         self.boards[map].floors.insert(position, floor);
@@ -224,7 +220,7 @@ impl Board {
             });
     }
 
-    pub fn delete_object(&mut self, position: Position, map: usize) -> Entity {
+    pub fn delete_object(&mut self, position: Position, map: usize) {
         self.boards[map]
             .objects
             .remove(&position)
@@ -232,7 +228,7 @@ impl Board {
         self.boards[map]
             .entities
             .remove(&position)
-            .expect("Could not remove entity")
+            .expect("Could not remove entity");
     }
 
     pub fn get_warp_position(&self, from: usize, to: usize) -> Position {

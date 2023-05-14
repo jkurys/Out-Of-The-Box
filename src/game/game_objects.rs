@@ -26,22 +26,22 @@ pub struct Button {
     pub on: bool,
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct HiddenWall;
 
 #[derive(Component)]
 pub struct Goal;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Wall;
 
 #[derive(Component)]
 pub struct Background;
 
-#[derive(Component, PartialEq, Eq, Hash)]
+#[derive(Component, PartialEq, Eq, Hash, Clone)]
 pub struct Box;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Player;
 
 #[derive(Component)]
@@ -57,7 +57,6 @@ pub struct BoxButton;
 pub struct Position {
     pub x: i32,
     pub y: i32,
-    // pub map: usize,
 }
 
 impl Position {
@@ -66,47 +65,18 @@ impl Position {
             Direction::Up => Position {
                 x: self.x,
                 y: self.y + 1,
-                // map: self.map,
             },
             Direction::Down => Position {
                 x: self.x,
                 y: self.y - 1,
-                // map: self.map,
             },
             Direction::Left => Position {
                 x: self.x - 1,
                 y: self.y,
-                // map: self.map,
             },
             Direction::Right => Position {
                 x: self.x + 1,
                 y: self.y,
-                // map: self.map,
-            },
-        }
-    }
-
-    pub fn previous_position(&self, dir: Direction) -> Position {
-        match dir {
-            Direction::Up => Position {
-                x: self.x,
-                y: self.y - 1,
-                // map: self.map,
-            },
-            Direction::Down => Position {
-                x: self.x,
-                y: self.y + 1,
-                // map: self.map,
-            },
-            Direction::Left => Position {
-                x: self.x + 1,
-                y: self.y,
-                // map: self.map,
-            },
-            Direction::Right => Position {
-                x: self.x - 1,
-                y: self.y,
-                // map: self.map,
             },
         }
     }

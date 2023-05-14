@@ -45,5 +45,5 @@ fn update_images(asset_server: ResMut<AssetServer>, mut images: ResMut<Images>) 
     let mut file = File::open(PLAYER_TEXTURE_SAVE).unwrap();
     let mut buf = [0_u8; 1];
     file.read_exact(&mut buf).unwrap();
-    images.player_image = asset_server.load(PLAYER_TEXTURES[buf[0] as usize]);
+    images.player_images = [asset_server.load(LOWER_PLAYER_TEXTURES[buf[0] as usize]), asset_server.load(PLAYER_TEXTURES[buf[0] as usize])];
 }

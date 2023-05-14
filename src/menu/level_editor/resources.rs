@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use crate::{game::game_objects::Position, consts::WALL_TEXTURE};
+use crate::{game::game_objects::Position, consts::HIGHER_WALL_TEXTURE};
 
 use super::editor::GameEntity;
 
@@ -20,13 +20,6 @@ pub struct LevelEditorSingleBoard {
 }
 
 impl LevelEditorBoard {
-    // pub fn get_current_map(&self) -> LevelEditorSingleBoard {
-    //     match &self.boards[self.curr_map] {
-    //         Some(board) => board,
-    //         _ => panic!("requested uninitialized board")
-    //     }
-    // }
-
     pub fn set_size(&mut self, width: u32, height: u32) {
         match &mut self.boards[self.curr_map] {
             Some(board) => {
@@ -50,20 +43,6 @@ impl LevelEditorBoard {
             _ => panic!("requested uninitialized board: get_height_n")
         }
     }
-
-    // pub fn get_width(&self) -> u32 {
-    //     match &self.boards[self.curr_map] {
-    //         Some(board) => board.width,
-    //         _ => panic!("requested uninitialized board")
-    //     }
-    // }
-
-    // pub fn get_height(&self) -> u32 {
-    //     match &self.boards[self.curr_map] {
-    //         Some(board) => board.height,
-    //         _ => panic!("requested uninitialized board")
-    //     }
-    // }
 
     pub fn insert_object(&mut self, position: Position, object: GameEntity) {
         match &mut self.boards[self.curr_map] {
@@ -106,7 +85,7 @@ impl FromWorld for LevelEditorBoard {
         let asset_server = world
             .get_resource::<AssetServer>()
             .expect("Could not get asset server from world");
-        let wall_image = asset_server.load(WALL_TEXTURE);
+        let wall_image = asset_server.load(HIGHER_WALL_TEXTURE);
         let mut boards = [None, None, None, None, None, None, None, None, None, None];
         let board = LevelEditorSingleBoard {
             objects: HashMap::new(),
@@ -117,7 +96,7 @@ impl FromWorld for LevelEditorBoard {
         LevelEditorBoard {
             curr_map: 0,
             created_maps: 1,
-            image: UiImage(wall_image),
+            image: UiImage(wall_image.clone()),
             boards,
         }
     }

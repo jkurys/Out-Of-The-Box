@@ -23,7 +23,8 @@ fn modify_transform(
     mut transform: Mut<Transform>,
     direction: Direction,
     timer: &ResMut<AnimationTimer>,
-    starting_position: Position,
+    starting_x: f32,
+    starting_y: f32,
     floor: Floor,
 ) {
     let distance = if floor == Floor::Ice {
@@ -32,19 +33,18 @@ fn modify_transform(
     } else {
         animation_weight(timer.0.percent())
     };
-    // let distance = timer.0.percent();
     match direction {
         Direction::Down => {
-            transform.translation.y = (starting_position.y as f32 - distance) * TILE_SIZE;
+            transform.translation.y = starting_y - (distance - 1.) * TILE_SIZE;
         }
         Direction::Up => {
-            transform.translation.y = (starting_position.y as f32 + distance) * TILE_SIZE;
+            transform.translation.y = starting_y + (distance - 1.) * TILE_SIZE;
         }
         Direction::Left => {
-            transform.translation.x = (starting_position.x as f32 - distance) * TILE_SIZE;
+            transform.translation.x = starting_x - (distance - 1.) * TILE_SIZE;
         }
         Direction::Right => {
-            transform.translation.x = (starting_position.x as f32 + distance) * TILE_SIZE;
+            transform.translation.x = starting_x + (distance - 1.) * TILE_SIZE;
         }
     }
 }
@@ -63,14 +63,27 @@ pub fn move_animation(
         for event in moved.iter() {
             events.push(*event);
             let (position, direction) = (event.position, event.direction);
-            let entity_opt = board.get_entity(event.position);
-            if let Some(entity) = entity_opt {
-                let transform = query.get_mut(entity).expect("Moved box entity not found");
+            let entity_opt = board.get_entities(event.position);
+            if let Some([higher_entity, lower_entity]) = entity_opt {
+                
+                let higher_transform = query.get_mut(higher_entity).expect("Moved box entity not found");
+                let (x, y) = (position.x as f32 * TILE_SIZE, (position.y as f32 + 0.25) * TILE_SIZE);
                 modify_transform(
-                    transform,
+                    higher_transform,
                     direction,
                     &timer,
-                    position.previous_position(direction),
+                    x,
+                    y,
+                    event.floor,
+                );
+                let lower_transform = query.get_mut(lower_entity).expect("Moved box entity not found");
+                let (x2, y2) = (position.x as f32 * TILE_SIZE, (position.y as f32 - 0.375) * TILE_SIZE);
+                modify_transform(
+                    lower_transform,
+                    direction,
+                    &timer,
+                    x2,
+                    y2,
                     event.floor,
                 );
             }
@@ -78,14 +91,26 @@ pub fn move_animation(
     } else {
         for event in &events {
             let (position, direction) = (event.position, event.direction);
-            let entity_opt = board.get_entity(event.position);
-            if let Some(entity) = entity_opt {
-                let transform = query.get_mut(entity).expect("Moved box entity not found");
+            let entity_opt = board.get_entities(event.position);
+            if let Some([higher_entity, lower_entity]) = entity_opt {
+                let higher_transform = query.get_mut(higher_entity).expect("Moved box entity not found");
+                let (x, y) = (position.x as f32 * TILE_SIZE, (position.y as f32 + 0.25) * TILE_SIZE);
                 modify_transform(
-                    transform,
+                    higher_transform,
                     direction,
                     &timer,
-                    position.previous_position(direction),
+                    x,
+                    y,
+                    event.floor,
+                );
+                let lower_transform = query.get_mut(lower_entity).expect("Moved box entity not found");
+                let (x, y) = (position.x as f32 * TILE_SIZE, (position.y as f32 - 0.375) * TILE_SIZE);
+                modify_transform(
+                    lower_transform,
+                    direction,
+                    &timer,
+                    x,
+                    y,
                     event.floor,
                 );
             }

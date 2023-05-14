@@ -140,7 +140,7 @@ pub fn setup_level_editor_board(
                                 .with_children(|parent| {
                                     for _ in 0..height + 2 {
                                         //left-most column, all walls
-                                        spawn_small_image(parent, images.wall_image.clone());
+                                        spawn_small_image(parent, images.wall_images[1].clone());
                                     }
                                 });
                             for x in left_border..(right_border + 1) {
@@ -159,7 +159,7 @@ pub fn setup_level_editor_board(
                                     })
                                     .with_children(|parent| {
                                         //top wall
-                                        spawn_small_image(parent, images.wall_image.clone());
+                                        spawn_small_image(parent, images.wall_images[1].clone());
                                         // inside tiles
                                         for y in bottom_border..(top_border + 1) {
                                             spawn_small_button(
@@ -169,7 +169,7 @@ pub fn setup_level_editor_board(
                                             );
                                         }
                                         // bottom wall
-                                        spawn_small_image(parent, images.wall_image.clone());
+                                        spawn_small_image(parent, images.wall_images[1].clone());
                                     });
                             }
                             // right-most column, all walls
@@ -187,7 +187,7 @@ pub fn setup_level_editor_board(
                                 })
                                 .with_children(|parent| {
                                     for _ in 0..height + 2 {
-                                        spawn_small_image(parent, images.wall_image.clone());
+                                        spawn_small_image(parent, images.wall_images[1].clone());
                                     }
                                 });
                         });
@@ -301,22 +301,22 @@ pub fn setup_level_editor_board(
                         .with_children(|parent| {
                             spawn_small_button(
                                 parent,
-                                images.box_image.clone(),
+                                images.box_images[1].clone(),
                                 GameEntity::Object(GameObject::Box),
                             );
                             spawn_small_button(
                                 parent,
-                                images.shown_hidden_wall_image.clone(),
+                                images.shown_hidden_wall_images[1].clone(),
                                 GameEntity::Object(GameObject::HidingWall),
                             );
                             spawn_small_button(
                                 parent,
-                                images.wall_image.clone(),
+                                images.wall_images[1].clone(),
                                 GameEntity::Object(GameObject::Wall),
                             );
                             spawn_small_button(
                                 parent,
-                                images.player_image.clone(),
+                                images.player_images[1].clone(),
                                 GameEntity::Object(GameObject::Player),
                             );
                         });

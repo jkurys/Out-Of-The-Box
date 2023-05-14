@@ -1,20 +1,23 @@
 use bevy::prelude::*;
 
-use crate::{game::game_objects::{Wall, Position}, consts::{UPPER_HALF_OBJECT_Z_INDEX, LOWER_HALF_OBJECT_Z_INDEX}};
+use crate::{game::game_objects::Position, consts::{UPPER_HALF_OBJECT_Z_INDEX, LOWER_HALF_OBJECT_Z_INDEX}};
 
 use super::render_entity;
 
-pub fn render_object(
+pub fn render_object<T>(
     commands: &mut Commands,
-    higher_wall_image: Handle<Image>,
-    lower_wall_image: Handle<Image>,
+    higher_image: Handle<Image>,
+    lower_image: Handle<Image>,
     x: i32,
     y: i32,
-) -> (Entity, Entity) {
+    component: T,
+) -> [Entity; 2] where 
+    T: Component + Clone,
+{
     let entity1 = render_entity(
-            Wall,
+            component.clone(),
             commands,
-            higher_wall_image,
+            higher_image,
             Position {
                 x,
                 y,
@@ -22,14 +25,14 @@ pub fn render_object(
             UPPER_HALF_OBJECT_Z_INDEX,
         );
     let entity2 = render_entity(
-            Wall,
+            component.clone(),
             commands,
-            lower_wall_image,
+            lower_image,
             Position {
                 x,
                 y,
             },
             LOWER_HALF_OBJECT_Z_INDEX,
         );
-    (entity1, entity2)
+    [entity1, entity2]
 }
