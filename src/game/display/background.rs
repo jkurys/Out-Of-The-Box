@@ -114,9 +114,16 @@ pub fn render_board(
                     render_entity(
                         Goal,
                         &mut commands,
-                        images.goal_image.clone(),
+                        images.tile_image.clone(),
                         position,
                         FLOOR_Z_INDEX,
+                    );
+                    render_entity(
+                        Goal,
+                        &mut commands,
+                        images.goal_image.clone(),
+                        position,
+                        FLOOR_STICKER_Z_INDEX,
                     );
                 }
                 Floor::Warp(_) => {

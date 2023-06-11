@@ -250,6 +250,7 @@ impl Board {
             self.boards[map].objects.clear();
             self.boards[map].floors.clear();
             self.boards[map].goals.clear();
+            self.boards[map].buttons.clear();
         }
     }
 

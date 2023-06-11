@@ -43,9 +43,10 @@ pub const MAX_WIDTH: u32 = 20;
 pub const MAX_HEIGHT: u32 = 20;
 
 /** Z_INDICES */
-pub const LOWER_HALF_OBJECT_Z_INDEX: f32 = 1.5;
+pub const LOWER_HALF_OBJECT_Z_INDEX: f32 = 2.5;
 pub const UPPER_HALF_OBJECT_Z_INDEX: f32 = 3.0;
 pub const FLOOR_Z_INDEX: f32 = 1.0;
+pub const FLOOR_STICKER_Z_INDEX: f32 = 1.5;
 
 /** MISCELLANEOUS */
 pub const MAX_MAPS: usize = 10;
