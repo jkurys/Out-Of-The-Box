@@ -14,14 +14,14 @@ pub const LOWER_PLAYER_TEXTURES: [&str; 3] = [
 pub const TILE_TEXTURE: &str = "textures/tile.png";
 pub const LOWER_WALL_TEXTURE: &str = "textures/wall_lower.png";
 pub const HIGHER_WALL_TEXTURE: &str = "textures/wall_higher.png";
-pub const HIGHER_BOX_TEXTURE: &str = "textures/box.png";
+pub const HIGHER_BOX_TEXTURE: &str = "textures/box2.png";
 pub const LOWER_BOX_TEXTURE: &str = "textures/box_lower.png";
 pub const GOAL_TEXTURE: &str = "textures/goal.png";
-pub const HIGHER_BOX_ON_GOAL_TEXTURE: &str = "textures/box_on_goal.png";
+pub const HIGHER_BOX_ON_GOAL_TEXTURE: &str = "textures/box_on_goal2.png";
 pub const ICE_TEXTURE: &str = "textures/ice.png";
 pub const WARP_TEXTURE: &str = "textures/warp.png";
 pub const HIDDEN_WALL_TEXTURES: [&str; 3] = [
-    "textures/hidden_wall.png",
+    "textures/hidden_wall_red.png",
     "textures/hidden_wall_blue.png",
     "textures/hidden_wall_green.png"
 ];
@@ -36,7 +36,7 @@ pub const HIGHER_SHOWN_HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_higher_green.png",
 ];
 pub const BUTTON_TEXTURES: [&str; 3] = [
-    "textures/button.png",
+    "textures/button_red.png",
     "textures/button_blue.png",
     "textures/button_green.png",
 ];
