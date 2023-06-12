@@ -224,7 +224,6 @@ pub fn setup_level_editor_board(
                                     ..default()
                                 })
                                 .insert(LevelEditorTab(1));
-                                // .insert(Invisibility(false));
                             for i in 2..11 {
                                 parent.spawn(ButtonBundle::default())
                                     .insert(NodeBundle {
@@ -241,7 +240,6 @@ pub fn setup_level_editor_board(
                                         ..default()
                                     })
                                 .insert(LevelEditorTab(i));
-                                // .insert(Invisibility(true));
                             }
                             parent
                                 .spawn(ButtonBundle::default())
