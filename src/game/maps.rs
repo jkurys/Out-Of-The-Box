@@ -55,14 +55,41 @@ pub fn load_starting_map(mut board: ResMut<Board>, current_level: Res<CurrentLev
                     'i' => {
                         board.insert_floor_to_map(position, Floor::Ice, map);
                     }
+                    't' => {
+                        board.insert_floor_to_map(position, Floor::Button(0), map);
+                    }
+                    's' => {
+                        board.insert_floor_to_map(position, Floor::Button(1), map);
+                    }
                     'u' => {
-                        board.insert_floor_to_map(position, Floor::Button, map);
+                        board.insert_floor_to_map(position, Floor::Button(2), map);
                     }
                     'h' => {
                         board.insert_floor_to_map(
                             position,
                             Floor::HiddenWall {
                                 hidden_by_default: true,
+                                color: 0,
+                            },
+                            map
+                        );
+                    }
+                    'j' => {
+                        board.insert_floor_to_map(
+                            position,
+                            Floor::HiddenWall {
+                                hidden_by_default: true,
+                                color: 1,
+                            },
+                            map
+                        );
+                    }
+                    'k' => {
+                        board.insert_floor_to_map(
+                            position,
+                            Floor::HiddenWall {
+                                hidden_by_default: true,
+                                color: 2,
                             },
                             map
                         );
@@ -72,10 +99,33 @@ pub fn load_starting_map(mut board: ResMut<Board>, current_level: Res<CurrentLev
                             position,
                             Floor::HiddenWall {
                                 hidden_by_default: false,
+                                color: 0,
                             },
                             map
                         );
-                        board.insert_object_to_map(position, GameObject::HidingWall, map);
+                        board.insert_object_to_map(position, GameObject::HidingWall { color: 0 }, map);
+                    }
+                    'J' => {
+                        board.insert_floor_to_map(
+                            position,
+                            Floor::HiddenWall {
+                                hidden_by_default: false,
+                                color: 1,
+                            },
+                            map
+                        );
+                        board.insert_object_to_map(position, GameObject::HidingWall { color: 1 }, map);
+                    }
+                    'K' => {
+                        board.insert_floor_to_map(
+                            position,
+                            Floor::HiddenWall {
+                                hidden_by_default: false,
+                                color: 2,
+                            },
+                            map
+                        );
+                        board.insert_object_to_map(position, GameObject::HidingWall { color: 2 }, map);
                     }
                     char if char.is_ascii_digit() => {
                         board.insert_floor_to_map(

@@ -70,16 +70,8 @@ pub fn render_board(
                     let entities = render_object(&mut commands, higher_image, lower_image, x, y, Player);
                     board.insert_entities(position, entities);
                 }
-                GameObject::HidingWall => {
-                    // let entity = render_entity(
-                    //     HiddenWall,
-                    //     &mut commands,
-                    //     images.shown_hidden_wall_image.clone(),
-                    //     position,
-                    //     OBJECT_Z_INDEX,
-                    // );
-                    // board.insert_entity(position, entity);
-                    let [lower_image, higher_image] = images.shown_hidden_wall_images.clone();
+                GameObject::HidingWall { color } => {
+                    let [lower_image, higher_image] = images.shown_hidden_wall_images[color].clone();
                     let entities = render_object(&mut commands, higher_image, lower_image, x, y, HiddenWall);
                     board.insert_entities(position, entities);
                 }
@@ -137,20 +129,21 @@ pub fn render_board(
                 }
                 Floor::HiddenWall {
                     hidden_by_default: _,
+                    color,
                 } => {
                     render_entity(
                         HiddenWall,
                         &mut commands,
-                        images.hidden_wall_image.clone(),
+                        images.hidden_wall_images[color].clone(),
                         position,
                         FLOOR_Z_INDEX,
                     );
                 }
-                Floor::Button => {
+                Floor::Button(color) => {
                     render_entity(
                         BoxButton,
                         &mut commands,
-                        images.button_image.clone(),
+                        images.button_images[color].clone(),
                         position,
                         FLOOR_Z_INDEX,
                     );

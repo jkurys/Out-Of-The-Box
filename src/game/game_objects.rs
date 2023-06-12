@@ -6,19 +6,19 @@ use bevy::prelude::*;
 pub enum GameObject {
     Box,
     Wall,
-    HidingWall,
+    HidingWall{ color: usize },
     Empty,
     Player,
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub enum Floor {
-    HiddenWall { hidden_by_default: bool },
+    HiddenWall { hidden_by_default: bool, color: usize },
     Tile,
     Ice,
     Goal,
     Warp(usize),
-    Button,
+    Button(usize),
 }
 
 #[derive(Component)]

@@ -20,10 +20,26 @@ pub const GOAL_TEXTURE: &str = "textures/goal.png";
 pub const HIGHER_BOX_ON_GOAL_TEXTURE: &str = "textures/box_on_goal.png";
 pub const ICE_TEXTURE: &str = "textures/ice.png";
 pub const WARP_TEXTURE: &str = "textures/warp.png";
-pub const HIDDEN_WALL_TEXTURE: &str = "textures/hidden_wall.png";
-pub const LOWER_SHOWN_HIDDEN_WALL_TEXTURE: &str = "textures/hidden_wall_lower.png";
-pub const HIGHER_SHOWN_HIDDEN_WALL_TEXTURE: &str = "textures/hidden_wall_higher.png";
-pub const BUTTON_TEXTURE: &str = "textures/button.png";
+pub const HIDDEN_WALL_TEXTURES: [&str; 3] = [
+    "textures/hidden_wall.png",
+    "textures/hidden_wall_blue.png",
+    "textures/hidden_wall_green.png"
+];
+pub const LOWER_SHOWN_HIDDEN_WALL_TEXTURES: [&str; 3] = [
+    "textures/hidden_wall_lower.png",
+    "textures/hidden_wall_lower_blue.png",
+    "textures/hidden_wall_lower_green.png",
+];
+pub const HIGHER_SHOWN_HIDDEN_WALL_TEXTURES: [&str; 3] = [
+    "textures/hidden_wall_higher.png",
+    "textures/hidden_wall_higher_blue.png",
+    "textures/hidden_wall_higher_green.png",
+];
+pub const BUTTON_TEXTURES: [&str; 3] = [
+    "textures/button.png",
+    "textures/button_blue.png",
+    "textures/button_green.png",
+];
 pub const PLUS_TEXTURE: &str = "textures/plus.png";
 pub const HOVERED_PLUS_TEXTURE: &str = "textures/hovered-plus.png";
 /** FONTS */

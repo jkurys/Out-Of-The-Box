@@ -24,9 +24,9 @@ pub struct Images {
     pub tile_image: Handle<Image>,
     pub ice_image: Handle<Image>,
     pub warp_image: Handle<Image>,
-    pub button_image: Handle<Image>,
-    pub hidden_wall_image: Handle<Image>,
-    pub shown_hidden_wall_images: [Handle<Image>; 2],
+    pub button_images: [Handle<Image>; 3],
+    pub hidden_wall_images: [Handle<Image>; 3],
+    pub shown_hidden_wall_images: [[Handle<Image>; 2]; 3],
 }
 
 impl FromWorld for Images {
@@ -47,9 +47,17 @@ impl FromWorld for Images {
         let tile_image = asset_server.load(TILE_TEXTURE);
         let ice_image = asset_server.load(ICE_TEXTURE);
         let warp_image = asset_server.load(WARP_TEXTURE);
-        let button_image = asset_server.load(BUTTON_TEXTURE);
-        let hidden_wall_image = asset_server.load(HIDDEN_WALL_TEXTURE);
-        let shown_hidden_wall_images = [asset_server.load(LOWER_SHOWN_HIDDEN_WALL_TEXTURE), asset_server.load(HIGHER_SHOWN_HIDDEN_WALL_TEXTURE)];
+        let button_images = [
+            asset_server.load(BUTTON_TEXTURES[0]),
+            asset_server.load(BUTTON_TEXTURES[1]),
+            asset_server.load(BUTTON_TEXTURES[2])
+        ];
+        let hidden_wall_images = [asset_server.load(HIDDEN_WALL_TEXTURES[0]), asset_server.load(HIDDEN_WALL_TEXTURES[1]), asset_server.load(HIDDEN_WALL_TEXTURES[2])];
+        let shown_hidden_wall_images = [
+            [asset_server.load(LOWER_SHOWN_HIDDEN_WALL_TEXTURES[0]), asset_server.load(HIGHER_SHOWN_HIDDEN_WALL_TEXTURES[0])],
+            [asset_server.load(LOWER_SHOWN_HIDDEN_WALL_TEXTURES[1]), asset_server.load(HIGHER_SHOWN_HIDDEN_WALL_TEXTURES[1])],
+            [asset_server.load(LOWER_SHOWN_HIDDEN_WALL_TEXTURES[2]), asset_server.load(HIGHER_SHOWN_HIDDEN_WALL_TEXTURES[2])],
+        ];
 
         Images {
             player_images,
@@ -60,8 +68,8 @@ impl FromWorld for Images {
             tile_image,
             ice_image,
             warp_image,
-            button_image,
-            hidden_wall_image,
+            button_images,
+            hidden_wall_images,
             shown_hidden_wall_images,
         }
     }
@@ -79,7 +87,7 @@ struct SingleBoard {
     objects: HashMap<Position, GameObject>,
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
-    buttons: Vec<Position>,
+    buttons: Vec<Vec<Position>>,
     map_size: MapSize,
     player_position: Position,
     warp_positions: [Position; MAX_MAPS],
@@ -100,7 +108,7 @@ impl Board {
                 objects: HashMap::new(),
                 floors: HashMap::new(),
                 goals: Vec::new(),
-                buttons: Vec::new(),
+                buttons: vec![Vec::new(), Vec::new(), Vec::new()],
                 map_size: MapSize {
                     width: 0,
                     height: 0,
@@ -162,7 +170,7 @@ impl Board {
         goals_vec.concat() //realistically, this vector won't exceed 20 entries so cloning isn't a problem
     }
 
-    pub fn get_all_buttons(&self) -> Vec<Position> {
+    pub fn get_all_buttons(&self) -> Vec<Vec<Position>> {
         self.boards[self.current].buttons.clone()
     }
 
@@ -187,15 +195,14 @@ impl Board {
 
     pub fn insert_floor_to_map(&mut self, position: Position, floor: Floor, map: usize) {
         self.boards[map].floors.insert(position, floor);
-        if floor == Floor::Goal {
-            self.boards[map].goals.push(position);
-        }
-        if floor == Floor::Button {
-            self.boards[map].buttons.push(position);
-        }
-        if let Floor::Warp(next_map) = floor {
-            self.boards[map].warp_positions[next_map] = position;
-        }
+        match floor {
+            Floor::Goal => self.boards[map].goals.push(position),
+            Floor::Button(color) => self.boards[map].buttons[color].push(position),
+            Floor::Warp(next_map) => {
+                self.boards[map].warp_positions[next_map] = position;
+            },
+            _ => ()
+        };
     }
 
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
@@ -250,43 +257,51 @@ impl Board {
             self.boards[map].objects.clear();
             self.boards[map].floors.clear();
             self.boards[map].goals.clear();
-            self.boards[map].buttons.clear();
+            self.boards[map].buttons[0].clear();
+            self.boards[map].buttons[1].clear();
+            self.boards[map].buttons[2].clear();
         }
     }
 
-    pub fn rise_hiding_wall(&mut self) {
+    pub fn rise_hiding_wall(&mut self, moved_color: usize) {
         for map in 0..MAX_MAPS {
             let floors = self.boards[map].floors.clone();
             for (position, floor) in floors.iter() {
-                if let &Floor::HiddenWall { hidden_by_default } = floor {
-                    if self.get_object_type(*position) == GameObject::Empty && hidden_by_default {
-                        self.boards[map]
-                            .objects
-                            .insert(*position, GameObject::HidingWall);
-                    } else if self.get_object_type(*position) == GameObject::HidingWall
-                        && !hidden_by_default
-                    {
-                        self.boards[map].objects.remove(position);
+                match *floor {
+                    Floor::HiddenWall { hidden_by_default, color } if color == moved_color => {
+                        if self.get_object_type(*position) == GameObject::Empty && hidden_by_default {
+                            self.boards[map]
+                                .objects
+                                .insert(*position, GameObject::HidingWall{ color: moved_color });
+                        } else if self.get_object_type(*position) == (GameObject::HidingWall { color: moved_color })
+                            && !hidden_by_default
+                        {
+                            self.boards[map].objects.remove(position);
+                        }
                     }
+                    _ => ()
                 }
             }
         }
     }
 
-    pub fn hide_hiding_wall(&mut self) {
+    pub fn hide_hiding_wall(&mut self, moved_color: usize) {
         for map in 0..MAX_MAPS {
             let floors = self.boards[map].floors.clone();
             for (position, floor) in floors.iter() {
-                if let &Floor::HiddenWall { hidden_by_default } = floor {
-                    if self.get_object_type(*position) == GameObject::Empty && !hidden_by_default {
-                        self.boards[map]
-                            .objects
-                            .insert(*position, GameObject::HidingWall);
-                    } else if self.get_object_type(*position) == GameObject::HidingWall
-                        && hidden_by_default
-                    {
-                        self.boards[map].objects.remove(position);
+                match *floor {
+                    Floor::HiddenWall { hidden_by_default, color } if color == moved_color => {
+                        if self.get_object_type(*position) == GameObject::Empty && !hidden_by_default {
+                            self.boards[map]
+                                .objects
+                                .insert(*position, GameObject::HidingWall { color: moved_color });
+                        } else if self.get_object_type(*position) == (GameObject::HidingWall { color: moved_color })
+                            && hidden_by_default
+                        {
+                            self.boards[map].objects.remove(position);
+                        }
                     }
+                    _ => ()
                 }
             }
         }

@@ -302,11 +302,13 @@ pub fn setup_level_editor_board(
                                 images.box_images[1].clone(),
                                 GameEntity::Object(GameObject::Box),
                             );
-                            spawn_small_button(
-                                parent,
-                                images.shown_hidden_wall_images[1].clone(),
-                                GameEntity::Object(GameObject::HidingWall),
-                            );
+                            for color in 0..3 {
+                                spawn_small_button(
+                                    parent,
+                                    images.shown_hidden_wall_images[color][1].clone(),
+                                    GameEntity::Object(GameObject::HidingWall { color }),
+                                );
+                            }
                             spawn_small_button(
                                 parent,
                                 images.wall_images[1].clone(),
@@ -346,18 +348,23 @@ pub fn setup_level_editor_board(
                                 images.ice_image.clone(),
                                 GameEntity::Floor(Floor::Ice),
                             );
-                            spawn_small_button(
-                                parent,
-                                images.button_image.clone(),
-                                GameEntity::Floor(Floor::Button),
-                            );
-                            spawn_small_button(
-                                parent,
-                                images.hidden_wall_image.clone(),
-                                GameEntity::Floor(Floor::HiddenWall {
-                                    hidden_by_default: true,
-                                }),
-                            );
+                            for color in 0..3 {
+                                spawn_small_button(
+                                    parent,
+                                    images.button_images[color].clone(),
+                                    GameEntity::Floor(Floor::Button(color)),
+                                );
+                            }
+                            for color in 0..3 {
+                                spawn_small_button(
+                                    parent,
+                                    images.hidden_wall_images[color].clone(),
+                                    GameEntity::Floor(Floor::HiddenWall {
+                                        hidden_by_default: true,
+                                        color
+                                    }),
+                                );
+                            }
                             spawn_small_button(
                                 parent,
                                 images.tile_image.clone(),

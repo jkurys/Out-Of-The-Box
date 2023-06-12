@@ -136,19 +136,32 @@ pub fn save_board_to_file(
                 GameEntity::Object(object) => match object {
                     GameObject::Box => 'b',
                     GameObject::Wall => 'w',
-                    GameObject::HidingWall => 'H',
+                    GameObject::HidingWall { color: 0 } => 'H',
+                    GameObject::HidingWall { color: 1 } => 'J',
+                    GameObject::HidingWall { color: _ } => 'K',
                     GameObject::Empty => ' ',
                     GameObject::Player => 'p',
                 },
                 GameEntity::Floor(floor) => match floor {
                     Floor::HiddenWall {
                         hidden_by_default: _,
+                        color: 0,
                     } => 'h',
+                    Floor::HiddenWall {
+                        hidden_by_default: _,
+                        color: 1,
+                    } => 'j',
+                    Floor::HiddenWall {
+                        hidden_by_default: _,
+                        color: _,
+                    } => 'k',
                     Floor::Tile => ' ',
                     Floor::Ice => 'i',
                     Floor::Goal => 'g',
                     Floor::Warp(num) => char::from_digit(num as u32, 10).unwrap(),
-                    Floor::Button => 'u',
+                    Floor::Button(0) => 't',
+                    Floor::Button(1) => 's',
+                    Floor::Button(_) => 'u',
                 },
             }
         }
