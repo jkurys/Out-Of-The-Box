@@ -20,7 +20,7 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             style: Style {
                 size: Size {
                     width: Val::Percent(100.0),
@@ -44,10 +44,7 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                         color: Color::WHITE,
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             spawn_button(
                 parent,
@@ -56,7 +53,7 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                 "back",
             );
             parent.spawn(ImageBundle {
-                image: UiImage(asset_server.load(PLAYER_TEXTURES[0])),
+                image: UiImage { texture: asset_server.load(PLAYER_TEXTURES[0]), ..default() },
                 style: Style {
                     size: Size {
                         width: Val::Px(100.0),
@@ -76,7 +73,7 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                 "select 0",
             );
             parent.spawn(ImageBundle {
-                image: UiImage(asset_server.load(PLAYER_TEXTURES[1])),
+                image: UiImage { texture: asset_server.load(PLAYER_TEXTURES[1]), ..default() },
                 style: Style {
                     size: Size {
                         height: Val::Px(100.0),
@@ -96,7 +93,7 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                 "select 1",
             );
             parent.spawn(ImageBundle {
-                image: UiImage(asset_server.load(PLAYER_TEXTURES[2])),
+                image: UiImage { texture: asset_server.load(PLAYER_TEXTURES[2]), ..default() },
                 style: Style {
                     size: Size {
                         width: Val::Px(100.0),
@@ -133,13 +130,13 @@ pub fn handle_sprite_click(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Clicked => match item.as_ref() {
                 SpriteSelectItemType::Back => {
-                    app_state.pop().expect("Going back to main menu failed");
+                    *app_state = State(DisplayState::MainMenu);
                 }
                 SpriteSelectItemType::Select(sprite_no) => {
                     let bytes = [*sprite_no];
                     let mut file = File::create(PLAYER_TEXTURE_SAVE).unwrap();
                     file.write_all(&bytes).unwrap();
-                    app_state.pop().expect("Going back to main menu failed");
+                    *app_state = State(DisplayState::MainMenu);
                 }
             },
             Interaction::Hovered => {

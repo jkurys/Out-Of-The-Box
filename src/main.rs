@@ -5,7 +5,7 @@ use game::movement::MovementPlugin;
 use game::GamePlugin;
 use menu::MenusPlugin;
 use resources::*;
-use state::{CurrentMap, DisplayState, GameState};
+use state::{DisplayState, MoveState};
 use std::fs::File;
 use std::io::Read;
 mod consts;
@@ -24,14 +24,13 @@ fn main() {
             level_amount: 0,
             level_map_string: "".to_string(),
         })
+        .add_state::<DisplayState>()
+        .add_state::<MoveState>()
         .add_plugins(DefaultPlugins)
         .add_plugin(MenusPlugin)
         .add_plugin(GamePlugin)
         .add_plugin(DisplayPlugin)
         .add_plugin(MovementPlugin)
-        .add_state(DisplayState::MainMenu)
-        .add_state(GameState(None))
-        .add_state(CurrentMap(None))
         .add_startup_system(spawn_camera)
         .add_system(update_images)
         .run();

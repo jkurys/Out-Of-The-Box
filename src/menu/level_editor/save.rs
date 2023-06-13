@@ -2,7 +2,7 @@ use std::{fs::File, io::Write};
 
 use bevy::prelude::*;
 
-use crate::{state::DisplayState, consts::MAIN_MENU_FONT, game::game_objects::{Position, GameObject, Floor}};
+use crate::{state::DisplayState, consts::MAIN_MENU_FONT, game::game_objects::{Position, GameObject, Floor}, resources::StateStack};
 
 use super::{events::FileSavedEvent, resources::LevelEditorBoard, editor::GameEntity};
 
@@ -14,10 +14,10 @@ pub struct LevelEditorFileName;
 
 pub fn handle_exit_to_save(
     mut keyboard_input: ResMut<Input<KeyCode>>,
-    mut app_state: ResMut<State<DisplayState>>,
+    mut app_state: ResMut<NextState<DisplayState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Escape) {
-        app_state.set(DisplayState::LevelEditorSave).expect("Could not exit");
+        app_state.set(DisplayState::LevelEditorSave);
         keyboard_input.reset(KeyCode::Escape);
     }
 }
@@ -30,7 +30,7 @@ pub fn setup_file_name_getter(
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             style: Style {
                 size: Size {
                     width: Val::Percent(100.0),
@@ -100,7 +100,8 @@ fn position_to_index(pos: Position, width: u32, height: u32) -> usize {
 pub fn save_board_to_file(
     board: Res<LevelEditorBoard>,
     mut reader: EventReader<FileSavedEvent>,
-    mut app_state: ResMut<State<DisplayState>>,
+    mut app_state: ResMut<NextState<DisplayState>>,
+    mut state_stack: ResMut<StateStack>,
 ) {
     let mut file_name = "".to_string();
     for ev in reader.iter() {
@@ -171,7 +172,5 @@ pub fn save_board_to_file(
     let mut file = File::create(format!("assets/maps/{}.txt", file_name)).unwrap();
     let buf = file_prelude.iter().map(|c| *c as u8).collect::<Vec<_>>();
     file.write_all(&buf[..]).unwrap();
-    app_state
-        .pop()
-        .expect("Could not save file");
+    app_state.set(state_stack.0.pop().expect("Could not save file"));
 }

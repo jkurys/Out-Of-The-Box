@@ -4,6 +4,7 @@ use std::fs::File;
 use std::fs::read_dir;
 use std::io::Read;
 
+use crate::resources::StateStack;
 use crate::{
     consts::{LEVEL_SAVE, MAIN_MENU_FONT},
     resources::CurrentLevel,
@@ -43,7 +44,7 @@ pub fn setup_level_select(
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             style: Style {
                 size: Size {
                     width: Val::Percent(100.0),
@@ -67,10 +68,7 @@ pub fn setup_level_select(
                         color: Color::WHITE,
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             for level_number in 0..file_amount {
                 let level_name = &file_paths[level_number];
@@ -94,6 +92,8 @@ pub fn setup_level_select(
 
 pub fn handle_level_click(
     mut app_state: ResMut<State<DisplayState>>,
+    mut next_state: ResMut<NextState<DisplayState>>,
+    mut state_stack: ResMut<StateStack>,
     mut query: Query<
         (
             &mut Interaction,
@@ -121,12 +121,11 @@ pub fn handle_level_click(
                         level_map_string: level_names.0[*number - 1].clone(),
                         level_amount,
                     };
-                    app_state
-                        .push(DisplayState::Game)
-                        .expect("Failed to load game");
+                    state_stack.0.push(app_state.0);
+                    next_state.set(DisplayState::Game);
                 }
                 LevelSelectItemType::Back => {
-                    app_state.pop().expect("Going back to main menu failed");
+                    next_state.set(state_stack.0.pop().expect("Going back to main menu failed"));
                 }
             },
             Interaction::Hovered => {

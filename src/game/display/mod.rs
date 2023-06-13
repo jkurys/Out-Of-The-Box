@@ -1,15 +1,17 @@
 use background::render_board;
 use bevy::prelude::*;
+use bevy::window::{PrimaryWindow, WindowMode};
 
 use self::background::render_border;
 use self::text::{display_level_text, LevelText};
 use crate::consts::*;
 use crate::game::movement::resources::AnimationTimer;
 use crate::game::{game_objects::Position, GameItem};
-use crate::labels::Labels;
 use crate::resources::Images;
-use crate::state::{DisplayState, GameState, Move};
+use crate::state::{DisplayState, MoveState};
 use crate::utils::delete_all_components;
+
+use super::movement::is_in_game;
 
 pub mod background;
 mod render_2_5_d;
@@ -21,18 +23,15 @@ impl Plugin for DisplayPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Images>();
         app.add_startup_system(window_set_fullscreen);
-
-        app.add_system_set(SystemSet::on_enter(DisplayState::Game).with_system(display_level_text));
-
-        app.add_system_set(
-            SystemSet::on_exit(DisplayState::Game).with_system(delete_all_components::<LevelText>),
-        );
-        app.add_system_set(
-            SystemSet::on_update(GameState(Some(Move::Static)))
-                .label(Labels::Display)
-                .with_system(despawn_board.before(render_board).before(render_border))
-                .with_system(render_board)
-                .with_system(render_border),
+        app.add_system(display_level_text.in_schedule(OnEnter(DisplayState::Game)));
+        app.add_system(delete_all_components::<LevelText>.in_schedule(OnExit(DisplayState::Game)));
+        app.add_systems((
+            despawn_board,
+            render_board,
+            render_border,
+        ).chain()
+            .distributive_run_if(is_in_game)
+            .in_set(OnUpdate(MoveState::Static))
         );
     }
 }
@@ -89,7 +88,7 @@ pub fn despawn_board(
     }
 }
 
-fn window_set_fullscreen(mut windows: ResMut<Windows>) {
-    let window = windows.get_primary_mut().unwrap();
-    window.set_mode(WindowMode::BorderlessFullscreen);
+fn window_set_fullscreen(mut window_query: Query<&mut Window, With<PrimaryWindow>>) {
+    let mut window = window_query.get_single_mut().expect("Could not get window");
+    window.mode = WindowMode::Fullscreen;
 }

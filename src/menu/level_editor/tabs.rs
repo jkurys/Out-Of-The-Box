@@ -19,14 +19,14 @@ pub fn handle_plus_click(
     let (mut plus_style, interaction, mut image) = plus_query.single_mut();
     match interaction {
         Interaction::Hovered => {
-            *image = UiImage(hovered_plus_image);
+            *image = UiImage{ texture: hovered_plus_image, ..default() };
             if *is_clicked {
                 *is_clicked = false;
                 *tabs_amount += 1;
                 for (mut style, mut visible) in tab_query.iter_mut() {
-                    if !visible.is_visible {
+                    if *visible != Visibility::Visible {
                         style.display = Display::Flex;
-                        visible.is_visible = true;
+                        *visible = Visibility::Visible;
                         if *tabs_amount >= 9 {
                             plus_style.display = Display::None;
                         }
@@ -37,7 +37,7 @@ pub fn handle_plus_click(
         },
         Interaction::None => {
             *is_clicked = false;
-            *image = UiImage(plus_image);
+            *image = UiImage{ texture: plus_image, ..default() };
         }
         Interaction::Clicked => {
             *is_clicked = true;
@@ -51,14 +51,14 @@ pub fn handle_tab_click(
         With<LevelEditorTab>,
     >,
     mut boards: ResMut<LevelEditorBoard>,
-    mut app_state: ResMut<State<DisplayState>>
+    mut app_state: ResMut<NextState<DisplayState>>
 ) {
     for (tab_num, interaction, mut color) in tab_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
                 boards.curr_map = tab_num.0 - 1;
                 boards.init_map_n(tab_num.0 - 1);
-                app_state.set(DisplayState::LevelEditorInput).expect("Could not go back to input");
+                app_state.set(DisplayState::LevelEditorInput);
             }
             Interaction::Hovered => {
                 *color = BackgroundColor(Color::rgb(0.25, 0.25, 1.));
@@ -98,7 +98,7 @@ pub fn handle_level_editor_click(
         }
         if let (Some(player_position), true) = *last_added_player {
             if player_position == position {
-                *image = UiImage(images.tile_image.clone());
+                *image = UiImage{ texture: images.tile_image.clone(), ..default() };
                 board.remove_object(position);
             }
         }

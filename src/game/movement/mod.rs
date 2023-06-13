@@ -1,7 +1,6 @@
 use crate::{
     consts::MOVE_ANIMATION_TIME,
-    labels::Labels,
-    state::{GameState, Move},
+    state::{MoveState, DisplayState},
 };
 use bevy::prelude::*;
 
@@ -39,32 +38,30 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_update(GameState(Some(Move::Moving)))
-                .with_system(handle_move.before(move_animation))
-                .with_system(
-                    move_animation
-                        .before(handle_warp)
-                        .before(handle_ice)
-                        .before(handle_button),
-                )
-                .with_system(handle_button.before(despawn_board))
-                .with_system(handle_warp.before(despawn_board))
-                .with_system(handle_ice.before(despawn_board)) //otherwise it could ignore the positions_on_ice and end the animation
-                .with_system(despawn_board.before(render_board).before(render_border))
-                .with_system(render_board.before(continue_animation))
-                .with_system(render_border.before(continue_animation))
-                .with_system(continue_animation),
-        )
-        .add_system_set(
-            SystemSet::on_exit(GameState(Some(Move::Moving))).with_system(end_animation),
+        app.add_systems((
+            handle_move,
+            move_animation,
+            handle_button,
+            handle_ice,
+            handle_warp,
+            despawn_board,
+            render_board,
+            render_border,
+            continue_animation,
+        ).distributive_run_if(is_in_game)
+            .chain()
+            .in_set(OnUpdate(MoveState::Moving)));
+
+        app.add_system(end_animation
+            .run_if(is_in_game)
+            .in_schedule(OnExit(MoveState::Moving))
         );
 
-        app.add_system_set(
-            SystemSet::on_update(GameState(Some(Move::Static)))
-                .label(Labels::Movement)
-                .with_system(handle_keypress),
+        app.add_system(handle_keypress
+            .run_if(is_in_game)
+            .in_set(OnUpdate(MoveState::Static))
         );
+
         app.add_event::<ExitedFloorEvent>();
         app.init_resource::<Events<EnteredFloorEvent>>();
         app.insert_resource(AnimationTimer(Timer::from_seconds(
@@ -74,8 +71,14 @@ impl Plugin for MovementPlugin {
     }
 }
 
+pub fn is_in_game(
+    display_state: Res<State<DisplayState>>,
+) -> bool {
+    display_state.0 == DisplayState::Game
+}
+
 fn continue_animation(
-    mut app_state: ResMut<State<GameState>>,
+    mut app_state: ResMut<NextState<MoveState>>,
     mut timer: ResMut<AnimationTimer>,
     reader: EventReader<ExitedFloorEvent>,
     mut entered_events: ResMut<Events<EnteredFloorEvent>>,
@@ -88,8 +91,6 @@ fn continue_animation(
     if !reader.is_empty() {
         timer.0.reset();
     } else {
-        app_state
-            .set(GameState(Some(Move::Static)))
-            .expect("Could not correctly finish movement animation");
+        app_state.set(MoveState::Static);
     }
 }

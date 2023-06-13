@@ -15,7 +15,7 @@ pub fn display_level_text(
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::GRAY),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             style: Style {
                 size: Size {
                     width: Val::Percent(100.0),
@@ -39,10 +39,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Right,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -53,10 +50,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Right,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -67,10 +61,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Right,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -81,10 +72,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Right,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
         });
 }

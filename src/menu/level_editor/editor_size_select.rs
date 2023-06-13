@@ -2,14 +2,14 @@ use bevy::prelude::*;
 
 use crate::{consts::{MAIN_MENU_FONT, MAX_WIDTH, MAX_HEIGHT}, state::DisplayState};
 
-use super::editor::{LevelEditorItem, LevelEditorInputNumber, LevelEditorStartingPrompt};
+use super::{editor::{LevelEditorItem, LevelEditorInputNumber, LevelEditorStartingPrompt}, resources::BoardSize};
 
 pub fn setup_level_editor(asset_server: Res<AssetServer>, mut commands: Commands) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             style: Style {
                 size: Size {
                     width: Val::Percent(100.0),
@@ -49,7 +49,8 @@ pub fn handle_level_editor_input(
     mut width: Local<u32>,
     mut height: Local<u32>,
     mut is_width_provided: Local<bool>,
-    mut app_state: ResMut<State<DisplayState>>,
+    mut app_state: ResMut<NextState<DisplayState>>,
+    mut board_size: ResMut<BoardSize>,
     mut change_prompt: Query<(&mut Text, (With<LevelEditorStartingPrompt>, Without<LevelEditorInputNumber>))>,
     mut change_number: Query<(&mut Text, (With<LevelEditorInputNumber>, Without<LevelEditorStartingPrompt>))>,
 ) {
@@ -80,9 +81,8 @@ pub fn handle_level_editor_input(
     }
     if input.just_pressed(KeyCode::Return) && *is_width_provided {
         *is_width_provided = false;
-        app_state
-            .set(DisplayState::LevelEditorBoard(*width, *height))
-            .expect("Could not get display state input");
+        *board_size = BoardSize { width: *width, height: *height };
+        app_state.set(DisplayState::LevelEditorBoard);
         *height = 0;
         *width = 0;
     }

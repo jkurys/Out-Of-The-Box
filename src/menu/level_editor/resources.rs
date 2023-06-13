@@ -4,6 +4,12 @@ use crate::{game::game_objects::Position, consts::HIGHER_WALL_TEXTURE};
 
 use super::editor::GameEntity;
 
+#[derive(Resource)]
+pub struct BoardSize {
+    pub width: u32,
+    pub height: u32,
+}
+
 #[derive(Resource, Debug)]
 pub struct LevelEditorBoard {
     pub curr_map: usize,
@@ -96,7 +102,7 @@ impl FromWorld for LevelEditorBoard {
         LevelEditorBoard {
             curr_map: 0,
             created_maps: 1,
-            image: UiImage(wall_image.clone()),
+            image: UiImage { texture: wall_image.clone(), ..default() },
             boards,
         }
     }

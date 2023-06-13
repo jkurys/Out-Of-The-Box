@@ -4,12 +4,11 @@ use crate::{
     consts::*,
     game::game_objects::{Floor, GameObject, Position},
     resources::Images,
-    state::DisplayState,
     utils::offset_coordinate,
 };
 
 use super::{
-    resources::LevelEditorBoard,
+    resources::{LevelEditorBoard, BoardSize},
     utils::{spawn_small_button, spawn_small_image},
 };
 
@@ -18,9 +17,6 @@ pub struct LevelEditorItem;
 
 #[derive(Component)]
 pub struct LevelEditorInputNumber;
-
-#[derive(Component)]
-pub struct Invisibility(bool);
 
 #[derive(Component)]
 pub struct LevelEditorStartingPrompt;
@@ -34,7 +30,7 @@ pub struct LevelEditorTab(pub usize);
 #[derive(Component)]
 pub struct LevelEditorTabPlus;
 
-#[derive(Component, Clone, Copy, Debug)]
+#[derive(Component,  Clone, Copy, Debug)]
 pub enum GameEntity {
     Object(GameObject),
     Floor(Floor),
@@ -52,15 +48,11 @@ pub struct LevelEditorChangable(pub Position);
 pub fn setup_level_editor_board(
     mut commands: Commands,
     images: Res<Images>,
-    state: Res<State<DisplayState>>,
+    board_size: Res<BoardSize>,
     mut boards: ResMut<LevelEditorBoard>,
     asset_server: Res<AssetServer>,
 ) {
-    let (width, height) = if let DisplayState::LevelEditorBoard(width, height) = state.current() {
-        (*width, *height)
-    } else {
-        (1, 1)
-    };
+    let BoardSize { width, height } = *board_size;
     boards.set_size(width, height);
     let plus_image = asset_server.load(PLUS_TEXTURE);
     let bottom_border = offset_coordinate(0, height as i32);
@@ -71,7 +63,7 @@ pub fn setup_level_editor_board(
         // main separation between 2 compartments
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             style: Style {
                 size: Size {
                     width: Val::Percent(100.0),
@@ -90,7 +82,7 @@ pub fn setup_level_editor_board(
             parent
                 .spawn(NodeBundle {
                     background_color: BackgroundColor(Color::GRAY),
-                    visibility: Visibility { is_visible: true },
+                    visibility: Visibility::Visible,
                     style: Style {
                         size: Size {
                             width: Val::Percent(70.0),
@@ -110,7 +102,7 @@ pub fn setup_level_editor_board(
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::GRAY),
-                            visibility: Visibility { is_visible: true },
+                            visibility: Visibility::Visible,
                             style: Style {
                                 size: Size {
                                     width: Val::Percent(70.0),
@@ -128,7 +120,7 @@ pub fn setup_level_editor_board(
                             parent
                                 .spawn(NodeBundle {
                                     background_color: BackgroundColor(Color::GRAY),
-                                    visibility: Visibility { is_visible: true },
+                                    visibility: Visibility::Visible,
                                     style: Style {
                                         flex_direction: FlexDirection::Column,
                                         align_items: AlignItems::Center,
@@ -148,7 +140,7 @@ pub fn setup_level_editor_board(
                                 parent
                                     .spawn(NodeBundle {
                                         background_color: BackgroundColor(Color::GRAY),
-                                        visibility: Visibility { is_visible: true },
+                                        visibility: Visibility::Visible,
                                         style: Style {
                                             flex_direction: FlexDirection::Column,
                                             align_items: AlignItems::Center,
@@ -176,7 +168,7 @@ pub fn setup_level_editor_board(
                             parent
                                 .spawn(NodeBundle {
                                     background_color: BackgroundColor(Color::GRAY),
-                                    visibility: Visibility { is_visible: true },
+                                    visibility: Visibility::Visible,
                                     style: Style {
                                         flex_direction: FlexDirection::Column,
                                         align_items: AlignItems::Center,
@@ -213,7 +205,7 @@ pub fn setup_level_editor_board(
                             parent.spawn(ButtonBundle::default())
                                 .insert(NodeBundle {
                                     background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
-                                    visibility: Visibility { is_visible: true },
+                                    visibility: Visibility::Visible,
                                     style: Style {
                                         size: Size {
                                             height: Val::Percent(100.),
@@ -228,7 +220,7 @@ pub fn setup_level_editor_board(
                                 parent.spawn(ButtonBundle::default())
                                     .insert(NodeBundle {
                                         background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
-                                        visibility: Visibility { is_visible: false },
+                                        visibility: Visibility::Visible,
                                         style: Style {
                                             size: Size {
                                                 height: Val::Percent(100.),
@@ -244,7 +236,7 @@ pub fn setup_level_editor_board(
                             parent
                                 .spawn(ButtonBundle::default())
                                 .insert(ImageBundle {
-                                    image: UiImage(plus_image),
+                                    image: UiImage{ texture: plus_image, ..default() },
                                     style: Style {
                                         size: Size {
                                             width: Val::Px(20.),
@@ -265,7 +257,7 @@ pub fn setup_level_editor_board(
             parent
                 .spawn(NodeBundle {
                     background_color: BackgroundColor(Color::GREEN),
-                    visibility: Visibility { is_visible: true },
+                    visibility: Visibility::Visible,
                     style: Style {
                         size: Size {
                             width: Val::Percent(30.0),
@@ -283,7 +275,7 @@ pub fn setup_level_editor_board(
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::DARK_GREEN),
-                            visibility: Visibility { is_visible: true },
+                            visibility: Visibility::Visible,
                             style: Style {
                                 size: Size {
                                     width: Val::Percent(50.0),
@@ -324,7 +316,7 @@ pub fn setup_level_editor_board(
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::GREEN),
-                            visibility: Visibility { is_visible: true },
+                            visibility: Visibility::Visible,
                             style: Style {
                                 size: Size {
                                     width: Val::Percent(50.0),

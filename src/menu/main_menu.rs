@@ -15,7 +15,7 @@ pub enum MenuItemType {
 }
 
 pub fn handle_menu_click(
-    mut app_state: ResMut<State<DisplayState>>,
+    mut app_state: ResMut<NextState<DisplayState>>,
     mut query: Query<
         (&mut Interaction, &mut BackgroundColor, &mut MenuItemType),
         With<MenuItemType>,
@@ -26,22 +26,16 @@ pub fn handle_menu_click(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Clicked => match item.as_ref() {
                 MenuItemType::LevelSelect => {
-                    app_state
-                        .push(DisplayState::LevelSelect)
-                        .expect("Could not load level select");
+                    app_state.set(DisplayState::LevelSelect);
                 }
                 MenuItemType::SpriteSelect => {
-                    app_state
-                        .push(DisplayState::SpriteSelect)
-                        .expect("Could not load sprite select");
+                    app_state.set(DisplayState::SpriteSelect);
                 }
                 MenuItemType::Exit => {
                     app_exit.send(AppExit);
                 }
                 MenuItemType::LevelEditor => {
-                    app_state
-                        .push(DisplayState::LevelEditorInput)
-                        .expect("Could not enter level editor");
+                    app_state.set(DisplayState::LevelEditorInput);
                 }
             },
             Interaction::Hovered => {
@@ -60,7 +54,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             style: Style {
                 size: Size {
                     width: Val::Percent(100.0),
@@ -84,10 +78,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                         font: menu_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             spawn_button(
                 parent,

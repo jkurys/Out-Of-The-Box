@@ -3,12 +3,11 @@ use bevy::prelude::*;
 use super::{events::EnteredFloorEvent, resources::AnimationTimer};
 use crate::{
     game::game_objects::{Floor, GameObject},
-    state::CurrentMap, resources::Board,
+    resources::Board,
 };
 
-
 pub fn handle_warp(
-    mut current_map: ResMut<State<CurrentMap>>,
+    // mut current_map: ResMut<CurrentMap>,
     mut moved: EventReader<EnteredFloorEvent>,
     mut board: ResMut<Board>,
     timer: Res<AnimationTimer>,
@@ -26,9 +25,9 @@ pub fn handle_warp(
                 board.insert_object_to_map(warp_position, event.object, map);
             }
             if event.object == GameObject::Player {
-                current_map
-                    .push(CurrentMap(Some(map)))
-                    .expect("Could not switch maps state");
+                // current_map
+                //     .push(CurrentMap(Some(map)))
+                //     .expect("Could not switch maps state");
                 board.set_current_map(map);
             }
         }

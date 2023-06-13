@@ -5,8 +5,8 @@ mod level_select;
 mod main_menu;
 mod resources;
 mod sprite_select;
+use crate::resources::StateStack;
 use crate::{
-    consts::{MAX_HEIGHT, MAX_WIDTH},
     exit::handle_esc,
     state::DisplayState,
     utils::delete_all_components,
@@ -33,135 +33,41 @@ pub struct MenusPlugin;
 impl Plugin for MenusPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<FileSavedEvent>();
-        app.add_system_set(
-            SystemSet::on_enter(DisplayState::MainMenu).with_system(setup_main_menu),
-        )
-        .add_system_set(SystemSet::on_resume(DisplayState::MainMenu).with_system(setup_main_menu))
-        .add_system_set(
-            SystemSet::on_update(DisplayState::MainMenu)
-                .with_system(handle_menu_click)
-                .with_system(handle_esc),
-        )
-        .add_system_set(
-            SystemSet::on_pause(DisplayState::MainMenu)
-                .with_system(delete_all_components::<MainMenuItem>),
-        )
-        .add_system_set(
-            SystemSet::on_exit(DisplayState::MainMenu)
-                .with_system(delete_all_components::<MainMenuItem>),
-        );
 
-        app.add_system_set(
-            SystemSet::on_enter(DisplayState::LevelSelect).with_system(setup_level_select),
-        )
-        .add_system_set(
-            SystemSet::on_resume(DisplayState::LevelSelect).with_system(setup_level_select),
-        )
-        .add_system_set(
-            SystemSet::on_update(DisplayState::LevelSelect)
-                .with_system(handle_level_click)
-                .with_system(handle_esc),
-        )
-        .add_system_set(
-            SystemSet::on_exit(DisplayState::LevelSelect)
-                .with_system(delete_all_components::<LevelSelectItem>),
-        )
-        .add_system_set(
-            SystemSet::on_pause(DisplayState::LevelSelect)
-                .with_system(delete_all_components::<LevelSelectItem>),
-        );
+        app.add_system(setup_main_menu.in_schedule(OnEnter(DisplayState::MainMenu)))
+            .add_systems((handle_esc, handle_menu_click).in_set(OnUpdate(DisplayState::MainMenu)))
+            .add_system(delete_all_components::<MainMenuItem>.in_schedule(OnExit(DisplayState::MainMenu)));
 
-        app.add_system_set(
-            SystemSet::on_enter(DisplayState::SpriteSelect).with_system(setup_sprite_select),
-        )
-        .add_system_set(
-            SystemSet::on_resume(DisplayState::SpriteSelect).with_system(setup_sprite_select),
-        )
-        .add_system_set(
-            SystemSet::on_update(DisplayState::SpriteSelect)
-                .with_system(handle_sprite_click)
-                .with_system(handle_esc),
-        )
-        .add_system_set(
-            SystemSet::on_exit(DisplayState::SpriteSelect)
-                .with_system(delete_all_components::<SpriteSelectItem>),
-        )
-        .add_system_set(
-            SystemSet::on_pause(DisplayState::SpriteSelect)
-                .with_system(delete_all_components::<SpriteSelectItem>),
-        );
-        app.add_system_set(
-            SystemSet::on_enter(DisplayState::LevelEditorInput).with_system(setup_level_editor),
-        )
-        .add_system_set(
-            SystemSet::on_resume(DisplayState::LevelEditorInput).with_system(setup_level_editor),
-        )
-        .add_system_set(
-            SystemSet::on_update(DisplayState::LevelEditorInput)
-                .with_system(handle_level_editor_input)
-                .with_system(handle_esc),
-        )
-        .add_system_set(
-            SystemSet::on_exit(DisplayState::LevelEditorInput)
-                .with_system(delete_all_components::<LevelEditorItem>),
-        )
-        .add_system_set(
-            SystemSet::on_pause(DisplayState::LevelEditorInput)
-                .with_system(delete_all_components::<LevelEditorItem>),
-        );
-        app.add_system_set(
-            SystemSet::on_enter(DisplayState::LevelEditorSave)
-                .with_system(setup_file_name_getter)
-        )
-        .add_system_set(
-            SystemSet::on_resume(DisplayState::LevelEditorSave)
-                .with_system(setup_file_name_getter)
-        )
-        .add_system_set(
-            SystemSet::on_update(DisplayState::LevelEditorSave)
-                .with_system(handle_file_get)
-                .with_system(save_board_to_file)
-                .with_system(handle_esc)
-        )
-        .add_system_set(
-            SystemSet::on_exit(DisplayState::LevelEditorSave)
-                .with_system(delete_all_components::<LevelEditorSaveItem>)
-        )
-        .add_system_set(
-            SystemSet::on_pause(DisplayState::LevelEditorSave)
-                .with_system(delete_all_components::<LevelEditorSaveItem>)
-        );
-        for i in 1..MAX_WIDTH {
-            for j in 1..MAX_HEIGHT {
-                app.add_system_set(
-                    SystemSet::on_enter(DisplayState::LevelEditorBoard(i, j))
-                        .with_system(setup_level_editor_board),
-                )
-                .add_system_set(
-                    SystemSet::on_resume(DisplayState::LevelEditorBoard(i, j))
-                        .with_system(setup_level_editor_board),
-                )
-                .add_system_set(
-                    SystemSet::on_update(DisplayState::LevelEditorBoard(i, j))
-                        .with_system(handle_level_editor_click)
-                        .with_system(handle_tab_click)
-                        .with_system(handle_plus_click)
-                        // .with_system(handle_esc),
-                        .with_system(handle_exit_to_save)
-                )
-                .add_system_set(
-                    SystemSet::on_exit(DisplayState::LevelEditorBoard(i, j))
-                        .with_system(delete_all_components::<LevelEditorItem>)
-                        // .with_system(save_board_to_file),
-                )
-                .add_system_set(
-                    SystemSet::on_pause(DisplayState::LevelEditorBoard(i, j))
-                        .with_system(delete_all_components::<LevelEditorItem>)
-                        // .with_system(save_board_to_file),
-                );
-            }
-        }
+        app.add_system(setup_level_select.in_schedule(OnEnter(DisplayState::LevelSelect)))
+            .add_systems((handle_level_click, handle_esc).in_set(OnUpdate(DisplayState::LevelSelect)))
+            .add_system(delete_all_components::<LevelSelectItem>.in_schedule(OnExit(DisplayState::LevelSelect)));
+
+        app.add_system(setup_sprite_select.in_schedule(OnEnter(DisplayState::SpriteSelect)))
+            .add_systems((handle_sprite_click, handle_esc).in_set(OnUpdate(DisplayState::SpriteSelect)))
+            .add_system(delete_all_components::<SpriteSelectItem>.in_schedule(OnExit(DisplayState::SpriteSelect)));
+
+        app.add_system(setup_level_editor.in_schedule(OnEnter(DisplayState::LevelEditorInput)))
+            .add_systems((handle_level_editor_input, handle_esc).in_set(OnUpdate(DisplayState::LevelEditorInput)))
+            .add_system(delete_all_components::<LevelEditorItem>.in_schedule(OnExit(DisplayState::LevelEditorInput)));
+
+        app.add_system(setup_file_name_getter.in_schedule(OnEnter(DisplayState::LevelEditorSave)))
+            .add_systems((
+                handle_file_get,
+                save_board_to_file,
+                handle_esc,
+            ).in_set(OnUpdate(DisplayState::LevelEditorSave)))
+            .add_system(delete_all_components::<LevelEditorSaveItem>.in_schedule(OnExit(DisplayState::LevelEditorSave)));
+
+        app.add_system(setup_level_editor_board.in_schedule(OnEnter(DisplayState::LevelEditorBoard)))
+            .add_systems((
+                handle_level_editor_click,
+                handle_plus_click,
+                handle_exit_to_save,
+            ).in_set(OnUpdate(DisplayState::LevelEditorBoard)))
+            .add_system(delete_all_components::<LevelEditorItem>.in_schedule(OnExit(DisplayState::LevelEditorBoard)));
+
         app.init_resource::<LevelEditorBoard>();
+        app.init_resource::<StateStack>();
         app.insert_resource(LevelNames(Vec::new()));
     }
 }
@@ -195,10 +101,7 @@ where
                         font: menu_font,
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
         });
 }

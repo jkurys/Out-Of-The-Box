@@ -5,7 +5,7 @@ use std::io::{Read, Write};
 
 use super::resources::VictoryTimer;
 use crate::consts::{LEVEL_SAVE, MAIN_MENU_FONT};
-use crate::resources::{CurrentLevel, Board};
+use crate::resources::{CurrentLevel, Board, StateStack};
 use crate::state::DisplayState;
 
 use super::game_objects::GameObject;
@@ -15,7 +15,7 @@ pub struct VictoryItem;
 
 pub fn handle_win(
     board: Res<Board>,
-    mut display_state: ResMut<State<DisplayState>>,
+    mut display_state: ResMut<NextState<DisplayState>>,
     mut timer: ResMut<VictoryTimer>,
     time: Res<Time>,
     current_level: Res<CurrentLevel>,
@@ -56,9 +56,7 @@ pub fn handle_win(
             file_write.write_all(&buf).unwrap();
         }
 
-        display_state
-            .set(DisplayState::Victory)
-            .expect("Could not set state to victory");
+        display_state.set(DisplayState::Victory);
         timer.0.reset();
     }
 }
@@ -68,7 +66,7 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::LIME_GREEN),
-            visibility: Visibility { is_visible: true },
+            visibility: Visibility::Visible,
             style: Style {
                 size: Size {
                     width: Val::Percent(100.0),
@@ -92,10 +90,7 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
                         font: menu_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -106,20 +101,18 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
                         font: menu_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
         });
 }
 
 pub fn handle_win_click(
     mut keyboard_input: ResMut<Input<KeyCode>>,
-    mut app_state: ResMut<State<DisplayState>>,
+    mut app_state: ResMut<NextState<DisplayState>>,
+    mut state_stack: ResMut<StateStack>,
 ) {
     if keyboard_input.pressed(KeyCode::Return) {
-        app_state.pop().expect("Could not go out of victory screen");
+        app_state.set(state_stack.0.pop().expect("Could not go out of victory screen"));
         keyboard_input.reset(KeyCode::Return);
     }
 }

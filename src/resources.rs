@@ -3,6 +3,7 @@ use bevy::utils::HashMap;
 
 use crate::game::game_objects::{Direction, Floor, GameObject, Position};
 use crate::consts::*;
+use crate::state::DisplayState;
 use std::fs::File;
 use std::io::Read;
 use crate::consts::{INITIAL_MAP, MAX_MAPS};
@@ -305,5 +306,14 @@ impl Board {
                 }
             }
         }
+    }
+}
+
+#[derive(Resource)]
+pub struct StateStack(pub Vec<DisplayState>);
+
+impl Default for StateStack {
+    fn default() -> Self {
+        Self(vec![DisplayState::MainMenu])
     }
 }

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::game::game_objects::{Direction, *};
 use crate::game::resources::BoardStates;
 use crate::resources::Board;
-use crate::state::{GameState, Move};
+use crate::state::MoveState;
 
 use super::events::ExitedFloorEvent;
 
@@ -11,7 +11,7 @@ pub fn handle_keypress(
     keyboard_input: ResMut<Input<KeyCode>>,
     board: Res<Board>,
     mut writer: EventWriter<ExitedFloorEvent>,
-    mut app_state: ResMut<State<GameState>>,
+    mut app_state: ResMut<NextState<MoveState>>,
     mut board_states: ResMut<BoardStates>,
 ) {
     let direction = if keyboard_input.any_pressed([KeyCode::Up, KeyCode::W]) {
@@ -50,8 +50,6 @@ pub fn handle_keypress(
                 object: board.get_object_from_map(position, map),
             });
         }
-        app_state
-            .set(GameState(Some(Move::Moving)))
-            .expect("Could not switch states");
+        app_state.set(MoveState::Moving);
     }
 }
