@@ -1,7 +1,7 @@
 use self::resources::{BoardStates, VictoryTimer};
 use crate::consts::MOVE_ANIMATION_TIME;
 use crate::exit::handle_esc;
-use crate::resources::Board;
+use crate::board::Board;
 use crate::utils::delete_all_components;
 use crate::{
     consts::INITIAL_MAP,
@@ -17,8 +17,8 @@ use self::victory::VictoryItem;
 pub mod display;
 pub mod game_objects;
 mod maps;
-pub mod movement;
 mod resources;
+pub mod movement;
 mod restart;
 mod victory;
 

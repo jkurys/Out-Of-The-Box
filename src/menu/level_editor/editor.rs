@@ -3,7 +3,8 @@ use bevy::prelude::*;
 use crate::{
     consts::*,
     game::game_objects::{Floor, GameObject, Position},
-    resources::{Images, Board, MapSize},
+    resources::{Images, MapSize},
+    board::Board,
     utils::offset_coordinate,
 };
 

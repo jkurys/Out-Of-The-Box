@@ -1,5 +1,5 @@
 use super::{events::EnteredFloorEvent, resources::AnimationTimer};
-use crate::{consts::TILE_SIZE, resources::Board};
+use crate::{consts::TILE_SIZE, board::Board};
 use bevy::prelude::*;
 
 use crate::game::game_objects::{Direction, *};

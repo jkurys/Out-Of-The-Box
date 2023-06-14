@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::events::{EnteredFloorEvent, ExitedFloorEvent};
-use crate::{game::game_objects::{Floor, GameObject}, resources::Board};
+use crate::{game::game_objects::{Floor, GameObject}, board::Board};
 
 use super::resources::AnimationTimer;
 // checks which entities should move if they are on ice

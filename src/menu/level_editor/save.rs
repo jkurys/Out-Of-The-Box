@@ -2,7 +2,7 @@ use std::{fs::File, io::Write};
 
 use bevy::prelude::*;
 
-use crate::{state::DisplayState, consts::MAIN_MENU_FONT, resources::{StateStack, Board}};
+use crate::{state::DisplayState, consts::MAIN_MENU_FONT, resources::StateStack, board::Board};
 
 use super::{events::FileSavedEvent};
 

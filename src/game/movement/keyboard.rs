@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::game::game_objects::{Direction, *};
 use crate::game::resources::BoardStates;
-use crate::resources::Board;
+use crate::board::Board;
 use crate::state::MoveState;
 
 use super::events::ExitedFloorEvent;

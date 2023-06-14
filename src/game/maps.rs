@@ -1,4 +1,4 @@
-use crate::resources::Board;
+use crate::board::Board;
 use crate::{consts::INITIAL_MAP, resources::CurrentLevel};
 use bevy::prelude::*;
 use std::fs::File;

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game::game_objects::GameObject, resources::Board};
+use crate::{game::game_objects::GameObject, board::Board};
 
 pub fn handle_button(
     mut board: ResMut<Board>,

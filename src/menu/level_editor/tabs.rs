@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE}, state::DisplayState, resources::Board};
+use crate::{consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE}, state::DisplayState, board::Board};
 
 use super::editor::{LevelEditorTabPlus, LevelEditorTab, LevelEditorChangable, GameEntity};
 
@@ -68,8 +68,6 @@ pub fn handle_tab_click(
         }
     }
 }
-
-
 
 pub fn handle_level_editor_click(
     mut changable_query: Query<

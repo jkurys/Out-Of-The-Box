@@ -5,7 +5,7 @@ use crate::game::game_objects::*;
 use crate::resources::Images;
 
 use crate::game::movement::resources::AnimationTimer;
-use crate::resources::Board;
+use crate::board::Board;
 use crate::utils::offset_coordinate;
 
 use super::render_entity;

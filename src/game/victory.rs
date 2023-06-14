@@ -4,8 +4,9 @@ use std::fs::File;
 use std::io::{Read, Write};
 
 use super::resources::VictoryTimer;
+use crate::board::Board;
 use crate::consts::{LEVEL_SAVE, MAIN_MENU_FONT};
-use crate::resources::{CurrentLevel, Board, StateStack};
+use crate::resources::{CurrentLevel, StateStack};
 use crate::state::DisplayState;
 
 use super::game_objects::GameObject;
