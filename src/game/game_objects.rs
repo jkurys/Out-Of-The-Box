@@ -55,7 +55,7 @@ pub struct Warp;
 #[derive(Component)]
 pub struct BoxButton;
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
 pub struct Position {
     pub x: i32,
     pub y: i32,

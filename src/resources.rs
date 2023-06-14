@@ -92,7 +92,7 @@ struct SingleBoard {
     goals: Vec<Position>,
     buttons: Vec<Vec<Position>>,
     map_size: MapSize,
-    player_position: Position,
+    player_positions: Vec<Position>,
     warp_positions: [Position; MAX_MAPS],
 }
 
@@ -116,7 +116,7 @@ impl Board {
                     width: 0,
                     height: 0,
                 },
-                player_position: Position { x: 0, y: 0},
+                player_positions: Vec::new(),
                 warp_positions: [Position { x: 0, y: 0}; 10],
             });
         }
@@ -138,8 +138,14 @@ impl Board {
         self.boards[self.current].map_size
     }
 
-    pub fn get_player_position(&self) -> Position {
-        self.boards[self.current].player_position
+    pub fn get_player_positions(&self) -> Vec<Position> {
+        let mut positions = Vec::new();
+        for (&pos, &obj) in self.boards[self.current].objects.iter() {
+            if obj == GameObject::Player {
+                positions.push(pos);
+            }
+        }
+        positions
     }
 
     pub fn get_entities(&self, position: Position) -> Option<[Entity; 2]> {
@@ -194,7 +200,7 @@ impl Board {
 
     pub fn insert_object_to_map(&mut self, position: Position, object: GameObject, map: usize) {
         if object == GameObject::Player {
-            self.boards[map].player_position = position;
+            self.boards[map].player_positions.push(position);
         }
         self.boards[map].objects.insert(position, object);
     }
@@ -216,12 +222,23 @@ impl Board {
     }
 
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
-        let object = self.boards[map]
+        let object_opt = self.boards[map]
             .objects
-            .remove(&position)
-            .expect("Tried to move nothing");
+            .remove(&position);
+        if object_opt.is_none() {
+            return;
+        }
+        let object = object_opt.unwrap();
         if object == GameObject::Player {
-            self.boards[map].player_position = position.next_position(dir);
+            let mut switch_idx = None;
+            for (idx, old_pos) in self.boards[map].player_positions.iter().enumerate() {
+                if *old_pos == position {
+                    switch_idx = Some(idx);
+                }
+            }
+            if !switch_idx.is_none() {
+                self.boards[map].player_positions[switch_idx.unwrap()] = position.next_position(dir);
+            }
         }
         self.boards[map]
             .objects
