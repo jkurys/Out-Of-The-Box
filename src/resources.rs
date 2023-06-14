@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
+use serde::{Serialize, Deserialize};
 
 use crate::game::game_objects::{Direction, Floor, GameObject, Position};
 use crate::consts::*;
@@ -77,13 +78,13 @@ impl FromWorld for Images {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct MapSize {
     pub height: u32,
     pub width: u32,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct SingleBoard {
     entities: HashMap<Position, [Entity; 2]>,
     objects: HashMap<Position, GameObject>,
@@ -95,7 +96,7 @@ struct SingleBoard {
     warp_positions: [Position; MAX_MAPS],
 }
 
-#[derive(Resource, Debug, Clone)]
+#[derive(Resource, Debug, Clone, Serialize, Deserialize)]
 pub struct Board {
     boards: Vec<SingleBoard>,
     current: usize,
@@ -135,10 +136,6 @@ impl Board {
 
     pub fn get_map_size(&self) -> MapSize {
         self.boards[self.current].map_size
-    }
-
-    pub fn get_map_size_n(&self, n: usize) -> MapSize {
-        self.boards[n].map_size
     }
 
     pub fn get_player_position(&self) -> Position {
@@ -182,10 +179,6 @@ impl Board {
 
     pub fn get_current_map(&self) -> usize {
         self.current
-    }
-
-    pub fn get_board_n(&self, n: usize) -> (HashMap<Position, GameObject>, HashMap<Position, Floor>) {
-        (self.boards[n].objects.clone(), self.boards[n].floors.clone())
     }
 
     pub fn insert(&mut self, position: Position, floor_or_object: GameEntity) {
@@ -281,16 +274,6 @@ impl Board {
             self.boards[map].buttons[1].clear();
             self.boards[map].buttons[2].clear();
         }
-    }
-
-    pub fn get_created_maps(&self) -> usize {
-        for i in 1..=MAX_MAPS {
-            if self.boards[i].objects.is_empty()
-                && self.boards[i].floors.is_empty() {
-                return i;
-            }
-        }
-        MAX_MAPS
     }
 
     pub fn rise_hiding_wall(&mut self, moved_color: usize) {

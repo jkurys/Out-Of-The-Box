@@ -153,7 +153,7 @@ pub fn setup_level_editor_board(
                                         //top wall
                                         spawn_small_image(parent, images.wall_images[1].clone());
                                         // inside tiles
-                                        for y in bottom_border..(top_border + 1) {
+                                        for y in (bottom_border..=top_border).rev() {
                                             spawn_small_button(
                                                 parent,
                                                 images.tile_image.clone(),

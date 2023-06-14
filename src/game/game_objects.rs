@@ -1,8 +1,10 @@
-use std::cmp::Ordering;
+use std::{cmp::Ordering, fmt};
 
 use bevy::prelude::*;
+use serde::{Serialize, Deserialize, Deserializer};
+use serde::de::{self, Visitor, Unexpected};
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum GameObject {
     Box,
     Wall,
@@ -11,7 +13,7 @@ pub enum GameObject {
     Player,
 }
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Floor {
     HiddenWall { hidden_by_default: bool, color: usize },
     Tile,
@@ -57,6 +59,73 @@ pub struct BoxButton;
 pub struct Position {
     pub x: i32,
     pub y: i32,
+}
+
+impl Serialize for Position {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer {
+        serializer.serialize_str(&format!("{}:{}", self.x, self.y))
+    }
+}
+
+struct PositionVisitor;
+
+impl<'de> Visitor<'de> for PositionVisitor {
+    type Value = Position;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("a colon-separated pair of integers between 0 and 255")
+    }
+
+    fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        let mut splits = s.split(':');
+        let x_char_opt = splits.next();
+        if x_char_opt.is_none() {
+            return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
+        }
+        let x_char = x_char_opt.unwrap();
+        if let Ok(x) = i32::from_str_radix(x_char, 10) {
+            let y_char_opt = splits.next();
+            if y_char_opt.is_none() {
+                return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
+            }
+            let y_char = y_char_opt.unwrap();
+            if let Ok(y) = i32::from_str_radix(y_char, 10) {
+                return Ok(Position { x, y });
+            } else {
+                return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
+            }
+        } else {
+            return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
+        }
+
+        // if let Some(nums) = Regex::new(r"(\d+):(\d+)").unwrap().captures_iter(s).next() {
+        //     if let Ok(x) = i32::from_str_radix(&nums[1], 10) {
+        //         if let Ok(y) = i32::from_str_radix(&nums[2], 10) {
+        //             Ok(Position { x, y })
+        //         } else {
+        //             Err(de::Error::invalid_value(Unexpected::Str(s), &self))
+        //         }
+        //     } else {
+        //         Err(de::Error::invalid_value(Unexpected::Str(s), &self))
+        //     }
+        // } else {
+        //     Err(de::Error::invalid_value(Unexpected::Str(s), &self))
+        // }
+    }
+}
+
+impl<'de> Deserialize<'de> for Position {
+    fn deserialize<D>(deserializer: D) -> Result<Position, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_string(PositionVisitor)
+    }
 }
 
 impl Position {

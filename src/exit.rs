@@ -14,7 +14,7 @@ pub fn handle_esc(
             app_exit.send(AppExit);
             return; //just in case to avoid weird behaviour before event is parsed
         }
-        next_state.set(state_stack.0.pop().expect("Could not exit properly"));
+        next_state.set(state_stack.0.pop().unwrap_or(DisplayState::MainMenu));
         keyboard_input.reset(KeyCode::Escape);
     }
 }

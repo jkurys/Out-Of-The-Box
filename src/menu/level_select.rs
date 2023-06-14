@@ -125,7 +125,7 @@ pub fn handle_level_click(
                     next_state.set(DisplayState::Game);
                 }
                 LevelSelectItemType::Back => {
-                    next_state.set(state_stack.0.pop().expect("Going back to main menu failed"));
+                    next_state.set(state_stack.0.pop().unwrap_or(DisplayState::MainMenu));
                 }
             },
             Interaction::Hovered => {
