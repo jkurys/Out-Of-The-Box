@@ -4,7 +4,7 @@ use crate::{state::DisplayState, resources::StateStack};
 
 pub fn handle_esc(
     mut keyboard_input: ResMut<Input<KeyCode>>,
-    mut app_state: ResMut<State<DisplayState>>,
+    app_state: ResMut<State<DisplayState>>,
     mut next_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
     mut app_exit: EventWriter<AppExit>,

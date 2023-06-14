@@ -3,12 +3,12 @@ use bevy::prelude::*;
 use crate::{
     consts::*,
     game::game_objects::{Floor, GameObject, Position},
-    resources::Images,
+    resources::{Images, Board, MapSize},
     utils::offset_coordinate,
 };
 
 use super::{
-    resources::{LevelEditorBoard, BoardSize},
+    resources::BoardSize,
     utils::{spawn_small_button, spawn_small_image},
 };
 
@@ -49,11 +49,11 @@ pub fn setup_level_editor_board(
     mut commands: Commands,
     images: Res<Images>,
     board_size: Res<BoardSize>,
-    mut boards: ResMut<LevelEditorBoard>,
+    mut boards: ResMut<Board>,
     asset_server: Res<AssetServer>,
 ) {
     let BoardSize { width, height } = *board_size;
-    boards.set_size(width, height);
+    boards.set_map_size(MapSize { width, height });
     let plus_image = asset_server.load(PLUS_TEXTURE);
     let bottom_border = offset_coordinate(0, height as i32);
     let top_border = offset_coordinate(height as i32 - 1, height as i32);

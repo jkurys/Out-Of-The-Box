@@ -1,10 +1,14 @@
 1
-8 8
-g      g
-        
-        
-wwwhwHww
-wwwtwtww
-wwwHwhww
- b  b b 
-p   g   
+12 12
+            
+ p     g    
+  p  p    g 
+    p  p    
+            
+            
+            
+            
+            
+            
+            
+            

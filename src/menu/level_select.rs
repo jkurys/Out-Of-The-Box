@@ -91,7 +91,7 @@ pub fn setup_level_select(
 }
 
 pub fn handle_level_click(
-    mut app_state: ResMut<State<DisplayState>>,
+    app_state: ResMut<State<DisplayState>>,
     mut next_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
     mut query: Query<

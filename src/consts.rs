@@ -7,8 +7,8 @@ pub const PLAYER_TEXTURES: [&str; 3] = [
 
 pub const LOWER_PLAYER_TEXTURES: [&str; 3] = [
     "textures/player_lower.png",
-    "textures/player_lower.png",
-    "textures/player_lower.png",
+    "textures/white_sprite_lower.png",
+    "textures/black_sprite_lower.png",
 ];
 
 pub const TILE_TEXTURE: &str = "textures/tile.png";

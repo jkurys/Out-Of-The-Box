@@ -3,6 +3,7 @@ use bevy::utils::HashMap;
 
 use crate::game::game_objects::{Direction, Floor, GameObject, Position};
 use crate::consts::*;
+use crate::menu::level_editor::editor::GameEntity;
 use crate::state::DisplayState;
 use std::fs::File;
 use std::io::Read;
@@ -136,6 +137,10 @@ impl Board {
         self.boards[self.current].map_size
     }
 
+    pub fn get_map_size_n(&self, n: usize) -> MapSize {
+        self.boards[n].map_size
+    }
+
     pub fn get_player_position(&self) -> Position {
         self.boards[self.current].player_position
     }
@@ -179,15 +184,26 @@ impl Board {
         self.current
     }
 
+    pub fn get_board_n(&self, n: usize) -> (HashMap<Position, GameObject>, HashMap<Position, Floor>) {
+        (self.boards[n].objects.clone(), self.boards[n].floors.clone())
+    }
+
+    pub fn insert(&mut self, position: Position, floor_or_object: GameEntity) {
+        match floor_or_object {
+            GameEntity::Floor(f) => self.insert_floor_to_map(position, f, self.current),
+            GameEntity::Object(o) => self.insert_object(position, o),
+        };
+    }
+
     pub fn insert_object(&mut self, position: Position, object: GameObject) {
         self.insert_object_to_map(position, object, self.current);
     }
 
     pub fn insert_object_to_map(&mut self, position: Position, object: GameObject, map: usize) {
-        self.boards[map].objects.insert(position, object);
         if object == GameObject::Player {
             self.boards[map].player_position = position;
         }
+        self.boards[map].objects.insert(position, object);
     }
 
     pub fn insert_entities(&mut self, position: Position, entities: [Entity; 2]) {
@@ -228,15 +244,18 @@ impl Board {
             });
     }
 
-    pub fn delete_object(&mut self, position: Position, map: usize) {
+    pub fn delete_object(&mut self, position: Position) {
+        self.delete_object_n(position, self.current);
+    }
+
+    pub fn delete_object_n(&mut self, position: Position, map: usize) {
         self.boards[map]
             .objects
             .remove(&position)
             .expect("Could not remove object");
         self.boards[map]
             .entities
-            .remove(&position)
-            .expect("Could not remove entity");
+            .remove(&position);
     }
 
     pub fn get_warp_position(&self, from: usize, to: usize) -> Position {
@@ -262,6 +281,16 @@ impl Board {
             self.boards[map].buttons[1].clear();
             self.boards[map].buttons[2].clear();
         }
+    }
+
+    pub fn get_created_maps(&self) -> usize {
+        for i in 1..=MAX_MAPS {
+            if self.boards[i].objects.is_empty()
+                && self.boards[i].floors.is_empty() {
+                return i;
+            }
+        }
+        MAX_MAPS
     }
 
     pub fn rise_hiding_wall(&mut self, moved_color: usize) {

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-mod level_editor;
+pub mod level_editor;
 mod level_select;
 mod main_menu;
 mod resources;
@@ -19,8 +19,9 @@ use level_editor::editor::*;
 
 use level_editor::tabs::*;
 
-use level_editor::resources::LevelEditorBoard;
+// use level_editor::resources::LevelEditorBoard;
 
+use self::level_editor::resources::BoardSize;
 use self::{
     level_select::LevelSelectItem,
     main_menu::MainMenuItem,
@@ -62,13 +63,15 @@ impl Plugin for MenusPlugin {
             .add_systems((
                 handle_level_editor_click,
                 handle_plus_click,
+                handle_tab_click,
                 handle_exit_to_save,
             ).in_set(OnUpdate(DisplayState::LevelEditorBoard)))
             .add_system(delete_all_components::<LevelEditorItem>.in_schedule(OnExit(DisplayState::LevelEditorBoard)));
 
-        app.init_resource::<LevelEditorBoard>();
+        // app.init_resource::<LevelEditorBoard>();
         app.init_resource::<StateStack>();
         app.insert_resource(LevelNames(Vec::new()));
+        app.init_resource::<BoardSize>();
     }
 }
 

@@ -2,9 +2,9 @@ use std::{fs::File, io::Write};
 
 use bevy::prelude::*;
 
-use crate::{state::DisplayState, consts::MAIN_MENU_FONT, game::game_objects::{Position, GameObject, Floor}, resources::StateStack};
+use crate::{state::DisplayState, consts::MAIN_MENU_FONT, game::game_objects::{Position, GameObject, Floor}, resources::{StateStack, Board, MapSize}};
 
-use super::{events::FileSavedEvent, resources::LevelEditorBoard, editor::GameEntity};
+use super::{events::FileSavedEvent};
 
 #[derive(Component)]
 pub struct LevelEditorSaveItem;
@@ -80,7 +80,6 @@ pub fn handle_file_get(
     }
     if input.just_pressed(KeyCode::Return) {
         event_writer.send(FileSavedEvent(file_name.clone()));
-        // input.reset(KeyCode::Return);
         *file_name = "".to_string();
     }
     if input.just_pressed(KeyCode::Back) {
@@ -98,7 +97,7 @@ fn position_to_index(pos: Position, width: u32, height: u32) -> usize {
 }
 
 pub fn save_board_to_file(
-    board: Res<LevelEditorBoard>,
+    mut board: ResMut<Board>,
     mut reader: EventReader<FileSavedEvent>,
     mut app_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
@@ -110,16 +109,12 @@ pub fn save_board_to_file(
     if file_name == "".to_string() {
         return;
     }
-    let maps_char = char::from_digit(board.created_maps as u32, 10).unwrap();
+    let maps_char = char::from_digit(board.get_created_maps() as u32, 10).unwrap();
     let mut file_prelude = vec![maps_char, '\n'];
 
-    for n in 0..10 {
-        let option_map = board.give_map_n(n);
-        if let None = option_map {
-            continue;
-        }
-        let map = option_map.unwrap();
-        let ( width, height ) = (board.get_width_n(n), board.get_height_n(n));
+    for n in 0..board.get_created_maps() {
+        let (objects, floors) = board.get_board_n(n);
+        let MapSize { width, height } = board.get_map_size_n(n);
         let mut height_string: Vec<char> = height.to_string().chars().collect();
         let mut width_string: Vec<char> = width.to_string().chars().collect();
         let mut map_prelude = Vec::new();
@@ -131,19 +126,20 @@ pub fn save_board_to_file(
         for i in 0..height {
             buf[(width + i * (width + 1)) as usize] = '\n';
         }
-        for (position, object) in map.iter() {
+        for (position, object) in objects.iter() {
             let index = position_to_index(*position, width, height);
             buf[index] = match *object {
-                GameEntity::Object(object) => match object {
-                    GameObject::Box => 'b',
-                    GameObject::Wall => 'w',
-                    GameObject::HidingWall { color: 0 } => 'H',
-                    GameObject::HidingWall { color: 1 } => 'J',
-                    GameObject::HidingWall { color: _ } => 'K',
-                    GameObject::Empty => ' ',
-                    GameObject::Player => 'p',
-                },
-                GameEntity::Floor(floor) => match floor {
+                GameObject::Box => 'b',
+                GameObject::Wall => 'w',
+                GameObject::HidingWall { color: 0 } => 'H',
+                GameObject::HidingWall { color: 1 } => 'J',
+                GameObject::HidingWall { color: _ } => 'K',
+                GameObject::Empty => ' ',
+                GameObject::Player => 'p',
+            };
+            for (position, floor) in floors.iter() {
+                let index = position_to_index(*position, width, height);
+                buf[index] = match *floor {
                     Floor::HiddenWall {
                         hidden_by_default: _,
                         color: 0,
@@ -163,7 +159,7 @@ pub fn save_board_to_file(
                     Floor::Button(0) => 't',
                     Floor::Button(1) => 's',
                     Floor::Button(_) => 'u',
-                },
+                };
             }
         }
         map_prelude.append(&mut buf);
@@ -173,4 +169,5 @@ pub fn save_board_to_file(
     let buf = file_prelude.iter().map(|c| *c as u8).collect::<Vec<_>>();
     file.write_all(&buf[..]).unwrap();
     app_state.set(state_stack.0.pop().expect("Could not save file"));
+    board.clear();
 }

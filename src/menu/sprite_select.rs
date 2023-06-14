@@ -116,7 +116,7 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
 }
 
 pub fn handle_sprite_click(
-    mut app_state: ResMut<State<DisplayState>>,
+    mut app_state: ResMut<NextState<DisplayState>>,
     mut query: Query<
         (
             &mut Interaction,
@@ -130,13 +130,13 @@ pub fn handle_sprite_click(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Clicked => match item.as_ref() {
                 SpriteSelectItemType::Back => {
-                    *app_state = State(DisplayState::MainMenu);
+                    app_state.set(DisplayState::MainMenu);
                 }
                 SpriteSelectItemType::Select(sprite_no) => {
                     let bytes = [*sprite_no];
                     let mut file = File::create(PLAYER_TEXTURE_SAVE).unwrap();
                     file.write_all(&bytes).unwrap();
-                    *app_state = State(DisplayState::MainMenu);
+                    app_state.set(DisplayState::MainMenu);
                 }
             },
             Interaction::Hovered => {

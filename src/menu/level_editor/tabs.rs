@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE}, state::DisplayState, game::game_objects::{Position, GameObject}, resources::Images};
+use crate::{consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE}, state::DisplayState, resources::Board};
 
-use super::{editor::{LevelEditorTabPlus, LevelEditorTab, LevelEditorChangable, GameEntity}, resources::LevelEditorBoard};
+use super::editor::{LevelEditorTabPlus, LevelEditorTab, LevelEditorChangable, GameEntity};
 
 pub fn handle_plus_click(
     mut plus_query: Query<
@@ -50,14 +50,13 @@ pub fn handle_tab_click(
         (&LevelEditorTab, &Interaction, &mut BackgroundColor),
         With<LevelEditorTab>,
     >,
-    mut boards: ResMut<LevelEditorBoard>,
+    mut boards: ResMut<Board>,
     mut app_state: ResMut<NextState<DisplayState>>
 ) {
     for (tab_num, interaction, mut color) in tab_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
-                boards.curr_map = tab_num.0 - 1;
-                boards.init_map_n(tab_num.0 - 1);
+                boards.set_current_map(tab_num.0 - 1);
                 app_state.set(DisplayState::LevelEditorInput);
             }
             Interaction::Hovered => {
@@ -70,42 +69,31 @@ pub fn handle_tab_click(
     }
 }
 
+
+
 pub fn handle_level_editor_click(
     mut changable_query: Query<
         (&LevelEditorChangable, &Interaction, &mut UiImage),
         With<LevelEditorChangable>,
     >,
     clickable_query: Query<(&Interaction, &UiImage, &GameEntity), Without<LevelEditorChangable>>,
-    mut board: ResMut<LevelEditorBoard>,
+    mut board: ResMut<Board>,
     mut current_object: Local<GameEntity>,
-    mut last_added_player: Local<(Option<Position>, bool)>,
-    images: Res<Images>,
+    mut image: Local<(UiImage, bool)>,
 ) {
-    for (changable, interaction, mut image) in changable_query.iter_mut() {
+    for (changable, interaction, mut new_image) in changable_query.iter_mut() {
         let position = changable.0;
         if *interaction == Interaction::Clicked {
-            if let (Some(prev_position), false) = *last_added_player {
-                if let GameEntity::Object(GameObject::Player) = *current_object {
-                    if position != prev_position {
-                        *last_added_player = (Some(prev_position), true);
-                    }
-                }
-            } else if let GameEntity::Object(GameObject::Player) = *current_object {
-                *last_added_player = (Some(position), false);
-            }
-            *image = board.image.clone();
-            board.insert_object(position, *current_object);
-        }
-        if let (Some(player_position), true) = *last_added_player {
-            if player_position == position {
-                *image = UiImage{ texture: images.tile_image.clone(), ..default() };
-                board.remove_object(position);
+            if image.1 {
+                *new_image = image.0.clone();
+                board.insert(position, *current_object);
             }
         }
     }
-    for (interaction, image, object_or_floor) in clickable_query.iter() {
+    for (interaction, new_image, object_or_floor) in clickable_query.iter() {
         if *interaction == Interaction::Clicked {
-            board.image = image.clone();
+            image.0 = new_image.clone();
+            image.1 = true;
             *current_object = *object_or_floor;
         }
     }

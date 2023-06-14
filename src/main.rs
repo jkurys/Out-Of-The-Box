@@ -11,7 +11,6 @@ use std::io::Read;
 mod consts;
 mod exit;
 mod game;
-mod labels;
 mod menu;
 mod resources;
 mod state;

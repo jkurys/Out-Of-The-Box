@@ -19,8 +19,7 @@ pub fn handle_warp(
         let position = event.position;
         if let Floor::Warp(map) = event.floor {
             if event.object == GameObject::Player || event.object == GameObject::Box {
-                let curr_map = board.get_current_map();
-                board.delete_object(position, curr_map);
+                board.delete_object(position);
                 let warp_position = board.get_warp_position(map, board.get_current_map());
                 board.insert_object_to_map(warp_position, event.object, map);
             }
