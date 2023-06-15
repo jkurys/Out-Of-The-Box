@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use serde::{Serialize, Deserialize};
 
-use crate::{game::game_objects::{Position, GameObject, Floor, Direction}, resources::MapSize, consts::{MAX_MAPS, INITIAL_MAP}, menu::level_editor::editor::GameEntity};
+use crate::{game::game_objects::{Position, GameObject, Floor, Direction}, resources::MapSize, consts::{MAX_MAPS, INITIAL_MAP}, components::GameEntity};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SingleBoard {

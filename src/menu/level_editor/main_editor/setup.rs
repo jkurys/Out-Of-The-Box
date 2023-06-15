@@ -1,0 +1,241 @@
+use bevy::prelude::*;
+
+use crate::{resources::{Images, MapSize}, menu::level_editor::{resources::BoardSize, LevelEditorItem, utils::{spawn_small_image, spawn_small_button}}, board::Board, consts::{PLUS_TEXTURE, MAX_MAPS}, utils::offset_coordinate, game::game_objects::{Position, GameObject, Floor}, components::GameEntity};
+
+use super::{styles::*, LevelEditorChangable, LevelEditorTabs, LevelEditorTab, LevelEditorTabPlus};
+
+
+pub fn setup_level_editor_board(
+    mut commands: Commands,
+    images: Res<Images>,
+    board_size: Res<BoardSize>,
+    mut boards: ResMut<Board>,
+    asset_server: Res<AssetServer>,
+) {
+    let BoardSize { width, height } = *board_size;
+    boards.set_map_size(MapSize { width, height });
+    let plus_image = asset_server.load(PLUS_TEXTURE);
+    let bottom_border = offset_coordinate(0, height as i32);
+    let top_border = offset_coordinate(height as i32 - 1, height as i32);
+    let left_border = offset_coordinate(0, width as i32);
+    let right_border = offset_coordinate(width as i32 - 1, width as i32);
+    commands
+        // main separation between 2 compartments
+        .spawn(NodeBundle {
+            background_color: BackgroundColor(Color::BLACK),
+            visibility: Visibility::Visible,
+            style: Style {
+                size: Size {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                },
+                flex_direction: FlexDirection::Row,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceEvenly,
+                ..default()
+            },
+            ..default()
+        })
+        .insert(LevelEditorItem)
+        .with_children(|parent| {
+            //left compartment, with board
+            parent
+                .spawn(NodeBundle {
+                    background_color: BackgroundColor(Color::GRAY),
+                    visibility: Visibility::Visible,
+                    style: BOARD_COMPARTMENT_STYLE,
+                    ..default()
+                })
+                // two compartments: tabs and board
+                .with_children(|parent| {
+                    
+                    // board, component holding all columns
+                    parent
+                        .spawn(NodeBundle {
+                            background_color: BackgroundColor(Color::GRAY),
+                            visibility: Visibility::Visible,
+                            style: BOARD_STYLE,
+                            ..default()
+                        })
+                        .with_children(|parent| {
+                            // component for a left-most column
+                            parent
+                                .spawn(NodeBundle {
+                                    background_color: BackgroundColor(Color::GRAY),
+                                    visibility: Visibility::Visible,
+                                    style: COLUMN_STYLE,
+                                    ..default()
+                                })
+                                .with_children(|parent| {
+                                    for _ in 0..height + 2 {
+                                        //left-most column, all walls
+                                        spawn_small_image(parent, images.wall_images[1].clone());
+                                    }
+                                });
+                            for x in left_border..(right_border + 1) {
+                                // middle columns
+                                parent
+                                    .spawn(NodeBundle {
+                                        background_color: BackgroundColor(Color::GRAY),
+                                        visibility: Visibility::Visible,
+                                        style: COLUMN_STYLE,
+                                        ..default()
+                                    })
+                                    .with_children(|parent| {
+                                        //top wall
+                                        spawn_small_image(parent, images.wall_images[1].clone());
+                                        // inside tiles
+                                        for y in (bottom_border..=top_border).rev() {
+                                            spawn_small_button(
+                                                parent,
+                                                images.tile_image.clone(),
+                                                LevelEditorChangable(Position { x, y }),
+                                            );
+                                        }
+                                        // bottom wall
+                                        spawn_small_image(parent, images.wall_images[1].clone());
+                                    });
+                            }
+                            // right-most column, all walls
+                            parent
+                                .spawn(NodeBundle {
+                                    background_color: BackgroundColor(Color::GRAY),
+                                    visibility: Visibility::Visible,
+                                    style: COLUMN_STYLE,
+                                    ..default()
+                                })
+                                .with_children(|parent| {
+                                    for _ in 0..height + 2 {
+                                        spawn_small_image(parent, images.wall_images[1].clone());
+                                    }
+                                });
+                        });
+                    // map tabs
+                    parent
+                        .spawn(NodeBundle {
+                            background_color: BackgroundColor(Color::BLUE),
+                            style: TABS_COMPARTMENT_STYLE,
+                            ..default()
+                        })
+                        .insert(LevelEditorTabs)
+                        // first tab
+                        .with_children(|parent| {
+                            parent.spawn(ButtonBundle::default())
+                                .insert(NodeBundle {
+                                    background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
+                                    visibility: Visibility::Visible,
+                                    style: TABS_STYLE,
+                                    ..default()
+                                })
+                                .insert(LevelEditorTab(1));
+                            for i in 2..=MAX_MAPS {
+                                parent.spawn(ButtonBundle::default())
+                                    .insert(NodeBundle {
+                                        background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
+                                        visibility: Visibility::Hidden,
+                                        style: TABS_STYLE,
+                                        ..default()
+                                    })
+                                .insert(LevelEditorTab(i));
+                            }
+                            parent
+                                .spawn(ButtonBundle::default())
+                                .insert(ImageBundle {
+                                    image: UiImage{ texture: plus_image, ..default() },
+                                    style: PLUS_STYLE,
+                                    ..default()
+                                })
+                                .insert(LevelEditorTabPlus);
+                        });
+                });
+            // right section of the editor
+            parent
+                .spawn(NodeBundle {
+                    background_color: BackgroundColor(Color::GREEN),
+                    visibility: Visibility::Visible,
+                    style: RIGHT_COMPARTMENT_STYLE,
+                    ..default()
+                })
+                .with_children(|parent| {
+                    // objects
+                    parent
+                        .spawn(NodeBundle {
+                            background_color: BackgroundColor(Color::DARK_GREEN),
+                            visibility: Visibility::Visible,
+                            style: OBJECTS_COMPARTMENT_STYLE,
+                            ..default()
+                        })
+                        .with_children(|parent| {
+                            spawn_small_button(
+                                parent,
+                                images.box_images[1].clone(),
+                                GameEntity::Object(GameObject::Box),
+                            );
+                            for color in 0..3 {
+                                spawn_small_button(
+                                    parent,
+                                    images.shown_hidden_wall_images[color][1].clone(),
+                                    GameEntity::Object(GameObject::HidingWall { color }),
+                                );
+                            }
+                            spawn_small_button(
+                                parent,
+                                images.wall_images[1].clone(),
+                                GameEntity::Object(GameObject::Wall),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.player_images[1].clone(),
+                                GameEntity::Object(GameObject::Player),
+                            );
+                        });
+                    // floors
+                    parent
+                        .spawn(NodeBundle {
+                            background_color: BackgroundColor(Color::GREEN),
+                            visibility: Visibility::Visible,
+                            style: FLOORS_COMPARTMENT_STYLE,
+                            ..default()
+                        })
+                        .with_children(|parent| {
+                            spawn_small_button(
+                                parent,
+                                images.goal_image.clone(),
+                                GameEntity::Floor(Floor::Goal),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.ice_image.clone(),
+                                GameEntity::Floor(Floor::Ice),
+                            );
+                            for color in 0..3 {
+                                spawn_small_button(
+                                    parent,
+                                    images.button_images[color].clone(),
+                                    GameEntity::Floor(Floor::Button(color)),
+                                );
+                            }
+                            for color in 0..3 {
+                                spawn_small_button(
+                                    parent,
+                                    images.hidden_wall_images[color].clone(),
+                                    GameEntity::Floor(Floor::HiddenWall {
+                                        hidden_by_default: true,
+                                        color
+                                    }),
+                                );
+                            }
+                            spawn_small_button(
+                                parent,
+                                images.tile_image.clone(),
+                                GameEntity::Floor(Floor::Tile),
+                            );
+                            spawn_small_button(
+                                parent,
+                                images.warp_image.clone(),
+                                GameEntity::Floor(Floor::Warp(1)),
+                            );
+                        });
+                });
+        });
+}

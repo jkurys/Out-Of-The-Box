@@ -16,6 +16,7 @@ mod menu;
 mod resources;
 mod state;
 mod utils;
+mod components;
 
 fn main() {
     App::new()
