@@ -16,7 +16,11 @@ pub fn render_board(
     mut commands: Commands,
     mut board: ResMut<Board>,
     images: Res<Images>,
+    timer: ResMut<AnimationTimer>,
 ) {
+    if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
+        return;
+    }
     let map_size = board.get_map_size();
     let bottom_border = offset_coordinate(0, map_size.height as i32);
     let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);

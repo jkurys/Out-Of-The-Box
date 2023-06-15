@@ -12,21 +12,19 @@ use crate::{
     utils::delete_all_components,
 };
 
-use level_select::{handle_level_click, setup_level_select};
 use main_menu::{handle_menu_click, setup_main_menu};
 
 use level_editor::editor::*;
 
 use level_editor::tabs::*;
 
-// use level_editor::resources::LevelEditorBoard;
-
 use self::level_editor::resources::BoardSize;
+use self::level_select::LevelSelectPlugin;
+use self::sprite_select::SpriteSelectPlugin;
 use self::{
-    level_select::LevelSelectItem,
     main_menu::MainMenuItem,
     resources::LevelNames,
-    sprite_select::{handle_sprite_click, setup_sprite_select, SpriteSelectItem}, level_editor::{save::{handle_exit_to_save, setup_file_name_getter, handle_file_get, save_board_to_file, LevelEditorSaveItem}, events::FileSavedEvent, editor_size_select::{setup_level_editor, handle_level_editor_input}},
+    level_editor::{save::{handle_exit_to_save, setup_file_name_getter, handle_file_get, save_board_to_file, LevelEditorSaveItem}, events::FileSavedEvent, editor_size_select::{setup_level_editor, handle_level_editor_input}},
 };
 
 pub struct MenusPlugin;
@@ -34,19 +32,13 @@ pub struct MenusPlugin;
 impl Plugin for MenusPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<FileSavedEvent>();
+        app.add_plugin(SpriteSelectPlugin);
+        app.add_plugin(LevelSelectPlugin);
 
         app.add_system(setup_main_menu.in_schedule(OnEnter(DisplayState::MainMenu)))
             .add_systems((handle_esc, handle_menu_click).in_set(OnUpdate(DisplayState::MainMenu)))
             .add_system(delete_all_components::<MainMenuItem>.in_schedule(OnExit(DisplayState::MainMenu)));
-
-        app.add_system(setup_level_select.in_schedule(OnEnter(DisplayState::LevelSelect)))
-            .add_systems((handle_level_click, handle_esc).in_set(OnUpdate(DisplayState::LevelSelect)))
-            .add_system(delete_all_components::<LevelSelectItem>.in_schedule(OnExit(DisplayState::LevelSelect)));
-
-        app.add_system(setup_sprite_select.in_schedule(OnEnter(DisplayState::SpriteSelect)))
-            .add_systems((handle_sprite_click, handle_esc).in_set(OnUpdate(DisplayState::SpriteSelect)))
-            .add_system(delete_all_components::<SpriteSelectItem>.in_schedule(OnExit(DisplayState::SpriteSelect)));
-
+        
         app.add_system(setup_level_editor.in_schedule(OnEnter(DisplayState::LevelEditorInput)))
             .add_systems((handle_level_editor_input, handle_esc).in_set(OnUpdate(DisplayState::LevelEditorInput)))
             .add_system(delete_all_components::<LevelEditorItem>.in_schedule(OnExit(DisplayState::LevelEditorInput)));
@@ -68,7 +60,6 @@ impl Plugin for MenusPlugin {
             ).in_set(OnUpdate(DisplayState::LevelEditorBoard)))
             .add_system(delete_all_components::<LevelEditorItem>.in_schedule(OnExit(DisplayState::LevelEditorBoard)));
 
-        // app.init_resource::<LevelEditorBoard>();
         app.init_resource::<StateStack>();
         app.insert_resource(LevelNames(Vec::new()));
         app.init_resource::<BoardSize>();

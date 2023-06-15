@@ -11,7 +11,6 @@ struct SingleBoard {
     goals: Vec<Position>,
     buttons: Vec<Vec<Position>>,
     map_size: MapSize,
-    player_positions: Vec<Position>,
     warp_positions: [Position; MAX_MAPS],
 }
 
@@ -35,7 +34,6 @@ impl Board {
                     width: 0,
                     height: 0,
                 },
-                player_positions: Vec::new(),
                 warp_positions: [Position { x: 0, y: 0}; 10],
             });
         }
@@ -118,14 +116,15 @@ impl Board {
     }
 
     pub fn insert_object_to_map(&mut self, position: Position, object: GameObject, map: usize) {
-        if object == GameObject::Player {
-            self.boards[map].player_positions.push(position);
-        }
         self.boards[map].objects.insert(position, object);
     }
 
     pub fn insert_entities(&mut self, position: Position, entities: [Entity; 2]) {
         self.boards[self.current].entities.insert(position, entities);
+    }
+
+    pub fn insert_floor(&mut self, position: Position, floor: Floor) {
+        self.insert_floor_to_map(position, floor, self.current);
     }
 
     pub fn insert_floor_to_map(&mut self, position: Position, floor: Floor, map: usize) {
@@ -148,17 +147,6 @@ impl Board {
             return;
         }
         let object = object_opt.unwrap();
-        if object == GameObject::Player {
-            let mut switch_idx = None;
-            for (idx, old_pos) in self.boards[map].player_positions.iter().enumerate() {
-                if *old_pos == position {
-                    switch_idx = Some(idx);
-                }
-            }
-            if !switch_idx.is_none() {
-                self.boards[map].player_positions[switch_idx.unwrap()] = position.next_position(dir);
-            }
-        }
         self.boards[map]
             .objects
             .insert(position.next_position(dir), object);

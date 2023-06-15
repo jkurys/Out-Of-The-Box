@@ -18,6 +18,8 @@ use self::{
     resources::AnimationTimer,
 };
 
+use super::display::{despawn_board, background::{render_board, render_border}};
+
 mod animation;
 mod button;
 pub mod consts;
@@ -39,6 +41,9 @@ impl Plugin for MovementPlugin {
             handle_button,
             handle_ice,
             handle_warp,
+            despawn_board,
+            render_board,
+            render_border,
             continue_animation,
         ).distributive_run_if(is_in_game)
             .chain()

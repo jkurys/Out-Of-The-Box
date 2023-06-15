@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::{state::DisplayState, consts::MAIN_MENU_FONT, resources::StateStack, board::Board};
 
-use super::{events::FileSavedEvent};
+use super::events::FileSavedEvent;
 
 #[derive(Component)]
 pub struct LevelEditorSaveItem;

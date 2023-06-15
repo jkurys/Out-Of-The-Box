@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE}, state::DisplayState, board::Board};
+use crate::{consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE}, state::DisplayState, board::Board, game::game_objects::{GameObject, Floor}};
 
 use super::editor::{LevelEditorTabPlus, LevelEditorTab, LevelEditorChangable, GameEntity};
 
@@ -85,6 +85,9 @@ pub fn handle_level_editor_click(
             if image.1 {
                 *new_image = image.0.clone();
                 board.insert(position, *current_object);
+                if let GameEntity::Object(GameObject::HidingWall { color }) = *current_object {
+                    board.insert_floor(position, Floor::HiddenWall { hidden_by_default: false, color });
+                }
             }
         }
     }
