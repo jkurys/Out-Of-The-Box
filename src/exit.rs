@@ -1,6 +1,6 @@
 use bevy::{app::AppExit, prelude::*};
 
-use crate::{state::DisplayState, resources::StateStack};
+use crate::{resources::StateStack, state::DisplayState};
 
 pub fn handle_esc(
     mut keyboard_input: ResMut<Input<KeyCode>>,

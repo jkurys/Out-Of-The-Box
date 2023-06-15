@@ -1,21 +1,24 @@
 use std::{cmp::Ordering, fmt};
 
 use bevy::prelude::*;
-use serde::{Serialize, Deserialize, Deserializer};
-use serde::de::{self, Visitor, Unexpected};
+use serde::de::{self, Unexpected, Visitor};
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum GameObject {
     Box,
     Wall,
-    HidingWall{ color: usize },
+    HidingWall { color: usize },
     Empty,
     Player,
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum Floor {
-    HiddenWall { hidden_by_default: bool, color: usize },
+    HiddenWall {
+        hidden_by_default: bool,
+        color: usize,
+    },
     Tile,
     Ice,
     Goal,
@@ -64,7 +67,8 @@ pub struct Position {
 impl Serialize for Position {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer {
+        S: serde::Serializer,
+    {
         serializer.serialize_str(&format!("{}:{}", self.x, self.y))
     }
 }
@@ -152,18 +156,10 @@ impl Position {
 
     pub fn cmp_to_other(&self, other: &Self, dir: Direction) -> Ordering {
         match dir {
-            Direction::Up => {
-                other.y.cmp(&self.y)
-            }
-            Direction::Down => {
-                self.y.cmp(&other.y)
-            }
-            Direction::Left => {
-                self.x.cmp(&other.x)
-            }
-            Direction::Right => {
-                other.x.cmp(&self.x)
-            }
+            Direction::Up => other.y.cmp(&self.y),
+            Direction::Down => self.y.cmp(&other.y),
+            Direction::Left => self.x.cmp(&other.x),
+            Direction::Right => other.x.cmp(&self.x),
         }
     }
 }

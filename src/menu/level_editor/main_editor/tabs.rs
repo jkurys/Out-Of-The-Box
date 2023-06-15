@@ -10,7 +10,7 @@ pub fn handle_tab_click(
         With<LevelEditorTab>,
     >,
     mut boards: ResMut<Board>,
-    mut app_state: ResMut<NextState<DisplayState>>
+    mut app_state: ResMut<NextState<DisplayState>>,
 ) {
     for (tab_num, interaction, mut color) in tab_query.iter_mut() {
         match *interaction {

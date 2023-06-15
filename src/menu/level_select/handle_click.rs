@@ -2,7 +2,12 @@ use std::{fs::File, io::Read};
 
 use bevy::prelude::*;
 
-use crate::{state::DisplayState, resources::{StateStack, CurrentLevel}, menu::resources::LevelNames, consts::LEVEL_SAVE};
+use crate::{
+    consts::LEVEL_SAVE,
+    menu::resources::LevelNames,
+    resources::{CurrentLevel, StateStack},
+    state::DisplayState,
+};
 
 use super::LevelSelectItemType;
 

@@ -2,8 +2,8 @@ use bevy::prelude::*;
 
 use super::{events::EnteredFloorEvent, resources::AnimationTimer};
 use crate::{
-    game::game_objects::{Floor, GameObject},
     board::Board,
+    game::game_objects::{Floor, GameObject},
 };
 
 pub fn handle_warp(

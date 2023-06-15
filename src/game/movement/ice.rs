@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 
 use super::events::{EnteredFloorEvent, ExitedFloorEvent};
-use crate::{game::game_objects::{Floor, GameObject}, board::Board};
+use crate::{
+    board::Board,
+    game::game_objects::{Floor, GameObject},
+};
 
 use super::resources::AnimationTimer;
 // checks which entities should move if they are on ice
@@ -30,7 +33,8 @@ pub fn handle_ice(
         if event.floor != Floor::Ice {
             break; //break in this loop means that this object and all that come before it stop movement
         }
-        let (object_position, map) = board.get_next_position_for_move(position, direction, board.get_current_map());
+        let (object_position, map) =
+            board.get_next_position_for_move(position, direction, board.get_current_map());
         let object = board.get_object_from_map(object_position, map);
         match object {
             GameObject::Empty => {
@@ -63,8 +67,11 @@ pub fn handle_ice(
                         && board.get_floor_from_map(next_object_position, next_map) == Floor::Ice
                     {
                         last_box_position = next_object_position;
-                        (next_object_position, next_map) =
-                            board.get_next_position_for_move(next_object_position, direction, next_map);
+                        (next_object_position, next_map) = board.get_next_position_for_move(
+                            next_object_position,
+                            direction,
+                            next_map,
+                        );
                         next_object = board.get_object_from_map(next_object_position, next_map);
                     }
                     if next_object == GameObject::Empty {

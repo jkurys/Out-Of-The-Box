@@ -7,12 +7,12 @@ mod resources;
 mod sprite_select;
 use crate::resources::StateStack;
 
-use self::level_editor::LevelEditorPlugin;
 use self::level_editor::resources::BoardSize;
+use self::level_editor::LevelEditorPlugin;
 use self::level_select::LevelSelectPlugin;
 use self::main_menu::MainMenuPlugin;
-use self::sprite_select::SpriteSelectPlugin;
 use self::resources::LevelNames;
+use self::sprite_select::SpriteSelectPlugin;
 
 pub struct MenusPlugin;
 
@@ -22,7 +22,7 @@ impl Plugin for MenusPlugin {
         app.add_plugin(LevelSelectPlugin);
         app.add_plugin(MainMenuPlugin);
         app.add_plugin(LevelEditorPlugin);
-        
+
         app.init_resource::<StateStack>();
         app.insert_resource(LevelNames(Vec::new()));
         app.init_resource::<BoardSize>();

@@ -2,14 +2,17 @@ use bevy::prelude::*;
 
 use crate::consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE};
 
-use super::{LevelEditorTabPlus, LevelEditorTab};
+use super::{LevelEditorTab, LevelEditorTabPlus};
 
 pub fn handle_plus_click(
     mut plus_query: Query<
         (&mut Style, &Interaction, &mut UiImage),
         (With<LevelEditorTabPlus>, Without<LevelEditorTab>),
     >,
-    mut tab_query: Query<(&mut Style, &mut Visibility), (With<LevelEditorTab>, Without<LevelEditorTabPlus>)>,
+    mut tab_query: Query<
+        (&mut Style, &mut Visibility),
+        (With<LevelEditorTab>, Without<LevelEditorTabPlus>),
+    >,
     asset_server: Res<AssetServer>,
     mut tabs_amount: Local<u32>,
     mut is_clicked: Local<bool>,
@@ -19,7 +22,10 @@ pub fn handle_plus_click(
     let (mut plus_style, interaction, mut image) = plus_query.single_mut();
     match interaction {
         Interaction::Hovered => {
-            *image = UiImage{ texture: hovered_plus_image, ..default() };
+            *image = UiImage {
+                texture: hovered_plus_image,
+                ..default()
+            };
             if *is_clicked {
                 *is_clicked = false;
                 *tabs_amount += 1;
@@ -34,10 +40,13 @@ pub fn handle_plus_click(
                     }
                 }
             }
-        },
+        }
         Interaction::None => {
             *is_clicked = false;
-            *image = UiImage{ texture: plus_image, ..default() };
+            *image = UiImage {
+                texture: plus_image,
+                ..default()
+            };
         }
         Interaction::Clicked => {
             *is_clicked = true;

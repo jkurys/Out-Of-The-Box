@@ -1,7 +1,12 @@
 use bevy::{prelude::*, utils::HashMap};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::{game::game_objects::{Position, GameObject, Floor, Direction}, resources::MapSize, consts::{MAX_MAPS, INITIAL_MAP}, components::GameEntity};
+use crate::{
+    components::GameEntity,
+    consts::{INITIAL_MAP, MAX_MAPS},
+    game::game_objects::{Direction, Floor, GameObject, Position},
+    resources::MapSize,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SingleBoard {
@@ -34,7 +39,7 @@ impl Board {
                     width: 0,
                     height: 0,
                 },
-                warp_positions: [Position { x: 0, y: 0}; 10],
+                warp_positions: [Position { x: 0, y: 0 }; 10],
             });
         }
         Board {
@@ -74,7 +79,10 @@ impl Board {
     }
 
     pub fn get_object_from_map(&self, position: Position, map: usize) -> GameObject {
-        *self.boards[map].objects.get(&position).unwrap_or(&GameObject::Empty)
+        *self.boards[map]
+            .objects
+            .get(&position)
+            .unwrap_or(&GameObject::Empty)
     }
 
     pub fn get_floor_type(&self, position: Position) -> Floor {
@@ -120,7 +128,9 @@ impl Board {
     }
 
     pub fn insert_entities(&mut self, position: Position, entities: [Entity; 2]) {
-        self.boards[self.current].entities.insert(position, entities);
+        self.boards[self.current]
+            .entities
+            .insert(position, entities);
     }
 
     pub fn insert_floor(&mut self, position: Position, floor: Floor) {
@@ -134,15 +144,13 @@ impl Board {
             Floor::Button(color) => self.boards[map].buttons[color].push(position),
             Floor::Warp(next_map) => {
                 self.boards[map].warp_positions[next_map] = position;
-            },
-            _ => ()
+            }
+            _ => (),
         };
     }
 
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
-        let object_opt = self.boards[map]
-            .objects
-            .remove(&position);
+        let object_opt = self.boards[map].objects.remove(&position);
         if object_opt.is_none() {
             return;
         }
@@ -170,16 +178,19 @@ impl Board {
             .objects
             .remove(&position)
             .expect("Could not remove object");
-        self.boards[map]
-            .entities
-            .remove(&position);
+        self.boards[map].entities.remove(&position);
     }
 
     pub fn get_warp_position(&self, from: usize, to: usize) -> Position {
         self.boards[from].warp_positions[to]
     }
 
-    pub fn get_next_position_for_move(&self, position: Position, direction: Direction, map: usize) -> (Position, usize) {
+    pub fn get_next_position_for_move(
+        &self,
+        position: Position,
+        direction: Direction,
+        map: usize,
+    ) -> (Position, usize) {
         let mut next_position = position.next_position(direction);
         if let Floor::Warp(next_map) = self.get_floor_type(next_position) {
             next_position = self.get_warp_position(next_map, map);
@@ -205,18 +216,23 @@ impl Board {
             let floors = self.boards[map].floors.clone();
             for (position, floor) in floors.iter() {
                 match *floor {
-                    Floor::HiddenWall { hidden_by_default, color } if color == moved_color => {
-                        if self.get_object_type(*position) == GameObject::Empty && hidden_by_default {
+                    Floor::HiddenWall {
+                        hidden_by_default,
+                        color,
+                    } if color == moved_color => {
+                        if self.get_object_type(*position) == GameObject::Empty && hidden_by_default
+                        {
                             self.boards[map]
                                 .objects
-                                .insert(*position, GameObject::HidingWall{ color: moved_color });
-                        } else if self.get_object_type(*position) == (GameObject::HidingWall { color: moved_color })
+                                .insert(*position, GameObject::HidingWall { color: moved_color });
+                        } else if self.get_object_type(*position)
+                            == (GameObject::HidingWall { color: moved_color })
                             && !hidden_by_default
                         {
                             self.boards[map].objects.remove(position);
                         }
                     }
-                    _ => ()
+                    _ => (),
                 }
             }
         }
@@ -227,18 +243,24 @@ impl Board {
             let floors = self.boards[map].floors.clone();
             for (position, floor) in floors.iter() {
                 match *floor {
-                    Floor::HiddenWall { hidden_by_default, color } if color == moved_color => {
-                        if self.get_object_type(*position) == GameObject::Empty && !hidden_by_default {
+                    Floor::HiddenWall {
+                        hidden_by_default,
+                        color,
+                    } if color == moved_color => {
+                        if self.get_object_type(*position) == GameObject::Empty
+                            && !hidden_by_default
+                        {
                             self.boards[map]
                                 .objects
                                 .insert(*position, GameObject::HidingWall { color: moved_color });
-                        } else if self.get_object_type(*position) == (GameObject::HidingWall { color: moved_color })
+                        } else if self.get_object_type(*position)
+                            == (GameObject::HidingWall { color: moved_color })
                             && hidden_by_default
                         {
                             self.boards[map].objects.remove(position);
                         }
                     }
-                    _ => ()
+                    _ => (),
                 }
             }
         }

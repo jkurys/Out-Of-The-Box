@@ -2,7 +2,7 @@ use std::{fs::File, io::Write};
 
 use bevy::prelude::*;
 
-use crate::{board::Board, state::DisplayState, resources::StateStack};
+use crate::{board::Board, resources::StateStack, state::DisplayState};
 
 use super::events::FileSavedEvent;
 
@@ -22,11 +22,11 @@ pub fn save_board_to_file(
     let mut file = File::create(format!("assets/maps/{}.txt", file_name)).unwrap();
     let file_prelude = serde_json::to_string(&board.clone());
     match file_prelude {
-        Ok (str) => {
+        Ok(str) => {
             let buf = str.chars().map(|c| c as u8).collect::<Vec<_>>();
             file.write_all(&buf[..]).unwrap();
         }
-        _ => ()
+        _ => (),
     }
     app_state.set(state_stack.0.pop().unwrap_or(DisplayState::MainMenu));
     board.clear();

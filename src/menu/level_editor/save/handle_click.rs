@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::{LevelEditorFileName, events::FileSavedEvent};
+use super::{events::FileSavedEvent, LevelEditorFileName};
 
 pub fn handle_file_get(
     mut char_reader: EventReader<ReceivedCharacter>,

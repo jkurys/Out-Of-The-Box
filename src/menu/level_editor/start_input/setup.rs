@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{consts::MAIN_MENU_FONT, menu::level_editor::LevelEditorItem};
 
-use super::{LevelEditorStartingPrompt, LevelEditorInputNumber};
+use super::{LevelEditorInputNumber, LevelEditorStartingPrompt};
 
 pub fn setup_level_editor(asset_server: Res<AssetServer>, mut commands: Commands) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
@@ -24,21 +24,25 @@ pub fn setup_level_editor(asset_server: Res<AssetServer>, mut commands: Commands
         })
         .insert(LevelEditorItem)
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Please provide the level width",
-                TextStyle {
-                    font: menu_font.clone(),
-                    font_size: 50.,
-                    color: Color::WHITE,
-                },
-            )).insert(LevelEditorStartingPrompt);
-            parent.spawn(TextBundle::from_section(
-                "0",
-                TextStyle {
-                    font: menu_font.clone(),
-                    font_size: 50.,
-                    color: Color::WHITE,
-                },
-            )).insert(LevelEditorInputNumber);
+            parent
+                .spawn(TextBundle::from_section(
+                    "Please provide the level width",
+                    TextStyle {
+                        font: menu_font.clone(),
+                        font_size: 50.,
+                        color: Color::WHITE,
+                    },
+                ))
+                .insert(LevelEditorStartingPrompt);
+            parent
+                .spawn(TextBundle::from_section(
+                    "0",
+                    TextStyle {
+                        font: menu_font.clone(),
+                        font_size: 50.,
+                        color: Color::WHITE,
+                    },
+                ))
+                .insert(LevelEditorInputNumber);
         });
 }

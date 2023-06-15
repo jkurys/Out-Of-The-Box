@@ -1,12 +1,15 @@
 use bevy::prelude::*;
 
-use self::{start_input::LevelEditorStartInputPlugin, main_editor::LevelEditorMainPlugin, save::LevelEditorSavePlugin};
+use self::{
+    main_editor::LevelEditorMainPlugin, save::LevelEditorSavePlugin,
+    start_input::LevelEditorStartInputPlugin,
+};
 
+mod main_editor;
 pub mod resources;
 mod save;
-mod utils;
 mod start_input;
-mod main_editor;
+mod utils;
 
 #[derive(Component)]
 pub struct LevelEditorItem;

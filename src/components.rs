@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use crate::game::game_objects::{GameObject, Floor};
+use crate::game::game_objects::{Floor, GameObject};
 
-#[derive(Component,  Clone, Copy, Debug)]
+#[derive(Component, Clone, Copy, Debug)]
 pub enum GameEntity {
     Object(GameObject),
     Floor(Floor),

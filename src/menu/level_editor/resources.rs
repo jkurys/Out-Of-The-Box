@@ -8,6 +8,9 @@ pub struct BoardSize {
 
 impl Default for BoardSize {
     fn default() -> Self {
-        Self { width: 1, height: 1 }
+        Self {
+            width: 1,
+            height: 1,
+        }
     }
 }

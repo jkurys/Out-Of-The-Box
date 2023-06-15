@@ -1,9 +1,20 @@
 use bevy::prelude::*;
 
-use crate::{resources::{Images, MapSize}, menu::level_editor::{resources::BoardSize, LevelEditorItem, utils::{spawn_small_image, spawn_small_button}}, board::Board, consts::{PLUS_TEXTURE, MAX_MAPS}, utils::offset_coordinate, game::game_objects::{Position, GameObject, Floor}, components::GameEntity};
+use crate::{
+    board::Board,
+    components::GameEntity,
+    consts::{MAX_MAPS, PLUS_TEXTURE},
+    game::game_objects::{Floor, GameObject, Position},
+    menu::level_editor::{
+        resources::BoardSize,
+        utils::{spawn_small_button, spawn_small_image},
+        LevelEditorItem,
+    },
+    resources::{Images, MapSize},
+    utils::offset_coordinate,
+};
 
-use super::{styles::*, LevelEditorChangable, LevelEditorTabs, LevelEditorTab, LevelEditorTabPlus};
-
+use super::{styles::*, LevelEditorChangable, LevelEditorTab, LevelEditorTabPlus, LevelEditorTabs};
 
 pub fn setup_level_editor_board(
     mut commands: Commands,
@@ -20,25 +31,14 @@ pub fn setup_level_editor_board(
     let left_border = offset_coordinate(0, width as i32);
     let right_border = offset_coordinate(width as i32 - 1, width as i32);
     commands
-        // main separation between 2 compartments
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
             visibility: Visibility::Visible,
-            style: Style {
-                size: Size {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                },
-                flex_direction: FlexDirection::Row,
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::SpaceEvenly,
-                ..default()
-            },
+            style: EDITOR_STYLE,
             ..default()
         })
         .insert(LevelEditorItem)
         .with_children(|parent| {
-            //left compartment, with board
             parent
                 .spawn(NodeBundle {
                     background_color: BackgroundColor(Color::GRAY),
@@ -46,10 +46,7 @@ pub fn setup_level_editor_board(
                     style: BOARD_COMPARTMENT_STYLE,
                     ..default()
                 })
-                // two compartments: tabs and board
                 .with_children(|parent| {
-                    
-                    // board, component holding all columns
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::GRAY),
@@ -58,7 +55,6 @@ pub fn setup_level_editor_board(
                             ..default()
                         })
                         .with_children(|parent| {
-                            // component for a left-most column
                             parent
                                 .spawn(NodeBundle {
                                     background_color: BackgroundColor(Color::GRAY),
@@ -68,12 +64,10 @@ pub fn setup_level_editor_board(
                                 })
                                 .with_children(|parent| {
                                     for _ in 0..height + 2 {
-                                        //left-most column, all walls
                                         spawn_small_image(parent, images.wall_images[1].clone());
                                     }
                                 });
                             for x in left_border..(right_border + 1) {
-                                // middle columns
                                 parent
                                     .spawn(NodeBundle {
                                         background_color: BackgroundColor(Color::GRAY),
@@ -82,9 +76,7 @@ pub fn setup_level_editor_board(
                                         ..default()
                                     })
                                     .with_children(|parent| {
-                                        //top wall
                                         spawn_small_image(parent, images.wall_images[1].clone());
-                                        // inside tiles
                                         for y in (bottom_border..=top_border).rev() {
                                             spawn_small_button(
                                                 parent,
@@ -92,11 +84,9 @@ pub fn setup_level_editor_board(
                                                 LevelEditorChangable(Position { x, y }),
                                             );
                                         }
-                                        // bottom wall
                                         spawn_small_image(parent, images.wall_images[1].clone());
                                     });
                             }
-                            // right-most column, all walls
                             parent
                                 .spawn(NodeBundle {
                                     background_color: BackgroundColor(Color::GRAY),
@@ -110,7 +100,6 @@ pub fn setup_level_editor_board(
                                     }
                                 });
                         });
-                    // map tabs
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::BLUE),
@@ -118,9 +107,9 @@ pub fn setup_level_editor_board(
                             ..default()
                         })
                         .insert(LevelEditorTabs)
-                        // first tab
                         .with_children(|parent| {
-                            parent.spawn(ButtonBundle::default())
+                            parent
+                                .spawn(ButtonBundle::default())
                                 .insert(NodeBundle {
                                     background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
                                     visibility: Visibility::Visible,
@@ -129,26 +118,29 @@ pub fn setup_level_editor_board(
                                 })
                                 .insert(LevelEditorTab(1));
                             for i in 2..=MAX_MAPS {
-                                parent.spawn(ButtonBundle::default())
+                                parent
+                                    .spawn(ButtonBundle::default())
                                     .insert(NodeBundle {
                                         background_color: BackgroundColor(Color::MIDNIGHT_BLUE),
                                         visibility: Visibility::Hidden,
                                         style: TABS_STYLE,
                                         ..default()
                                     })
-                                .insert(LevelEditorTab(i));
+                                    .insert(LevelEditorTab(i));
                             }
                             parent
                                 .spawn(ButtonBundle::default())
                                 .insert(ImageBundle {
-                                    image: UiImage{ texture: plus_image, ..default() },
+                                    image: UiImage {
+                                        texture: plus_image,
+                                        ..default()
+                                    },
                                     style: PLUS_STYLE,
                                     ..default()
                                 })
                                 .insert(LevelEditorTabPlus);
                         });
                 });
-            // right section of the editor
             parent
                 .spawn(NodeBundle {
                     background_color: BackgroundColor(Color::GREEN),
@@ -157,7 +149,6 @@ pub fn setup_level_editor_board(
                     ..default()
                 })
                 .with_children(|parent| {
-                    // objects
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::DARK_GREEN),
@@ -189,7 +180,6 @@ pub fn setup_level_editor_board(
                                 GameEntity::Object(GameObject::Player),
                             );
                         });
-                    // floors
                     parent
                         .spawn(NodeBundle {
                             background_color: BackgroundColor(Color::GREEN),
@@ -221,7 +211,7 @@ pub fn setup_level_editor_board(
                                     images.hidden_wall_images[color].clone(),
                                     GameEntity::Floor(Floor::HiddenWall {
                                         hidden_by_default: true,
-                                        color
+                                        color,
                                     }),
                                 );
                             }

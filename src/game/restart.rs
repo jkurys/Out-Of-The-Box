@@ -1,6 +1,6 @@
 use super::resources::BoardStates;
-use crate::consts::INITIAL_MAP;
 use crate::board::Board;
+use crate::consts::INITIAL_MAP;
 use bevy::prelude::*;
 
 pub fn handle_restart(

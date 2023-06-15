@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{game::game_objects::GameObject, board::Board};
+use crate::{board::Board, game::game_objects::GameObject};
 
-pub fn handle_button(
-    mut board: ResMut<Board>,
-) {
+pub fn handle_button(mut board: ResMut<Board>) {
     let buttons = board.get_all_buttons();
     let mut is_clicked = false;
     let mut color = 0;
@@ -16,8 +14,7 @@ pub fn handle_button(
         }
         if is_clicked {
             board.rise_hiding_wall(color);
-        }
-        else {
+        } else {
             board.hide_hiding_wall(color);
         }
         color += 1;

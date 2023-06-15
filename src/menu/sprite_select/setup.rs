@@ -1,8 +1,14 @@
 use bevy::prelude::*;
 
-use crate::{consts::{MAIN_MENU_FONT, PLAYER_TEXTURES}, menu::spawn_button};
+use crate::{
+    consts::{MAIN_MENU_FONT, PLAYER_TEXTURES},
+    menu::spawn_button,
+};
 
-use super::{styles::{BACKGROUND_STYLE, IMAGE_STYLE}, handle_click::{SpriteSelectItem, SpriteSelectItemType}};
+use super::{
+    handle_click::{SpriteSelectItem, SpriteSelectItemType},
+    styles::{BACKGROUND_STYLE, IMAGE_STYLE},
+};
 
 pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer>) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
@@ -33,7 +39,10 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                 "back",
             );
             parent.spawn(ImageBundle {
-                image: UiImage { texture: asset_server.load(PLAYER_TEXTURES[0]), ..default() },
+                image: UiImage {
+                    texture: asset_server.load(PLAYER_TEXTURES[0]),
+                    ..default()
+                },
                 style: IMAGE_STYLE,
                 ..default()
             });
@@ -44,7 +53,10 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                 "select 0",
             );
             parent.spawn(ImageBundle {
-                image: UiImage { texture: asset_server.load(PLAYER_TEXTURES[1]), ..default() },
+                image: UiImage {
+                    texture: asset_server.load(PLAYER_TEXTURES[1]),
+                    ..default()
+                },
                 style: IMAGE_STYLE,
                 ..default()
             });
@@ -55,7 +67,10 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                 "select 1",
             );
             parent.spawn(ImageBundle {
-                image: UiImage { texture: asset_server.load(PLAYER_TEXTURES[2]), ..default() },
+                image: UiImage {
+                    texture: asset_server.load(PLAYER_TEXTURES[2]),
+                    ..default()
+                },
                 style: IMAGE_STYLE,
                 ..default()
             });
@@ -67,4 +82,3 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
             );
         });
 }
-

@@ -113,7 +113,12 @@ pub fn handle_win_click(
     mut state_stack: ResMut<StateStack>,
 ) {
     if keyboard_input.pressed(KeyCode::Return) {
-        app_state.set(state_stack.0.pop().expect("Could not go out of victory screen"));
+        app_state.set(
+            state_stack
+                .0
+                .pop()
+                .expect("Could not go out of victory screen"),
+        );
         keyboard_input.reset(KeyCode::Return);
     }
 }

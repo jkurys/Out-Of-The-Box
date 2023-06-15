@@ -1,4 +1,4 @@
-use bevy::{prelude::*, app::AppExit};
+use bevy::{app::AppExit, prelude::*};
 
 use crate::state::DisplayState;
 

@@ -7,6 +7,17 @@ pub const COLUMN_STYLE: Style = Style {
     ..Style::DEFAULT
 };
 
+pub const EDITOR_STYLE: Style = Style {
+    size: Size {
+        width: Val::Percent(100.0),
+        height: Val::Percent(100.0),
+    },
+    flex_direction: FlexDirection::Row,
+    align_items: AlignItems::Center,
+    justify_content: JustifyContent::SpaceEvenly,
+    ..Style::DEFAULT
+};
+
 pub const BOARD_COMPARTMENT_STYLE: Style = Style {
     size: Size {
         width: Val::Percent(70.0),

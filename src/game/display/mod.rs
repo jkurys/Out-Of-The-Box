@@ -25,13 +25,11 @@ impl Plugin for DisplayPlugin {
         app.add_startup_system(window_set_fullscreen);
         app.add_system(display_level_text.in_schedule(OnEnter(DisplayState::Game)));
         app.add_system(delete_all_components::<LevelText>.in_schedule(OnExit(DisplayState::Game)));
-        app.add_systems((
-            despawn_board,
-            render_board,
-            render_border,
-        ).chain()
-            .distributive_run_if(is_in_game)
-            .in_set(OnUpdate(MoveState::Static))
+        app.add_systems(
+            (despawn_board, render_board, render_border)
+                .chain()
+                .distributive_run_if(is_in_game)
+                .in_set(OnUpdate(MoveState::Static)),
         );
     }
 }
@@ -48,21 +46,22 @@ where
     T: Component,
 {
     let (x, y) = if z_index == UPPER_HALF_OBJECT_Z_INDEX {
-        (position.x as f32 * TILE_SIZE, (position.y as f32 + 0.25) * TILE_SIZE)
+        (
+            position.x as f32 * TILE_SIZE,
+            (position.y as f32 + 0.25) * TILE_SIZE,
+        )
     } else if z_index == LOWER_HALF_OBJECT_Z_INDEX {
-        (position.x as f32 * TILE_SIZE, (position.y as f32 - 0.375) * TILE_SIZE)
+        (
+            position.x as f32 * TILE_SIZE,
+            (position.y as f32 - 0.375) * TILE_SIZE,
+        )
     } else {
         (position.x as f32 * TILE_SIZE, position.y as f32 * TILE_SIZE)
     };
     commands
         .spawn((SpriteBundle {
             texture: image,
-            transform: Transform::from_xyz(
-                x,
-                y,
-                z_index,
-            )
-            .with_scale(Vec3::new(
+            transform: Transform::from_xyz(x, y, z_index).with_scale(Vec3::new(
                 TILE_SIZE / IMAGE_SIZE,
                 TILE_SIZE / IMAGE_SIZE,
                 1.,

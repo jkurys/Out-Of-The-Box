@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{board::Board, game::game_objects::{GameObject, Floor}, components::GameEntity};
+use crate::{
+    board::Board,
+    components::GameEntity,
+    game::game_objects::{Floor, GameObject},
+};
 
 use super::LevelEditorChangable;
 
@@ -9,7 +13,10 @@ pub fn handle_level_editor_click(
         (&LevelEditorChangable, &Interaction, &mut UiImage),
         With<LevelEditorChangable>,
     >,
-    mut clickable_query: Query<(&Interaction, &UiImage, &GameEntity, &mut BackgroundColor), Without<LevelEditorChangable>>,
+    mut clickable_query: Query<
+        (&Interaction, &UiImage, &GameEntity, &mut BackgroundColor),
+        Without<LevelEditorChangable>,
+    >,
     mut board: ResMut<Board>,
     mut current_object: Local<GameEntity>,
     mut image: Local<(UiImage, bool)>,
@@ -21,7 +28,13 @@ pub fn handle_level_editor_click(
                 *new_image = image.0.clone();
                 board.insert(position, *current_object);
                 if let GameEntity::Object(GameObject::HidingWall { color }) = *current_object {
-                    board.insert_floor(position, Floor::HiddenWall { hidden_by_default: false, color });
+                    board.insert_floor(
+                        position,
+                        Floor::HiddenWall {
+                            hidden_by_default: false,
+                            color,
+                        },
+                    );
                 }
             }
         }

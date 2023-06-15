@@ -2,7 +2,10 @@ use bevy::prelude::*;
 
 pub fn spawn_small_image(parent: &mut ChildBuilder, image: Handle<Image>) {
     parent.spawn(ImageBundle {
-        image: UiImage{ texture: image , ..default() },
+        image: UiImage {
+            texture: image,
+            ..default()
+        },
         style: Style {
             size: Size {
                 height: Val::Px(50.),
@@ -21,7 +24,10 @@ where
     parent
         .spawn(ButtonBundle::default())
         .insert(ImageBundle {
-            image: UiImage{ texture: image , ..default() },
+            image: UiImage {
+                texture: image,
+                ..default()
+            },
             style: Style {
                 size: Size {
                     height: Val::Px(50.),

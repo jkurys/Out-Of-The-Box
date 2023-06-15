@@ -1,6 +1,6 @@
 use crate::{
     consts::MOVE_ANIMATION_TIME,
-    state::{MoveState, DisplayState},
+    state::{DisplayState, MoveState},
 };
 use bevy::prelude::*;
 
@@ -18,7 +18,10 @@ use self::{
     resources::AnimationTimer,
 };
 
-use super::display::{despawn_board, background::{render_board, render_border}};
+use super::display::{
+    background::{render_board, render_border},
+    despawn_board,
+};
 
 mod animation;
 mod button;
@@ -35,28 +38,33 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems((
-            handle_move,
-            move_animation,
-            handle_button,
-            handle_ice,
-            handle_warp,
-            despawn_board,
-            render_board,
-            render_border,
-            continue_animation,
-        ).distributive_run_if(is_in_game)
-            .chain()
-            .in_set(OnUpdate(MoveState::Moving)));
-
-        app.add_system(end_animation
-            .run_if(is_in_game)
-            .in_schedule(OnExit(MoveState::Moving))
+        app.add_systems(
+            (
+                handle_move,
+                move_animation,
+                handle_button,
+                handle_ice,
+                handle_warp,
+                despawn_board,
+                render_board,
+                render_border,
+                continue_animation,
+            )
+                .distributive_run_if(is_in_game)
+                .chain()
+                .in_set(OnUpdate(MoveState::Moving)),
         );
 
-        app.add_system(handle_keypress
-            .run_if(is_in_game)
-            .in_set(OnUpdate(MoveState::Static))
+        app.add_system(
+            end_animation
+                .run_if(is_in_game)
+                .in_schedule(OnExit(MoveState::Moving)),
+        );
+
+        app.add_system(
+            handle_keypress
+                .run_if(is_in_game)
+                .in_set(OnUpdate(MoveState::Static)),
         );
 
         app.add_event::<ExitedFloorEvent>();
@@ -68,9 +76,7 @@ impl Plugin for MovementPlugin {
     }
 }
 
-pub fn is_in_game(
-    display_state: Res<State<DisplayState>>,
-) -> bool {
+pub fn is_in_game(display_state: Res<State<DisplayState>>) -> bool {
     display_state.0 == DisplayState::Game
 }
 

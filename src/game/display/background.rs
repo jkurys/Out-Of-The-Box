@@ -4,12 +4,12 @@ use crate::consts::*;
 use crate::game::game_objects::*;
 use crate::resources::Images;
 
-use crate::game::movement::resources::AnimationTimer;
 use crate::board::Board;
+use crate::game::movement::resources::AnimationTimer;
 use crate::utils::offset_coordinate;
 
-use super::render_entity;
 use super::render_2_5_d::render_object;
+use super::render_entity;
 
 //render the entire map based on Board
 pub fn render_board(
@@ -33,26 +33,44 @@ pub fn render_board(
             let game_object = board.get_object_type(position);
             match game_object {
                 GameObject::Box => {
-                    let [lower_image, higher_image] = if board.get_floor_type(position) == Floor::Goal {
-                        images.box_on_goal_images.clone()
-                    } else {
-                        images.box_images.clone()
-                    };
-                    let entities = render_object(&mut commands, higher_image, lower_image, position.x, position.y, Box);
+                    let [lower_image, higher_image] =
+                        if board.get_floor_type(position) == Floor::Goal {
+                            images.box_on_goal_images.clone()
+                        } else {
+                            images.box_images.clone()
+                        };
+                    let entities = render_object(
+                        &mut commands,
+                        higher_image,
+                        lower_image,
+                        position.x,
+                        position.y,
+                        Box,
+                    );
                     board.insert_entities(position, entities);
                 }
                 GameObject::Wall => {
                     let [lower_image, higher_image] = images.wall_images.clone();
-                    render_object(&mut commands, higher_image, lower_image, position.x, position.y, Wall);
+                    render_object(
+                        &mut commands,
+                        higher_image,
+                        lower_image,
+                        position.x,
+                        position.y,
+                        Wall,
+                    );
                 }
                 GameObject::Player => {
                     let [lower_image, higher_image] = images.player_images.clone();
-                    let entities = render_object(&mut commands, higher_image, lower_image, x, y, Player);
+                    let entities =
+                        render_object(&mut commands, higher_image, lower_image, x, y, Player);
                     board.insert_entities(position, entities);
                 }
                 GameObject::HidingWall { color } => {
-                    let [lower_image, higher_image] = images.shown_hidden_wall_images[color].clone();
-                    let entities = render_object(&mut commands, higher_image, lower_image, x, y, HiddenWall);
+                    let [lower_image, higher_image] =
+                        images.shown_hidden_wall_images[color].clone();
+                    let entities =
+                        render_object(&mut commands, higher_image, lower_image, x, y, HiddenWall);
                     board.insert_entities(position, entities);
                 }
                 _ => (),
@@ -61,7 +79,7 @@ pub fn render_board(
     }
     for y in bottom_border..(top_border + 1) {
         for x in left_border..(right_border + 1) {
-            let position = Position { x, y};
+            let position = Position { x, y };
             let floor = board.get_floor_type(position);
             match floor {
                 Floor::Ice => {
@@ -150,36 +168,46 @@ pub fn render_border(
     let right_border = offset_coordinate(map_size.width as i32, map_size.width as i32);
     //spawn horizontal border for the level and insert it to board
     for x in left_border..(right_border + 1) {
-        render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), x, top_border, Wall);
-        board.insert_object(
-            Position {
-                x,
-                y: top_border,
-            },
-            GameObject::Wall,
+        render_object(
+            &mut commands,
+            higher_wall_image.clone(),
+            lower_wall_image.clone(),
+            x,
+            top_border,
+            Wall,
         );
+        board.insert_object(Position { x, y: top_border }, GameObject::Wall);
     }
     for y in (bottom_border..=top_border).rev() {
-        render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), left_border, y, Wall);
-        render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), right_border, y, Wall);
-        board.insert_object(
-            Position {
-                x: left_border,
-                y,
-            },
-            GameObject::Wall,
+        render_object(
+            &mut commands,
+            higher_wall_image.clone(),
+            lower_wall_image.clone(),
+            left_border,
+            y,
+            Wall,
         );
-        board.insert_object(
-            Position {
-                x: right_border,
-                y,
-            },
-            GameObject::Wall,
+        render_object(
+            &mut commands,
+            higher_wall_image.clone(),
+            lower_wall_image.clone(),
+            right_border,
+            y,
+            Wall,
         );
+        board.insert_object(Position { x: left_border, y }, GameObject::Wall);
+        board.insert_object(Position { x: right_border, y }, GameObject::Wall);
     }
     //spawn vertical borders for the level and insert it to board
     for x in left_border..(right_border + 1) {
-        render_object(&mut commands, higher_wall_image.clone(), lower_wall_image.clone(), x, bottom_border, Wall);
+        render_object(
+            &mut commands,
+            higher_wall_image.clone(),
+            lower_wall_image.clone(),
+            x,
+            bottom_border,
+            Wall,
+        );
         board.insert_object(
             Position {
                 x,

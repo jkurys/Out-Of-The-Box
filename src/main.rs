@@ -8,15 +8,15 @@ use resources::*;
 use state::{DisplayState, MoveState};
 use std::fs::File;
 use std::io::Read;
+mod board;
+mod components;
 mod consts;
 mod exit;
 mod game;
-mod board;
 mod menu;
 mod resources;
 mod state;
 mod utils;
-mod components;
 
 fn main() {
     App::new()
@@ -45,5 +45,8 @@ fn update_images(asset_server: ResMut<AssetServer>, mut images: ResMut<Images>) 
     let mut file = File::open(PLAYER_TEXTURE_SAVE).unwrap();
     let mut buf = [0_u8; 1];
     file.read_exact(&mut buf).unwrap();
-    images.player_images = [asset_server.load(LOWER_PLAYER_TEXTURES[buf[0] as usize]), asset_server.load(PLAYER_TEXTURES[buf[0] as usize])];
+    images.player_images = [
+        asset_server.load(LOWER_PLAYER_TEXTURES[buf[0] as usize]),
+        asset_server.load(PLAYER_TEXTURES[buf[0] as usize]),
+    ];
 }

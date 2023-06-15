@@ -1,5 +1,5 @@
 use super::{events::EnteredFloorEvent, resources::AnimationTimer};
-use crate::{consts::TILE_SIZE, board::Board};
+use crate::{board::Board, consts::TILE_SIZE};
 use bevy::prelude::*;
 
 use crate::game::game_objects::{Direction, *};
@@ -65,27 +65,22 @@ pub fn move_animation(
             let (position, direction) = (event.position, event.direction);
             let entity_opt = board.get_entities(event.position);
             if let Some([higher_entity, lower_entity]) = entity_opt {
-                
-                let higher_transform = query.get_mut(higher_entity).expect("Moved box entity not found");
-                let (x, y) = (position.x as f32 * TILE_SIZE, (position.y as f32 + 0.25) * TILE_SIZE);
-                modify_transform(
-                    higher_transform,
-                    direction,
-                    &timer,
-                    x,
-                    y,
-                    event.floor,
+                let higher_transform = query
+                    .get_mut(higher_entity)
+                    .expect("Moved box entity not found");
+                let (x, y) = (
+                    position.x as f32 * TILE_SIZE,
+                    (position.y as f32 + 0.25) * TILE_SIZE,
                 );
-                let lower_transform = query.get_mut(lower_entity).expect("Moved box entity not found");
-                let (x2, y2) = (position.x as f32 * TILE_SIZE, (position.y as f32 - 0.375) * TILE_SIZE);
-                modify_transform(
-                    lower_transform,
-                    direction,
-                    &timer,
-                    x2,
-                    y2,
-                    event.floor,
+                modify_transform(higher_transform, direction, &timer, x, y, event.floor);
+                let lower_transform = query
+                    .get_mut(lower_entity)
+                    .expect("Moved box entity not found");
+                let (x2, y2) = (
+                    position.x as f32 * TILE_SIZE,
+                    (position.y as f32 - 0.375) * TILE_SIZE,
                 );
+                modify_transform(lower_transform, direction, &timer, x2, y2, event.floor);
             }
         }
     } else {
@@ -93,26 +88,22 @@ pub fn move_animation(
             let (position, direction) = (event.position, event.direction);
             let entity_opt = board.get_entities(event.position);
             if let Some([higher_entity, lower_entity]) = entity_opt {
-                let higher_transform = query.get_mut(higher_entity).expect("Moved box entity not found");
-                let (x, y) = (position.x as f32 * TILE_SIZE, (position.y as f32 + 0.25) * TILE_SIZE);
-                modify_transform(
-                    higher_transform,
-                    direction,
-                    &timer,
-                    x,
-                    y,
-                    event.floor,
+                let higher_transform = query
+                    .get_mut(higher_entity)
+                    .expect("Moved box entity not found");
+                let (x, y) = (
+                    position.x as f32 * TILE_SIZE,
+                    (position.y as f32 + 0.25) * TILE_SIZE,
                 );
-                let lower_transform = query.get_mut(lower_entity).expect("Moved box entity not found");
-                let (x, y) = (position.x as f32 * TILE_SIZE, (position.y as f32 - 0.375) * TILE_SIZE);
-                modify_transform(
-                    lower_transform,
-                    direction,
-                    &timer,
-                    x,
-                    y,
-                    event.floor,
+                modify_transform(higher_transform, direction, &timer, x, y, event.floor);
+                let lower_transform = query
+                    .get_mut(lower_entity)
+                    .expect("Moved box entity not found");
+                let (x, y) = (
+                    position.x as f32 * TILE_SIZE,
+                    (position.y as f32 - 0.375) * TILE_SIZE,
                 );
+                modify_transform(lower_transform, direction, &timer, x, y, event.floor);
             }
         }
     }

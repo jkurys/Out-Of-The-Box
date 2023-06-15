@@ -1,8 +1,12 @@
 use bevy::prelude::*;
 
-use crate::{menu::level_editor::resources::BoardSize, state::DisplayState, consts::{MAX_WIDTH, MAX_HEIGHT}};
+use crate::{
+    consts::{MAX_HEIGHT, MAX_WIDTH},
+    menu::level_editor::resources::BoardSize,
+    state::DisplayState,
+};
 
-use super::{LevelEditorStartingPrompt, LevelEditorInputNumber};
+use super::{LevelEditorInputNumber, LevelEditorStartingPrompt};
 
 pub fn handle_level_editor_input(
     mut char_reader: EventReader<ReceivedCharacter>,
@@ -12,8 +16,20 @@ pub fn handle_level_editor_input(
     mut is_width_provided: Local<bool>,
     mut app_state: ResMut<NextState<DisplayState>>,
     mut board_size: ResMut<BoardSize>,
-    mut change_prompt: Query<(&mut Text, (With<LevelEditorStartingPrompt>, Without<LevelEditorInputNumber>))>,
-    mut change_number: Query<(&mut Text, (With<LevelEditorInputNumber>, Without<LevelEditorStartingPrompt>))>,
+    mut change_prompt: Query<(
+        &mut Text,
+        (
+            With<LevelEditorStartingPrompt>,
+            Without<LevelEditorInputNumber>,
+        ),
+    )>,
+    mut change_number: Query<(
+        &mut Text,
+        (
+            With<LevelEditorInputNumber>,
+            Without<LevelEditorStartingPrompt>,
+        ),
+    )>,
 ) {
     for ev in char_reader.iter() {
         if ev.char.is_ascii_digit() && !*is_width_provided {
@@ -42,7 +58,10 @@ pub fn handle_level_editor_input(
     }
     if input.just_pressed(KeyCode::Return) && *is_width_provided {
         *is_width_provided = false;
-        *board_size = BoardSize { width: *width, height: *height };
+        *board_size = BoardSize {
+            width: *width,
+            height: *height,
+        };
         app_state.set(DisplayState::LevelEditorBoard);
         *height = 0;
         *width = 0;

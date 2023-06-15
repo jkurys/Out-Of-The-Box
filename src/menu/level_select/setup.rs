@@ -2,7 +2,11 @@ use std::fs::read_dir;
 
 use bevy::prelude::*;
 
-use crate::{menu::{resources::LevelNames, spawn_button}, resources::CurrentLevel, consts::MAIN_MENU_FONT};
+use crate::{
+    consts::MAIN_MENU_FONT,
+    menu::{resources::LevelNames, spawn_button},
+    resources::CurrentLevel,
+};
 
 use super::{LevelSelectItem, LevelSelectItemType};
 
@@ -17,7 +21,13 @@ pub fn setup_level_select(
     let mut file_paths = Vec::new();
     let mut first_name = "".to_string();
     for path in paths {
-        let path_str = path.unwrap().path().file_name().unwrap().to_string_lossy().into_owned();
+        let path_str = path
+            .unwrap()
+            .path()
+            .file_name()
+            .unwrap()
+            .to_string_lossy()
+            .into_owned();
         if first_name == "".to_string() {
             first_name = path_str.clone();
         }

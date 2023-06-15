@@ -23,7 +23,7 @@ pub const WARP_TEXTURE: &str = "textures/warp.png";
 pub const HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_red.png",
     "textures/hidden_wall_blue.png",
-    "textures/hidden_wall_green.png"
+    "textures/hidden_wall_green.png",
 ];
 pub const LOWER_SHOWN_HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_lower.png",
