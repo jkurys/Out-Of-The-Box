@@ -45,19 +45,7 @@ pub fn render_entity<T>(
 where
     T: Component,
 {
-    let (x, y) = if z_index == UPPER_HALF_OBJECT_Z_INDEX {
-        (
-            position.x as f32 * TILE_SIZE,
-            (position.y as f32 + 0.25) * TILE_SIZE,
-        )
-    } else if z_index == LOWER_HALF_OBJECT_Z_INDEX {
-        (
-            position.x as f32 * TILE_SIZE,
-            (position.y as f32 - 0.375) * TILE_SIZE,
-        )
-    } else {
-        (position.x as f32 * TILE_SIZE, position.y as f32 * TILE_SIZE)
-    };
+    let (x, y) = (position.x as f32 * TILE_SIZE, position.y as f32 * TILE_SIZE);
     commands
         .spawn((SpriteBundle {
             texture: image,
@@ -70,6 +58,31 @@ where
         },))
         .insert(component)
         .insert(GameItem)
+        .id()
+}
+
+pub fn spawn_from_atlas<T>(
+    commands: &mut Commands,
+    atlas_handle: Handle<TextureAtlas>,
+    index: usize,
+    x: i32,
+    y: i32,
+    component: T,
+) -> Entity
+where
+    T: Component + Clone,
+{
+    let mut image = TextureAtlasSprite::new(index);
+    image.custom_size = Some(Vec2::splat(TILE_SIZE));
+    let (x, y, z) = (x as f32 * TILE_SIZE, y as f32 * TILE_SIZE, FLOOR_Z_INDEX);
+    commands
+        .spawn(SpriteSheetBundle {
+            sprite: image,
+            texture_atlas: atlas_handle.clone(),
+            transform: Transform::from_xyz(x, y, z),
+            ..default()
+        })
+        .insert((component, GameItem))
         .id()
 }
 

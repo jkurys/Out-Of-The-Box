@@ -2,14 +2,14 @@ use bevy::prelude::*;
 
 use crate::consts::*;
 use crate::game::game_objects::*;
-use crate::resources::Images;
+use crate::resources::{CurrentSprite, Images};
 
 use crate::board::Board;
 use crate::game::movement::resources::AnimationTimer;
 use crate::utils::offset_coordinate;
 
 use super::render_2_5_d::render_object;
-use super::render_entity;
+use super::{render_entity, spawn_from_atlas};
 
 //render the entire map based on Board
 pub fn render_board(
@@ -17,6 +17,7 @@ pub fn render_board(
     mut board: ResMut<Board>,
     images: Res<Images>,
     timer: ResMut<AnimationTimer>,
+    current_sprite: Res<CurrentSprite>,
 ) {
     if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
         return;
@@ -33,16 +34,17 @@ pub fn render_board(
             let game_object = board.get_object_type(position);
             match game_object {
                 GameObject::Box => {
-                    let [lower_image, higher_image] =
-                        if board.get_floor_type(position) == Floor::Goal {
-                            images.box_on_goal_images.clone()
-                        } else {
-                            images.box_images.clone()
-                        };
+                    let top_index = if board.get_floor_type(position) == Floor::Goal {
+                        2
+                    } else {
+                        0
+                    };
+
                     let entities = render_object(
                         &mut commands,
-                        higher_image,
-                        lower_image,
+                        images.box_images.clone().unwrap(),
+                        1,
+                        top_index,
                         position.x,
                         position.y,
                         Box,
@@ -50,27 +52,39 @@ pub fn render_board(
                     board.insert_entities(position, entities);
                 }
                 GameObject::Wall => {
-                    let [lower_image, higher_image] = images.wall_images.clone();
-                    render_object(
+                    let entities = render_object(
                         &mut commands,
-                        higher_image,
-                        lower_image,
+                        images.wall_images.clone().unwrap(),
+                        1,
+                        0,
                         position.x,
                         position.y,
                         Wall,
                     );
+                    board.insert_entities(position, entities);
                 }
                 GameObject::Player => {
-                    let [lower_image, higher_image] = images.player_images.clone();
-                    let entities =
-                        render_object(&mut commands, higher_image, lower_image, x, y, Player);
+                    let entities = render_object(
+                        &mut commands,
+                        images.player_images.clone().unwrap(),
+                        current_sprite.0 * 2 + 1,
+                        current_sprite.0 * 2,
+                        x,
+                        y,
+                        Player,
+                    );
                     board.insert_entities(position, entities);
                 }
                 GameObject::HidingWall { color } => {
-                    let [lower_image, higher_image] =
-                        images.shown_hidden_wall_images[color].clone();
-                    let entities =
-                        render_object(&mut commands, higher_image, lower_image, x, y, HiddenWall);
+                    let entities = render_object(
+                        &mut commands,
+                        images.hidden_wall_images.clone().unwrap(),
+                        color * 3 + 1,
+                        color * 3,
+                        x,
+                        y,
+                        HiddenWall,
+                    );
                     board.insert_entities(position, entities);
                 }
                 _ => (),
@@ -129,12 +143,13 @@ pub fn render_board(
                     hidden_by_default: _,
                     color,
                 } => {
-                    render_entity(
-                        HiddenWall,
+                    spawn_from_atlas(
                         &mut commands,
-                        images.hidden_wall_images[color].clone(),
-                        position,
-                        FLOOR_Z_INDEX,
+                        images.hidden_wall_images.clone().unwrap(),
+                        color * 3 + 2,
+                        position.x,
+                        position.y,
+                        HiddenWall,
                     );
                 }
                 Floor::Button(color) => {
@@ -161,7 +176,6 @@ pub fn render_border(
         return;
     }
     let map_size = board.get_map_size();
-    let [lower_wall_image, higher_wall_image] = images.wall_images.clone();
     let bottom_border = offset_coordinate(-1, map_size.height as i32);
     let top_border = offset_coordinate(map_size.height as i32, map_size.height as i32);
     let left_border = offset_coordinate(-1, map_size.width as i32);
@@ -170,8 +184,9 @@ pub fn render_border(
     for x in left_border..(right_border + 1) {
         render_object(
             &mut commands,
-            higher_wall_image.clone(),
-            lower_wall_image.clone(),
+            images.wall_images.clone().unwrap(),
+            1,
+            0,
             x,
             top_border,
             Wall,
@@ -181,16 +196,18 @@ pub fn render_border(
     for y in (bottom_border..=top_border).rev() {
         render_object(
             &mut commands,
-            higher_wall_image.clone(),
-            lower_wall_image.clone(),
+            images.wall_images.clone().unwrap(),
+            1,
+            0,
             left_border,
             y,
             Wall,
         );
         render_object(
             &mut commands,
-            higher_wall_image.clone(),
-            lower_wall_image.clone(),
+            images.wall_images.clone().unwrap(),
+            1,
+            0,
             right_border,
             y,
             Wall,
@@ -202,8 +219,9 @@ pub fn render_border(
     for x in left_border..(right_border + 1) {
         render_object(
             &mut commands,
-            higher_wall_image.clone(),
-            lower_wall_image.clone(),
+            images.wall_images.clone().unwrap(),
+            1,
+            0,
             x,
             bottom_border,
             Wall,

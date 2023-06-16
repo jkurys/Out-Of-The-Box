@@ -58,13 +58,6 @@ fn set_game_state(mut game_state: ResMut<NextState<MoveState>>, mut board: ResMu
     board.set_current_map(INITIAL_MAP);
 }
 
-// pub fn reset_game_state(
-//     mut game_state: ResMut<State<MoveState>>,
-//     mut board: ResMut<Board>,
-// ) {
-//     // TRZEBA DAĆ CONDITION NA WYKONYWANIE TYCH RZECZY TYLKO JESLI JESTESMY W GAME
-// }
-
 pub fn clear_board(mut board: ResMut<Board>, mut boards: ResMut<BoardStates>) {
     board.clear();
     boards.boards.clear();

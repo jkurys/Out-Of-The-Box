@@ -67,15 +67,13 @@ pub fn move_animation(
             if let Some([higher_entity, lower_entity]) = entity_opt {
                 let higher_transform = query
                     .get_mut(higher_entity)
-                    .expect("Moved box entity not found");
+                    .expect("Moved entity not found");
                 let (x, y) = (
                     position.x as f32 * TILE_SIZE,
-                    (position.y as f32 + 0.25) * TILE_SIZE,
+                    (position.y as f32 + 0.2) * TILE_SIZE,
                 );
                 modify_transform(higher_transform, direction, &timer, x, y, event.floor);
-                let lower_transform = query
-                    .get_mut(lower_entity)
-                    .expect("Moved box entity not found");
+                let lower_transform = query.get_mut(lower_entity).expect("Moved entity not found");
                 let (x2, y2) = (
                     position.x as f32 * TILE_SIZE,
                     (position.y as f32 - 0.375) * TILE_SIZE,
@@ -93,7 +91,7 @@ pub fn move_animation(
                     .expect("Moved box entity not found");
                 let (x, y) = (
                     position.x as f32 * TILE_SIZE,
-                    (position.y as f32 + 0.25) * TILE_SIZE,
+                    (position.y as f32 + 0.2) * TILE_SIZE,
                 );
                 modify_transform(higher_transform, direction, &timer, x, y, event.floor);
                 let lower_transform = query

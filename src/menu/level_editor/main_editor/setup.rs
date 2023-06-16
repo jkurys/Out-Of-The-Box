@@ -3,14 +3,17 @@ use bevy::prelude::*;
 use crate::{
     board::Board,
     components::GameEntity,
-    consts::{MAX_MAPS, PLUS_TEXTURE},
+    consts::{
+        BOX_TEXTURE, HIDDEN_WALL_TEXTURES, MAX_MAPS, PLAYER_TEXTURES, PLUS_TEXTURE,
+        SHOWN_HIDDEN_WALL_TEXTURES, WALL_TEXTURE,
+    },
     game::game_objects::{Floor, GameObject, Position},
     menu::level_editor::{
         resources::BoardSize,
         utils::{spawn_small_button, spawn_small_image},
         LevelEditorItem,
     },
-    resources::{Images, MapSize},
+    resources::{CurrentSprite, Images, MapSize},
     utils::offset_coordinate,
 };
 
@@ -22,6 +25,7 @@ pub fn setup_level_editor_board(
     board_size: Res<BoardSize>,
     mut boards: ResMut<Board>,
     asset_server: Res<AssetServer>,
+    current_sprite: Res<CurrentSprite>,
 ) {
     let BoardSize { width, height } = *board_size;
     boards.set_map_size(MapSize { width, height });
@@ -30,6 +34,11 @@ pub fn setup_level_editor_board(
     let top_border = offset_coordinate(height as i32 - 1, height as i32);
     let left_border = offset_coordinate(0, width as i32);
     let right_border = offset_coordinate(width as i32 - 1, width as i32);
+    let wall_image = asset_server.load(WALL_TEXTURE);
+    let box_image = asset_server.load(BOX_TEXTURE);
+    let hidden_wall_images = SHOWN_HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
+    let bottom_hidden_wall_images = HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
+    let player_image = asset_server.load(PLAYER_TEXTURES[current_sprite.0]);
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
@@ -64,7 +73,7 @@ pub fn setup_level_editor_board(
                                 })
                                 .with_children(|parent| {
                                     for _ in 0..height + 2 {
-                                        spawn_small_image(parent, images.wall_images[1].clone());
+                                        spawn_small_image(parent, wall_image.clone());
                                     }
                                 });
                             for x in left_border..(right_border + 1) {
@@ -76,7 +85,7 @@ pub fn setup_level_editor_board(
                                         ..default()
                                     })
                                     .with_children(|parent| {
-                                        spawn_small_image(parent, images.wall_images[1].clone());
+                                        spawn_small_image(parent, wall_image.clone());
                                         for y in (bottom_border..=top_border).rev() {
                                             spawn_small_button(
                                                 parent,
@@ -84,7 +93,7 @@ pub fn setup_level_editor_board(
                                                 LevelEditorChangable(Position { x, y }),
                                             );
                                         }
-                                        spawn_small_image(parent, images.wall_images[1].clone());
+                                        spawn_small_image(parent, wall_image.clone());
                                     });
                             }
                             parent
@@ -96,7 +105,7 @@ pub fn setup_level_editor_board(
                                 })
                                 .with_children(|parent| {
                                     for _ in 0..height + 2 {
-                                        spawn_small_image(parent, images.wall_images[1].clone());
+                                        spawn_small_image(parent, wall_image.clone());
                                     }
                                 });
                         });
@@ -159,24 +168,24 @@ pub fn setup_level_editor_board(
                         .with_children(|parent| {
                             spawn_small_button(
                                 parent,
-                                images.box_images[1].clone(),
+                                box_image.clone(),
                                 GameEntity::Object(GameObject::Box),
                             );
                             for color in 0..3 {
                                 spawn_small_button(
                                     parent,
-                                    images.shown_hidden_wall_images[color][1].clone(),
+                                    hidden_wall_images[color].clone(),
                                     GameEntity::Object(GameObject::HidingWall { color }),
                                 );
                             }
                             spawn_small_button(
                                 parent,
-                                images.wall_images[1].clone(),
+                                wall_image.clone(),
                                 GameEntity::Object(GameObject::Wall),
                             );
                             spawn_small_button(
                                 parent,
-                                images.player_images[1].clone(),
+                                player_image.clone(),
                                 GameEntity::Object(GameObject::Player),
                             );
                         });
@@ -208,7 +217,7 @@ pub fn setup_level_editor_board(
                             for color in 0..3 {
                                 spawn_small_button(
                                     parent,
-                                    images.hidden_wall_images[color].clone(),
+                                    bottom_hidden_wall_images[color].clone(),
                                     GameEntity::Floor(Floor::HiddenWall {
                                         hidden_by_default: true,
                                         color,
