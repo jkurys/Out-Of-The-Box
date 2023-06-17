@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::render::texture::ImageSampler;
 use consts::*;
 use game::display::DisplayPlugin;
 use game::movement::MovementPlugin;
@@ -38,6 +39,7 @@ fn main() {
         .add_startup_system(spawn_camera)
         .add_startup_system(init_images)
         .add_system(update_images)
+        .add_system(spritemap_fix)
         .run();
 }
 
@@ -50,4 +52,20 @@ fn update_images(mut current_sprite: ResMut<CurrentSprite>) {
     let mut buf = [0_u8; 1];
     file.read_exact(&mut buf).unwrap();
     current_sprite.0 = buf[0] as usize;
+}
+
+fn spritemap_fix(
+    mut ev_asset: EventReader<AssetEvent<Image>>,
+    mut assets: ResMut<Assets<Image>>,
+) {
+    for ev in ev_asset.iter() {
+        match ev {
+            AssetEvent::Created { handle } => {
+                if let Some(texture) = assets.get_mut(&handle) {
+                    texture.sampler_descriptor = ImageSampler::nearest()
+                }
+            },
+            _ => {}
+        }
+    }
 }

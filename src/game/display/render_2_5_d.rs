@@ -19,11 +19,11 @@ where
 {
     let mut higher_image = TextureAtlasSprite::new(top_index);
     let mut lower_image = TextureAtlasSprite::new(bottom_index);
-    higher_image.custom_size = Some(Vec2::splat(TILE_SIZE));
-    lower_image.custom_size = Some(Vec2::splat(TILE_SIZE));
+    higher_image.custom_size = Some(Vec2::splat(TILE_SIZE + 0.5));
+    lower_image.custom_size = Some(Vec2::splat(TILE_SIZE + 0.5));
     let (upper_x, upper_y, upper_z) = (
         x as f32 * TILE_SIZE,
-        (y as f32 + 0.2) * TILE_SIZE,
+        (y as f32 + 0.24) * TILE_SIZE,
         UPPER_HALF_OBJECT_Z_INDEX,
     );
     let (lower_x, lower_y, lower_z) = (
