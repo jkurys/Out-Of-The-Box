@@ -18,4 +18,5 @@ pub enum MoveState {
     Moving,
     #[default]
     Static,
+    CalcMove,
 }

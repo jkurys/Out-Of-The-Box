@@ -1,6 +1,18 @@
 use crate::game::game_objects::{Direction, Floor, GameObject, Position};
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct TryMoveEvent {
+    pub position: Position,
+    pub direction: Direction,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub struct SendEvent {
+    pub position: Position,
+    pub direction: Direction,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct EnteredFloorEvent {
     pub floor: Floor,
     pub position: Position,

@@ -13,7 +13,7 @@ use crate::game::game_objects::{Box, Player};
 
 use self::{
     button::handle_button,
-    events::{EnteredFloorEvent, ExitedFloorEvent},
+    events::{EnteredFloorEvent, ExitedFloorEvent, SendEvent, TryMoveEvent},
     position_updating::handle_move,
     resources::AnimationTimer,
 };
@@ -32,6 +32,9 @@ mod keyboard;
 mod position_updating;
 pub mod resources;
 mod warp;
+mod try_move;
+
+use crate::game::movement::try_move::try_move;
 
 pub type MovableInQuery = Or<(With<Box>, With<Player>)>;
 pub struct MovementPlugin;
@@ -67,7 +70,17 @@ impl Plugin for MovementPlugin {
                 .in_set(OnUpdate(MoveState::Static)),
         );
 
+        app.add_systems((
+            try_move,
+        )
+            .distributive_run_if(is_in_game)
+            .chain()
+            .in_set(OnUpdate(MoveState::CalcMove))
+        );
+
         app.add_event::<ExitedFloorEvent>();
+        app.add_event::<SendEvent>();
+        app.add_event::<TryMoveEvent>();
         app.init_resource::<Events<EnteredFloorEvent>>();
         app.insert_resource(AnimationTimer(Timer::from_seconds(
             MOVE_ANIMATION_TIME,

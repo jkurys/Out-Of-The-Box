@@ -124,6 +124,7 @@ impl Board {
     }
 
     pub fn insert_object_to_map(&mut self, position: Position, object: GameObject, map: usize) {
+        self.boards[map].objects.remove(&position);
         self.boards[map].objects.insert(position, object);
     }
 
@@ -138,6 +139,7 @@ impl Board {
     }
 
     pub fn insert_floor_to_map(&mut self, position: Position, floor: Floor, map: usize) {
+        self.boards[map].floors.remove(&position);
         self.boards[map].floors.insert(position, floor);
         match floor {
             Floor::Goal => self.boards[map].goals.push(position),
@@ -150,11 +152,17 @@ impl Board {
     }
 
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
-        let object_opt = self.boards[map].objects.remove(&position);
-        if object_opt.is_none() {
-            return;
+        let mut object_opt = self.boards[map].objects.remove(&position);
+        let mut object = GameObject::Empty;
+        if !object_opt.is_none() {
+            object = object_opt.unwrap();
         }
-        let object = object_opt.unwrap();
+        while !object_opt.is_none() {
+            object_opt = self.boards[map].objects.remove(&position);
+            if !object_opt.is_none() {
+                object = object_opt.unwrap();
+            }
+        }
         self.boards[map]
             .objects
             .insert(position.next_position(dir), object);
