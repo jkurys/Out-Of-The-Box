@@ -15,7 +15,7 @@ use self::{
     button::handle_button,
     events::{EnteredFloorEvent, ExitedFloorEvent, SendEvent, TryMoveEvent},
     position_updating::handle_move,
-    resources::AnimationTimer,
+    resources::AnimationTimer, turtle::handle_turtle,
 };
 
 use super::display::{
@@ -28,6 +28,7 @@ mod button;
 pub mod consts;
 mod events;
 mod ice;
+mod turtle;
 mod keyboard;
 mod position_updating;
 pub mod resources;
@@ -48,6 +49,7 @@ impl Plugin for MovementPlugin {
                 handle_button,
                 handle_ice,
                 handle_warp,
+                handle_turtle,
                 despawn_board,
                 render_board,
                 render_border,

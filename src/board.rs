@@ -108,6 +108,16 @@ impl Board {
         self.boards[self.current].buttons.clone()
     }
 
+    pub fn get_all_turtles(&self) -> Vec<Vec<Position>> {
+        let mut turtle_vec = vec![Vec::new(), Vec::new(), Vec::new()];
+        for (&pos, &obj) in self.boards[self.current].objects.iter() {
+            if let GameObject::Turtle { color } = obj {
+                turtle_vec[color].push(pos);
+            }
+        }
+        turtle_vec
+    }
+
     pub fn get_current_map(&self) -> usize {
         self.current
     }
@@ -184,8 +194,7 @@ impl Board {
     pub fn delete_object_n(&mut self, position: Position, map: usize) {
         self.boards[map]
             .objects
-            .remove(&position)
-            .expect("Could not remove object");
+            .remove(&position);
         self.boards[map].entities.remove(&position);
     }
 

@@ -7,10 +7,10 @@ pub fn init_images(
     mut atlases: ResMut<Assets<TextureAtlas>>,
     asset_server: Res<AssetServer>,
 ) {
-    images.goal_image = asset_server.load(GOAL_TEXTURE);
-    images.ice_image = asset_server.load(ICE_TEXTURE);
-    images.warp_image = asset_server.load(WARP_TEXTURE);
-    images.tile_image = asset_server.load(TILE_TEXTURE);
+    // images.goal_image = asset_server.load(GOAL_TEXTURE);
+    // images.ice_image = asset_server.load(ICE_TEXTURE);
+    // images.warp_image = asset_server.load(WARP_TEXTURE);
+    // images.tile_image = asset_server.load(TILE_TEXTURE);
 
     let wall_atlas_texture = asset_server.load(WALL_ATLAS);
     let wall_atlas = TextureAtlas::from_grid(
@@ -55,4 +55,7 @@ pub fn init_images(
         None,
     );
     images.player_images = Some(atlases.add(player_atlas));
+    let turtle_images_texture = asset_server.load(TURTLE_ATLAS);
+    let turtle_atlas = TextureAtlas::from_grid(turtle_images_texture, Vec2::splat(16.), 2, 2, Some(Vec2::splat(4.)), None);
+    images.turtle_images = Some(atlases.add(turtle_atlas));
 }

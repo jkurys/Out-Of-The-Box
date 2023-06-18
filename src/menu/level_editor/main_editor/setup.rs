@@ -5,7 +5,7 @@ use crate::{
     components::GameEntity,
     consts::{
         BOX_TEXTURE, HIDDEN_WALL_TEXTURES, MAX_MAPS, PLAYER_TEXTURES, PLUS_TEXTURE,
-        SHOWN_HIDDEN_WALL_TEXTURES, WALL_TEXTURE,
+        SHOWN_HIDDEN_WALL_TEXTURES, WALL_TEXTURE, TURTLE_TEXTURE,
     },
     game::game_objects::{Floor, GameObject, Position},
     menu::level_editor::{
@@ -34,6 +34,7 @@ pub fn setup_level_editor_board(
     let top_border = offset_coordinate(height as i32 - 1, height as i32);
     let left_border = offset_coordinate(0, width as i32);
     let right_border = offset_coordinate(width as i32 - 1, width as i32);
+    let turtle_image = asset_server.load(TURTLE_TEXTURE);
     let wall_image = asset_server.load(WALL_TEXTURE);
     let box_image = asset_server.load(BOX_TEXTURE);
     let hidden_wall_images = SHOWN_HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
@@ -223,6 +224,12 @@ pub fn setup_level_editor_board(
                                         color,
                                     }),
                                 );
+                            }
+                            for color in 0..3 {
+                                spawn_small_button(
+                                    parent,
+                                    turtle_image.clone(),
+                                    GameEntity::Object(GameObject::Turtle { color }));
                             }
                             spawn_small_button(
                                 parent,

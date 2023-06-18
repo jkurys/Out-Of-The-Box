@@ -24,6 +24,7 @@ pub struct Images {
     pub warp_image: Handle<Image>,
     pub button_images: [Handle<Image>; 3],
     pub hidden_wall_images: Option<Handle<TextureAtlas>>,
+    pub turtle_images: Option<Handle<TextureAtlas>>,
 }
 
 impl FromWorld for Images {
@@ -36,25 +37,7 @@ impl FromWorld for Images {
         if let Ok(mut file) = file_res {
             file.read_exact(&mut buf).unwrap();
         }
-        // let player_images = [
-        //     asset_server.load(LOWER_PLAYER_TEXTURES[buf[0] as usize]),
-        //     asset_server.load(PLAYER_TEXTURES[buf[0] as usize]),
-        // ];
-        // let box_images = [
-        //     asset_server.load(LOWER_BOX_TEXTURE),
-        //     asset_server.load(HIGHER_BOX_TEXTURE),
-        // ];
-        // let wall_images = [
-        //     asset_server.load(LOWER_WALL_TEXTURE),
-        //     asset_server.load(HIGHER_WALL_TEXTURE),
-        // ];
-        // let mut wall_images = atlases.add(wall_atlas);
         let wall_images = None;
-        // let goal_image = asset_server.load(GOAL_TEXTURE);
-        // let box_on_goal_images = [
-        //     asset_server.load(LOWER_BOX_TEXTURE),
-        //     asset_server.load(HIGHER_BOX_ON_GOAL_TEXTURE),
-        // ];
         let box_images = None;
         let goal_image = asset_server.load(GOAL_TEXTURE);
         let tile_image = asset_server.load(TILE_TEXTURE);
@@ -67,25 +50,7 @@ impl FromWorld for Images {
         ];
         let hidden_wall_images = None;
         let player_images = None;
-        // let hidden_wall_images = [
-        //     asset_server.load(HIDDEN_WALL_TEXTURES[0]),
-        //     asset_server.load(HIDDEN_WALL_TEXTURES[1]),
-        //     asset_server.load(HIDDEN_WALL_TEXTURES[2]),
-        // ];
-        // let shown_hidden_wall_images = [
-        //     [
-        //         asset_server.load(LOWER_SHOWN_HIDDEN_WALL_TEXTURES[0]),
-        //         asset_server.load(HIGHER_SHOWN_HIDDEN_WALL_TEXTURES[0]),
-        //     ],
-        //     [
-        //         asset_server.load(LOWER_SHOWN_HIDDEN_WALL_TEXTURES[1]),
-        //         asset_server.load(HIGHER_SHOWN_HIDDEN_WALL_TEXTURES[1]),
-        //     ],
-        //     [
-        //         asset_server.load(LOWER_SHOWN_HIDDEN_WALL_TEXTURES[2]),
-        //         asset_server.load(HIGHER_SHOWN_HIDDEN_WALL_TEXTURES[2]),
-        //     ],
-        // ];
+        let turtle_images = None;
 
         Images {
             player_images,
@@ -97,6 +62,7 @@ impl FromWorld for Images {
             warp_image,
             button_images,
             hidden_wall_images,
+            turtle_images,
         }
     }
 }

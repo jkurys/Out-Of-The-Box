@@ -45,8 +45,8 @@ pub fn render_board(
                         images.box_images.clone().unwrap(),
                         1,
                         top_index,
-                        position.x,
-                        position.y,
+                        x,
+                        y,
                         Box,
                     );
                     board.insert_entities(position, entities);
@@ -57,8 +57,8 @@ pub fn render_board(
                         images.wall_images.clone().unwrap(),
                         1,
                         0,
-                        position.x,
-                        position.y,
+                        x,
+                        y,
                         Wall,
                     );
                     board.insert_entities(position, entities);
@@ -84,6 +84,30 @@ pub fn render_board(
                         x,
                         y,
                         HiddenWall,
+                    );
+                    board.insert_entities(position, entities);
+                }
+                GameObject::Turtle { color } => {
+                    let entities = render_object(
+                        &mut commands,
+                        images.turtle_images.clone().unwrap(),
+                        3,
+                        1,
+                        x,
+                        y,
+                        Turtle,
+                    );
+                    board.insert_entities(position, entities);
+                }
+                GameObject::TurtleHead => {
+                    let entities = render_object(
+                        &mut commands,
+                        images.turtle_images.clone().unwrap(),
+                        2,
+                        0,
+                        x,
+                        y,
+                        Turtle,
                     );
                     board.insert_entities(position, entities);
                 }
@@ -154,7 +178,7 @@ pub fn render_board(
                 }
                 Floor::Button(color) => {
                     render_entity(
-                        BoxButton,
+                        Button,
                         &mut commands,
                         images.button_images[color].clone(),
                         position,

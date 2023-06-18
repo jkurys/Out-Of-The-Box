@@ -11,6 +11,8 @@ pub enum GameObject {
     HidingWall { color: usize },
     Empty,
     Player,
+    Turtle { color: usize },
+    TurtleHead,
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -27,9 +29,10 @@ pub enum Floor {
 }
 
 #[derive(Component)]
-pub struct Button {
-    pub on: bool,
-}
+pub struct Button;
+
+#[derive(Component, Clone)]
+pub struct Turtle;
 
 #[derive(Component, Clone)]
 pub struct HiddenWall;
