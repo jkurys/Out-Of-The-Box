@@ -48,7 +48,7 @@ pub fn handle_level_click(
                 LevelSelectItemType::Back => {
                     next_state.set(state_stack.0.pop().unwrap_or(DisplayState::MainMenu));
                 }
-            }
+            },
             Interaction::Hovered => {
                 *color = match item.as_ref() {
                     LevelSelectItemType::Level(level_no) => {

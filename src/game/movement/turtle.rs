@@ -1,8 +1,13 @@
 use bevy::prelude::*;
 
-use crate::{game::game_objects::{GameObject, Direction}, board::Board};
+use crate::{
+    board::Board,
+    game::game_objects::{Direction, GameObject},
+};
 
-pub fn handle_turtle(mut board: ResMut<Board>) {
+use super::events::TryMoveEvent;
+
+pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEvent>) {
     let buttons = board.get_all_buttons();
     let mut is_clicked = false;
     let mut color = 0;
@@ -15,13 +20,20 @@ pub fn handle_turtle(mut board: ResMut<Board>) {
         }
         if is_clicked {
             for turtle_pos in turtles[color].iter() {
-                
-                board.insert_object(turtle_pos.next_position(Direction::Left), GameObject::TurtleHead);
+                let turtle_head_pos = turtle_pos.next_position(Direction::Left);
+                if board.get_object_type(turtle_head_pos) != GameObject::TurtleHead {
+                    writer.send(TryMoveEvent {
+                        position: turtle_head_pos,
+                        direction: Direction::Left,
+                        is_weak: false,
+                        insert_after: Some((GameObject::TurtleHead, turtle_head_pos)),
+                    });
+                }
             }
         } else {
             for &turtle_pos in turtles[color].iter() {
                 let turtle_head_pos = turtle_pos.next_position(Direction::Left);
-                if let GameObject::TurtleHead = board.get_object_type(turtle_head_pos) {
+                if board.get_object_type(turtle_head_pos) == GameObject::TurtleHead {
                     board.delete_object(turtle_head_pos);
                 }
             }

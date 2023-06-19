@@ -192,9 +192,7 @@ impl Board {
     }
 
     pub fn delete_object_n(&mut self, position: Position, map: usize) {
-        self.boards[map]
-            .objects
-            .remove(&position);
+        self.boards[map].objects.remove(&position);
         self.boards[map].entities.remove(&position);
     }
 

@@ -19,10 +19,19 @@ pub fn handle_ice(
             .cmp_to_other(&event2.position, event1.direction)
     });
     for event in events.iter() {
-        let &&EnteredFloorEvent{ position, direction, ..} = event;
+        let &&EnteredFloorEvent {
+            position,
+            direction,
+            ..
+        } = event;
         if event.floor != Floor::Ice {
-            break;
+            continue;
         }
-        writer.send(TryMoveEvent { position, direction, is_weak: true });
+        writer.send(TryMoveEvent {
+            position,
+            direction,
+            is_weak: true,
+            insert_after: None,
+        });
     }
 }

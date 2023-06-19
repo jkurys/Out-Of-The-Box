@@ -54,17 +54,14 @@ fn update_images(mut current_sprite: ResMut<CurrentSprite>) {
     current_sprite.0 = buf[0] as usize;
 }
 
-fn spritemap_fix(
-    mut ev_asset: EventReader<AssetEvent<Image>>,
-    mut assets: ResMut<Assets<Image>>,
-) {
+fn spritemap_fix(mut ev_asset: EventReader<AssetEvent<Image>>, mut assets: ResMut<Assets<Image>>) {
     for ev in ev_asset.iter() {
         match ev {
             AssetEvent::Created { handle } => {
                 if let Some(texture) = assets.get_mut(&handle) {
                     texture.sampler_descriptor = ImageSampler::nearest()
                 }
-            },
+            }
             _ => {}
         }
     }

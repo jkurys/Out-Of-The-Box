@@ -12,11 +12,11 @@ use warp::handle_warp;
 use crate::game::game_objects::{Box, Player};
 
 use self::{
-    end_move::end_move,
     button::handle_button,
-    events::{EnteredFloorEvent, ExitedFloorEvent, SendEvent, TryMoveEvent},
-    position_updating::handle_move,
-    resources::AnimationTimer, turtle::handle_turtle,
+    end_move::end_move,
+    events::{EnteredFloorEvent, TryMoveEvent},
+    resources::AnimationTimer,
+    turtle::handle_turtle,
 };
 
 use super::display::{
@@ -27,15 +27,14 @@ use super::display::{
 mod animation;
 mod button;
 pub mod consts;
+mod end_move;
 mod events;
 mod ice;
-mod end_move;
-mod turtle;
 mod keyboard;
-mod position_updating;
 pub mod resources;
-mod warp;
 mod try_move;
+mod turtle;
+mod warp;
 
 use crate::game::movement::try_move::try_move;
 
@@ -69,29 +68,20 @@ impl Plugin for MovementPlugin {
                 .in_set(OnUpdate(MoveState::Static)),
         );
 
-        app.add_systems((
-            try_move,
-            handle_warp,
-            handle_move,
-        )
-            .distributive_run_if(is_in_game)
-            .chain()
-            .in_set(OnUpdate(MoveState::Calculating))
+        app.add_systems(
+            (try_move, handle_warp)
+                .distributive_run_if(is_in_game)
+                .chain()
+                .in_set(OnUpdate(MoveState::Calculating)),
         );
 
-        app.add_systems((
-            handle_button,
-            handle_turtle,
-            handle_ice,
-            end_move,
-        )
-            .distributive_run_if(is_in_game)
-            .chain()
-            .in_set(OnUpdate(MoveState::AfterAnimationCalc))
+        app.add_systems(
+            (handle_button, handle_turtle, handle_ice, end_move)
+                .distributive_run_if(is_in_game)
+                .chain()
+                .in_set(OnUpdate(MoveState::AfterAnimationCalc)),
         );
 
-        app.add_event::<ExitedFloorEvent>();
-        app.add_event::<SendEvent>();
         app.add_event::<TryMoveEvent>();
         app.init_resource::<Events<EnteredFloorEvent>>();
         app.insert_resource(AnimationTimer(Timer::from_seconds(
@@ -108,20 +98,10 @@ pub fn is_in_game(display_state: Res<State<DisplayState>>) -> bool {
 fn continue_animation(
     mut app_state: ResMut<NextState<MoveState>>,
     mut timer: ResMut<AnimationTimer>,
-    // reader: EventReader<ExitedFloorEvent>,
-    // mut entered_events: ResMut<Events<EnteredFloorEvent>>,
 ) {
     if !timer.0.finished() {
         return;
     }
-
-    // entered_events.update();
     timer.0.reset();
     app_state.set(MoveState::AfterAnimationCalc);
-    // if !reader.is_empty() {
-    //     timer.0.reset();
-    //     app_state.set(MoveState::Calculating);
-    // } else {
-    //     app_state.set(MoveState::Static);
-    // }
 }

@@ -56,6 +56,13 @@ pub fn init_images(
     );
     images.player_images = Some(atlases.add(player_atlas));
     let turtle_images_texture = asset_server.load(TURTLE_ATLAS);
-    let turtle_atlas = TextureAtlas::from_grid(turtle_images_texture, Vec2::splat(16.), 2, 2, Some(Vec2::splat(4.)), None);
+    let turtle_atlas = TextureAtlas::from_grid(
+        turtle_images_texture,
+        Vec2::splat(16.),
+        2,
+        2,
+        Some(Vec2::splat(4.)),
+        None,
+    );
     images.turtle_images = Some(atlases.add(turtle_atlas));
 }
