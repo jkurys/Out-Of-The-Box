@@ -7,7 +7,7 @@ use crate::{
         BOX_TEXTURE, HIDDEN_WALL_TEXTURES, MAX_MAPS, PLAYER_TEXTURES, PLUS_TEXTURE,
         SHOWN_HIDDEN_WALL_TEXTURES, TURTLE_TEXTURE, WALL_TEXTURE,
     },
-    game::game_objects::{Floor, GameObject, Position},
+    game::game_objects::{Floor, GameObject, Position, Direction},
     menu::level_editor::{
         resources::BoardSize,
         utils::{spawn_small_button, spawn_small_image},
@@ -225,13 +225,15 @@ pub fn setup_level_editor_board(
                                     }),
                                 );
                             }
-                            for color in 0..3 {
-                                spawn_small_button(
-                                    parent,
-                                    turtle_image.clone(),
-                                    GameEntity::Object(GameObject::Turtle { color }),
-                                );
-                            }
+                            // for color in 0..3 {
+                                for dir in 0..4 {
+                                    spawn_small_button(
+                                        parent,
+                                        turtle_image.clone(),
+                                        GameEntity::Object(GameObject::Turtle { color: 0, direction: Direction::from_num(dir) }),
+                                    );
+                                }
+                            // }
                             spawn_small_button(
                                 parent,
                                 images.tile_image.clone(),

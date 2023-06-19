@@ -87,24 +87,24 @@ pub fn render_board(
                     );
                     board.insert_entities(position, entities);
                 }
-                GameObject::Turtle { color } => {
+                GameObject::Turtle { color, direction } => {
                     let entities = render_object(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
-                        3,
-                        1,
+                        direction.to_num() * 4 + 1,
+                        direction.to_num() * 4,
                         x,
                         y,
                         Turtle,
                     );
                     board.insert_entities(position, entities);
                 }
-                GameObject::TurtleHead => {
+                GameObject::TurtleHead { direction } => {
                     let entities = render_object(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
-                        2,
-                        0,
+                        direction.to_num() * 4 + 3,
+                        direction.to_num() * 4 + 2,
                         x,
                         y,
                         Turtle,

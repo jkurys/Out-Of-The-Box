@@ -11,8 +11,13 @@ pub enum GameObject {
     HidingWall { color: usize },
     Empty,
     Player,
-    Turtle { color: usize },
-    TurtleHead,
+    Turtle {
+        direction: Direction,
+        color: usize,
+    },
+    TurtleHead {
+        direction: Direction,
+    },
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -109,20 +114,6 @@ impl<'de> Visitor<'de> for PositionVisitor {
         } else {
             return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
         }
-
-        // if let Some(nums) = Regex::new(r"(\d+):(\d+)").unwrap().captures_iter(s).next() {
-        //     if let Ok(x) = i32::from_str_radix(&nums[1], 10) {
-        //         if let Ok(y) = i32::from_str_radix(&nums[2], 10) {
-        //             Ok(Position { x, y })
-        //         } else {
-        //             Err(de::Error::invalid_value(Unexpected::Str(s), &self))
-        //         }
-        //     } else {
-        //         Err(de::Error::invalid_value(Unexpected::Str(s), &self))
-        //     }
-        // } else {
-        //     Err(de::Error::invalid_value(Unexpected::Str(s), &self))
-        // }
     }
 }
 
@@ -167,10 +158,31 @@ impl Position {
     }
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub enum Direction {
     Up,
     Down,
     Left,
     Right,
+}
+
+impl Direction {
+    pub fn to_num(&self) -> usize {
+        match &self {
+            Direction::Left => 0,
+            Direction::Right => 1,
+            Direction::Down => 2,
+            Direction::Up => 3,
+        }
+    }
+
+    pub fn from_num(num: usize) -> Self {
+        match num {
+            0 => Direction::Left,
+            1 => Direction::Right,
+            2 => Direction::Down,
+            3 => Direction::Up,
+            _ => panic!("Invalid num provided")
+        }
+    }
 }

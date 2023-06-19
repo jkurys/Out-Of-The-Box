@@ -108,11 +108,11 @@ impl Board {
         self.boards[self.current].buttons.clone()
     }
 
-    pub fn get_all_turtles(&self) -> Vec<Vec<Position>> {
+    pub fn get_all_turtles(&self) -> Vec<Vec<(Position, Direction)>> {
         let mut turtle_vec = vec![Vec::new(), Vec::new(), Vec::new()];
         for (&pos, &obj) in self.boards[self.current].objects.iter() {
-            if let GameObject::Turtle { color } = obj {
-                turtle_vec[color].push(pos);
+            if let GameObject::Turtle { color, direction } = obj {
+                turtle_vec[color].push((pos, direction));
             }
         }
         turtle_vec

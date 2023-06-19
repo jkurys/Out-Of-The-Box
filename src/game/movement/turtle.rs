@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     board::Board,
-    game::game_objects::{Direction, GameObject},
+    game::game_objects::GameObject,
 };
 
 use super::events::TryMoveEvent;
@@ -19,21 +19,23 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
             }
         }
         if is_clicked {
-            for turtle_pos in turtles[color].iter() {
-                let turtle_head_pos = turtle_pos.next_position(Direction::Left);
-                if board.get_object_type(turtle_head_pos) != GameObject::TurtleHead {
+            for (turtle_pos, direction) in turtles[color].iter() {
+                let direction = *direction;
+                let turtle_head_pos = turtle_pos.next_position(direction);
+                if board.get_object_type(turtle_head_pos) != (GameObject::TurtleHead { direction }) {
                     writer.send(TryMoveEvent {
                         position: turtle_head_pos,
-                        direction: Direction::Left,
+                        direction,
                         is_weak: false,
-                        insert_after: Some((GameObject::TurtleHead, turtle_head_pos)),
+                        insert_after: Some((GameObject::TurtleHead { direction }, turtle_head_pos)),
                     });
                 }
             }
         } else {
-            for &turtle_pos in turtles[color].iter() {
-                let turtle_head_pos = turtle_pos.next_position(Direction::Left);
-                if board.get_object_type(turtle_head_pos) == GameObject::TurtleHead {
+            for (turtle_pos, direction) in turtles[color].iter() {
+                let direction = *direction;
+                let turtle_head_pos = turtle_pos.next_position(direction);
+                if board.get_object_type(turtle_head_pos) == (GameObject::TurtleHead { direction }) {
                     board.delete_object(turtle_head_pos);
                 }
             }

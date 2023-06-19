@@ -59,8 +59,8 @@ pub fn init_images(
     let turtle_atlas = TextureAtlas::from_grid(
         turtle_images_texture,
         Vec2::splat(16.),
-        2,
-        2,
+        4,
+        5,
         Some(Vec2::splat(4.)),
         None,
     );
