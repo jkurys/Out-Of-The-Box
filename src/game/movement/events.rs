@@ -4,6 +4,7 @@ use crate::game::game_objects::{Direction, Floor, GameObject, Position};
 pub struct TryMoveEvent {
     pub position: Position,
     pub direction: Direction,
+    pub is_weak: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]

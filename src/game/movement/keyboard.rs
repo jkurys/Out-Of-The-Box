@@ -31,7 +31,7 @@ pub fn handle_keypress(
         Direction::Up => pos2.y.cmp(&pos1.y),
     });
     for position in positions {
-        writer.send(TryMoveEvent { position, direction });
+        writer.send(TryMoveEvent { position, direction, is_weak: false });
     }
-    app_state.set(MoveState::CalcMove);
+    app_state.set(MoveState::Calculating);
 }

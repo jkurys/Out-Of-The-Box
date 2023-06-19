@@ -15,8 +15,9 @@ pub enum DisplayState {
 
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Default, States)]
 pub enum MoveState {
-    Moving,
+    Animation,
     #[default]
     Static,
-    CalcMove,
+    Calculating,
+    AfterAnimationCalc,
 }

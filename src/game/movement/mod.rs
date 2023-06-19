@@ -12,6 +12,7 @@ use warp::handle_warp;
 use crate::game::game_objects::{Box, Player};
 
 use self::{
+    end_move::end_move,
     button::handle_button,
     events::{EnteredFloorEvent, ExitedFloorEvent, SendEvent, TryMoveEvent},
     position_updating::handle_move,
@@ -28,6 +29,7 @@ mod button;
 pub mod consts;
 mod events;
 mod ice;
+mod end_move;
 mod turtle;
 mod keyboard;
 mod position_updating;
@@ -44,12 +46,7 @@ impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (
-                handle_move,
                 move_animation,
-                handle_button,
-                handle_ice,
-                handle_warp,
-                handle_turtle,
                 despawn_board,
                 render_board,
                 render_border,
@@ -57,13 +54,13 @@ impl Plugin for MovementPlugin {
             )
                 .distributive_run_if(is_in_game)
                 .chain()
-                .in_set(OnUpdate(MoveState::Moving)),
+                .in_set(OnUpdate(MoveState::Animation)),
         );
 
         app.add_system(
             end_animation
                 .run_if(is_in_game)
-                .in_schedule(OnExit(MoveState::Moving)),
+                .in_schedule(OnExit(MoveState::Animation)),
         );
 
         app.add_system(
@@ -74,10 +71,23 @@ impl Plugin for MovementPlugin {
 
         app.add_systems((
             try_move,
+            handle_warp,
+            handle_move,
         )
             .distributive_run_if(is_in_game)
             .chain()
-            .in_set(OnUpdate(MoveState::CalcMove))
+            .in_set(OnUpdate(MoveState::Calculating))
+        );
+
+        app.add_systems((
+            handle_button,
+            handle_turtle,
+            handle_ice,
+            end_move,
+        )
+            .distributive_run_if(is_in_game)
+            .chain()
+            .in_set(OnUpdate(MoveState::AfterAnimationCalc))
         );
 
         app.add_event::<ExitedFloorEvent>();
@@ -98,17 +108,20 @@ pub fn is_in_game(display_state: Res<State<DisplayState>>) -> bool {
 fn continue_animation(
     mut app_state: ResMut<NextState<MoveState>>,
     mut timer: ResMut<AnimationTimer>,
-    reader: EventReader<ExitedFloorEvent>,
-    mut entered_events: ResMut<Events<EnteredFloorEvent>>,
+    // reader: EventReader<ExitedFloorEvent>,
+    // mut entered_events: ResMut<Events<EnteredFloorEvent>>,
 ) {
     if !timer.0.finished() {
         return;
     }
 
-    entered_events.update();
-    if !reader.is_empty() {
-        timer.0.reset();
-    } else {
-        app_state.set(MoveState::Static);
-    }
+    // entered_events.update();
+    timer.0.reset();
+    app_state.set(MoveState::AfterAnimationCalc);
+    // if !reader.is_empty() {
+    //     timer.0.reset();
+    //     app_state.set(MoveState::Calculating);
+    // } else {
+    //     app_state.set(MoveState::Static);
+    // }
 }

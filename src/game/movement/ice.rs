@@ -1,22 +1,12 @@
 use bevy::prelude::*;
 
-use super::events::{EnteredFloorEvent, ExitedFloorEvent};
-use crate::{
-    board::Board,
-    game::game_objects::{Floor, GameObject},
-};
+use super::events::{EnteredFloorEvent, TryMoveEvent};
+use crate::game::game_objects::Floor;
 
-use super::resources::AnimationTimer;
-// checks which entities should move if they are on ice
 pub fn handle_ice(
-    mut moved_writer: EventWriter<ExitedFloorEvent>,
+    mut writer: EventWriter<TryMoveEvent>,
     mut position_reader: EventReader<EnteredFloorEvent>,
-    timer: ResMut<AnimationTimer>,
-    board: Res<Board>,
 ) {
-    if !timer.0.finished() {
-        return;
-    }
     let mut events = Vec::new();
     let mut positions = Vec::new();
     for event in position_reader.iter() {
@@ -29,67 +19,10 @@ pub fn handle_ice(
             .cmp_to_other(&event2.position, event1.direction)
     });
     for event in events.iter() {
-        let (position, direction) = (event.position, event.direction);
+        let &&EnteredFloorEvent{ position, direction, ..} = event;
         if event.floor != Floor::Ice {
-            break; //break in this loop means that this object and all that come before it stop movement
+            break;
         }
-        let (object_position, map) =
-            board.get_next_position_for_move(position, direction, board.get_current_map());
-        let object = board.get_object_from_map(object_position, map);
-        match object {
-            GameObject::Empty => {
-                moved_writer.send(ExitedFloorEvent {
-                    floor: Floor::Ice,
-                    position,
-                    map,
-                    object: event.object,
-                    direction: event.direction,
-                });
-            }
-            GameObject::Box => {
-                if positions.contains(&object_position) {
-                    //found box is already moving
-                    moved_writer.send(ExitedFloorEvent {
-                        floor: Floor::Ice,
-                        position,
-                        map,
-                        object: event.object,
-                        direction: event.direction,
-                    });
-                } else if board.get_floor_from_map(object_position, map) == Floor::Ice {
-                    // if there are multiple stationary boxes ahead, either the last one moves
-                    // (if it's on ice) or they remain stationary otherwise
-                    let mut last_box_position = object_position;
-                    let (mut next_object_position, mut next_map) =
-                        board.get_next_position_for_move(last_box_position, direction, map);
-                    let mut next_object = board.get_object_from_map(next_object_position, next_map);
-                    while next_object == GameObject::Box
-                        && board.get_floor_from_map(next_object_position, next_map) == Floor::Ice
-                    {
-                        last_box_position = next_object_position;
-                        (next_object_position, next_map) = board.get_next_position_for_move(
-                            next_object_position,
-                            direction,
-                            next_map,
-                        );
-                        next_object = board.get_object_from_map(next_object_position, next_map);
-                    }
-                    if next_object == GameObject::Empty {
-                        moved_writer.send(ExitedFloorEvent {
-                            floor: Floor::Ice,
-                            position: last_box_position,
-                            map: next_map,
-                            object: event.object,
-                            direction: event.direction,
-                        });
-                    }
-                    break;
-                    //either way the entity that encountered a stationary entity in front of it must stop, and so do entities before it
-                } else {
-                    break;
-                }
-            }
-            _ => break,
-        }
+        writer.send(TryMoveEvent { position, direction, is_weak: true });
     }
 }
