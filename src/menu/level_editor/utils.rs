@@ -40,8 +40,12 @@ where
         .insert(component);
 }
 
-pub fn spawn_small_button_with_sticker<T>(parent: &mut ChildBuilder, image: Handle<Image>, component: T, sticker_image: Handle<Image>)
-where
+pub fn spawn_small_button_with_sticker<T>(
+    parent: &mut ChildBuilder,
+    image: Handle<Image>,
+    component: T,
+    sticker_image: Handle<Image>,
+) where
     T: Component,
 {
     parent
@@ -60,7 +64,8 @@ where
             },
             ..default()
         })
-        .insert(component).with_children(|parent| {
+        .insert(component)
+        .with_children(|parent| {
             spawn_small_image(parent, sticker_image);
         });
 }

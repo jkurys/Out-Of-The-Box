@@ -3,7 +3,8 @@ use bevy::prelude::*;
 use crate::{
     board::Board,
     components::GameEntity,
-    game::game_objects::{Floor, GameObject, Direction}, consts::{TURTLE_TEXTURES},
+    consts::TURTLE_TEXTURES,
+    game::game_objects::{Direction, Floor, GameObject},
 };
 
 use super::LevelEditorChangable;
@@ -56,7 +57,11 @@ pub fn handle_level_editor_click(
             }
         }
     }
-    if let GameEntity::Object(GameObject::Turtle { direction: _, color }) = *current_object {
+    if let GameEntity::Object(GameObject::Turtle {
+        direction: _,
+        color,
+    }) = *current_object
+    {
         let mut maybe_dir = None;
         if input.just_pressed(KeyCode::Up) {
             maybe_dir = Some(Direction::Up);
@@ -69,7 +74,10 @@ pub fn handle_level_editor_click(
         }
         if let Some(dir) = maybe_dir {
             image.0 = asset_server.load(TURTLE_TEXTURES[dir.to_num()]).into();
-            *current_object = GameEntity::Object(GameObject::Turtle { direction: dir, color });
+            *current_object = GameEntity::Object(GameObject::Turtle {
+                direction: dir,
+                color,
+            });
         }
     }
 }

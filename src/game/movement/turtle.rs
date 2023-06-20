@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{
-    board::Board,
-    game::game_objects::GameObject,
-};
+use crate::{board::Board, game::game_objects::GameObject};
 
 use super::events::TryMoveEvent;
 
@@ -22,7 +19,8 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
             for (turtle_pos, direction) in turtles[color].iter() {
                 let direction = *direction;
                 let turtle_head_pos = turtle_pos.next_position(direction);
-                if board.get_object_type(turtle_head_pos) != (GameObject::TurtleHead { direction }) {
+                if board.get_object_type(turtle_head_pos) != (GameObject::TurtleHead { direction })
+                {
                     writer.send(TryMoveEvent {
                         position: turtle_head_pos,
                         direction,
@@ -35,7 +33,8 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
             for (turtle_pos, direction) in turtles[color].iter() {
                 let direction = *direction;
                 let turtle_head_pos = turtle_pos.next_position(direction);
-                if board.get_object_type(turtle_head_pos) == (GameObject::TurtleHead { direction }) {
+                if board.get_object_type(turtle_head_pos) == (GameObject::TurtleHead { direction })
+                {
                     board.delete_object(turtle_head_pos);
                 }
             }

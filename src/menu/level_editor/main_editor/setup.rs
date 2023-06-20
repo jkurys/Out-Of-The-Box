@@ -5,12 +5,12 @@ use crate::{
     components::GameEntity,
     consts::{
         BOX_TEXTURE, HIDDEN_WALL_TEXTURES, MAX_MAPS, PLAYER_TEXTURES, PLUS_TEXTURE,
-        SHOWN_HIDDEN_WALL_TEXTURES, WALL_TEXTURE, TURTLE_TEXTURES, STICKER_TEXTURES,
+        SHOWN_HIDDEN_WALL_TEXTURES, STICKER_TEXTURES, TURTLE_TEXTURES, WALL_TEXTURE,
     },
-    game::game_objects::{Floor, GameObject, Position, Direction},
+    game::game_objects::{Direction, Floor, GameObject, Position},
     menu::level_editor::{
         resources::BoardSize,
-        utils::{spawn_small_button, spawn_small_image, spawn_small_button_with_sticker},
+        utils::{spawn_small_button, spawn_small_button_with_sticker, spawn_small_image},
         LevelEditorItem,
     },
     resources::{CurrentSprite, Images, MapSize},
@@ -230,7 +230,10 @@ pub fn setup_level_editor_board(
                                 spawn_small_button_with_sticker(
                                     parent,
                                     turtle_image.clone(),
-                                    GameEntity::Object(GameObject::Turtle { color, direction: Direction::Left }),
+                                    GameEntity::Object(GameObject::Turtle {
+                                        color,
+                                        direction: Direction::Left,
+                                    }),
                                     sticker_images[color].clone(),
                                 );
                             }

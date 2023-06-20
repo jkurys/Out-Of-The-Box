@@ -4,7 +4,6 @@ use crate::{
 };
 use bevy::prelude::*;
 
-use animation::{end_animation, move_animation};
 use ice::handle_ice;
 use keyboard::handle_keypress;
 use warp::handle_warp;
@@ -16,12 +15,7 @@ use self::{
     end_move::end_move,
     events::{EnteredFloorEvent, TryMoveEvent},
     resources::AnimationTimer,
-    turtle::handle_turtle,
-};
-
-use super::display::{
-    background::{render_board, render_border},
-    despawn_board,
+    turtle::handle_turtle, animation::GameAnimationPlugin,
 };
 
 mod animation;
@@ -43,25 +37,7 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            (
-                move_animation,
-                despawn_board,
-                render_board,
-                render_border,
-                continue_animation,
-            )
-                .distributive_run_if(is_in_game)
-                .chain()
-                .in_set(OnUpdate(MoveState::Animation)),
-        );
-
-        app.add_system(
-            end_animation
-                .run_if(is_in_game)
-                .in_schedule(OnExit(MoveState::Animation)),
-        );
-
+        app.add_plugin(GameAnimationPlugin);
         app.add_system(
             handle_keypress
                 .run_if(is_in_game)
@@ -93,15 +69,4 @@ impl Plugin for MovementPlugin {
 
 pub fn is_in_game(display_state: Res<State<DisplayState>>) -> bool {
     display_state.0 == DisplayState::Game
-}
-
-fn continue_animation(
-    mut app_state: ResMut<NextState<MoveState>>,
-    mut timer: ResMut<AnimationTimer>,
-) {
-    if !timer.0.finished() {
-        return;
-    }
-    timer.0.reset();
-    app_state.set(MoveState::AfterAnimationCalc);
 }

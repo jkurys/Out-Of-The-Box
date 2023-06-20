@@ -11,13 +11,8 @@ pub enum GameObject {
     HidingWall { color: usize },
     Empty,
     Player,
-    Turtle {
-        direction: Direction,
-        color: usize,
-    },
-    TurtleHead {
-        direction: Direction,
-    },
+    Turtle { direction: Direction, color: usize },
+    TurtleHead { direction: Direction },
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]

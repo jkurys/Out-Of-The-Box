@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
 use crate::{
-    consts::{LOWER_HALF_OBJECT_Z_INDEX, TILE_SIZE, UPPER_HALF_OBJECT_Z_INDEX, UPPER_HALF_STICKER_Z_INDEX},
+    consts::{
+        LOWER_HALF_OBJECT_Z_INDEX, TILE_SIZE, UPPER_HALF_OBJECT_Z_INDEX, UPPER_HALF_STICKER_Z_INDEX,
+    },
     game::GameItem,
 };
 
@@ -65,7 +67,15 @@ pub fn render_object_with_sticker<T>(
 where
     T: Component + Clone,
 {
-    let [entity1, entity2] = render_object(commands, atlas_handle.clone(), bottom_index, top_index, x, y, component.clone());
+    let [entity1, entity2] = render_object(
+        commands,
+        atlas_handle.clone(),
+        bottom_index,
+        top_index,
+        x,
+        y,
+        component.clone(),
+    );
     let mut sticker_image = TextureAtlasSprite::new(sticker_index);
     sticker_image.custom_size = Some(Vec2::splat(TILE_SIZE));
     let (sticker_x, sticker_y, sticker_z) = (

@@ -1,12 +1,18 @@
-use super::{events::EnteredFloorEvent, resources::AnimationTimer};
-use crate::{board::Board, consts::TILE_SIZE};
 use bevy::prelude::*;
 
-use crate::game::game_objects::{Direction, *};
-
-use super::{
-    consts::{INTERVAL_DISTANCE_1, SPEED_1, TIME_INTERVAL_1},
-    MovableInQuery,
+use crate::game::game_objects::Direction;
+use crate::{
+    board::Board,
+    consts::TILE_SIZE,
+    game::{
+        game_objects::Floor,
+        movement::{
+            consts::{INTERVAL_DISTANCE_1, SPEED_1, TIME_INTERVAL_1},
+            events::EnteredFloorEvent,
+            resources::AnimationTimer,
+            MovableInQuery,
+        },
+    },
 };
 
 fn animation_weight(number: f32) -> f32 {
@@ -105,8 +111,4 @@ pub fn move_animation(
             }
         }
     }
-}
-
-pub fn end_animation(mut timer: ResMut<AnimationTimer>) {
-    timer.0.reset();
 }
