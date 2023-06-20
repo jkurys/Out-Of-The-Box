@@ -175,14 +175,4 @@ impl Direction {
             Direction::Up => 3,
         }
     }
-
-    pub fn from_num(num: usize) -> Self {
-        match num {
-            0 => Direction::Left,
-            1 => Direction::Right,
-            2 => Direction::Down,
-            3 => Direction::Up,
-            _ => panic!("Invalid num provided")
-        }
-    }
 }

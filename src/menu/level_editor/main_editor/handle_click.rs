@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     board::Board,
     components::GameEntity,
-    game::game_objects::{Floor, GameObject},
+    game::game_objects::{Floor, GameObject, Direction}, consts::{TURTLE_TEXTURES},
 };
 
 use super::LevelEditorChangable;
@@ -20,6 +20,8 @@ pub fn handle_level_editor_click(
     mut board: ResMut<Board>,
     mut current_object: Local<GameEntity>,
     mut image: Local<(UiImage, bool)>,
+    input: Res<Input<KeyCode>>,
+    asset_server: Res<AssetServer>,
 ) {
     for (changable, interaction, mut new_image) in changable_query.iter_mut() {
         let position = changable.0;
@@ -52,6 +54,22 @@ pub fn handle_level_editor_click(
             Interaction::None => {
                 *color = Color::WHITE.into();
             }
+        }
+    }
+    if let GameEntity::Object(GameObject::Turtle { direction: _, color }) = *current_object {
+        let mut maybe_dir = None;
+        if input.just_pressed(KeyCode::Up) {
+            maybe_dir = Some(Direction::Up);
+        } else if input.just_pressed(KeyCode::Down) {
+            maybe_dir = Some(Direction::Down);
+        } else if input.just_pressed(KeyCode::Left) {
+            maybe_dir = Some(Direction::Left);
+        } else if input.just_pressed(KeyCode::Right) {
+            maybe_dir = Some(Direction::Right);
+        }
+        if let Some(dir) = maybe_dir {
+            image.0 = asset_server.load(TURTLE_TEXTURES[dir.to_num()]).into();
+            *current_object = GameEntity::Object(GameObject::Turtle { direction: dir, color });
         }
     }
 }

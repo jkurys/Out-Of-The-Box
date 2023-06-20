@@ -5,12 +5,12 @@ use crate::{
     components::GameEntity,
     consts::{
         BOX_TEXTURE, HIDDEN_WALL_TEXTURES, MAX_MAPS, PLAYER_TEXTURES, PLUS_TEXTURE,
-        SHOWN_HIDDEN_WALL_TEXTURES, TURTLE_TEXTURE, WALL_TEXTURE,
+        SHOWN_HIDDEN_WALL_TEXTURES, WALL_TEXTURE, TURTLE_TEXTURES, STICKER_TEXTURES,
     },
     game::game_objects::{Floor, GameObject, Position, Direction},
     menu::level_editor::{
         resources::BoardSize,
-        utils::{spawn_small_button, spawn_small_image},
+        utils::{spawn_small_button, spawn_small_image, spawn_small_button_with_sticker},
         LevelEditorItem,
     },
     resources::{CurrentSprite, Images, MapSize},
@@ -34,9 +34,10 @@ pub fn setup_level_editor_board(
     let top_border = offset_coordinate(height as i32 - 1, height as i32);
     let left_border = offset_coordinate(0, width as i32);
     let right_border = offset_coordinate(width as i32 - 1, width as i32);
-    let turtle_image = asset_server.load(TURTLE_TEXTURE);
+    let turtle_image = asset_server.load(TURTLE_TEXTURES[0]);
     let wall_image = asset_server.load(WALL_TEXTURE);
     let box_image = asset_server.load(BOX_TEXTURE);
+    let sticker_images = STICKER_TEXTURES.map(|texture| asset_server.load(texture));
     let hidden_wall_images = SHOWN_HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
     let bottom_hidden_wall_images = HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
     let player_image = asset_server.load(PLAYER_TEXTURES[current_sprite.0]);
@@ -225,15 +226,14 @@ pub fn setup_level_editor_board(
                                     }),
                                 );
                             }
-                            // for color in 0..3 {
-                                for dir in 0..4 {
-                                    spawn_small_button(
-                                        parent,
-                                        turtle_image.clone(),
-                                        GameEntity::Object(GameObject::Turtle { color: 0, direction: Direction::from_num(dir) }),
-                                    );
-                                }
-                            // }
+                            for color in 0..3 {
+                                spawn_small_button_with_sticker(
+                                    parent,
+                                    turtle_image.clone(),
+                                    GameEntity::Object(GameObject::Turtle { color, direction: Direction::Left }),
+                                    sticker_images[color].clone(),
+                                );
+                            }
                             spawn_small_button(
                                 parent,
                                 images.tile_image.clone(),

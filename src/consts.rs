@@ -15,7 +15,17 @@ pub const TILE_TEXTURE: &str = "textures/tile.png";
 // pub const LOWER_WALL_TEXTURE: &str = "textures/wall_lower.png";
 pub const WALL_TEXTURE: &str = "textures/wall_higher.png";
 pub const WALL_ATLAS: &str = "textures/wall_atlas.png";
-pub const TURTLE_TEXTURE: &str = "textures/turtle.png";
+pub const TURTLE_TEXTURES: [&str; 4] = [
+    "textures/turtle_left.png",
+    "textures/turtle_right.png",
+    "textures/turtle_down.png",
+    "textures/turtle_up.png",
+];
+pub const STICKER_TEXTURES: [&str; 3] = [
+    "textures/turtle_red_sticker.png",
+    "textures/turtle_blue_sticker.png",
+    "textures/turtle_green_sticker.png",
+];
 pub const TURTLE_ATLAS: &str = "textures/turtle_atlas.png";
 pub const PLAYER_ATLAS: &str = "textures/player_atlas.png";
 pub const BOX_ATLAS: &str = "textures/box_atlas.png";
@@ -67,6 +77,7 @@ pub const MAX_HEIGHT: u32 = 20;
 /** Z_INDICES */
 pub const LOWER_HALF_OBJECT_Z_INDEX: f32 = 2.5;
 pub const UPPER_HALF_OBJECT_Z_INDEX: f32 = 3.0;
+pub const UPPER_HALF_STICKER_Z_INDEX: f32 = 3.5;
 pub const FLOOR_Z_INDEX: f32 = 1.0;
 pub const FLOOR_STICKER_Z_INDEX: f32 = 1.5;
 

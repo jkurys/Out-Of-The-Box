@@ -8,7 +8,7 @@ use crate::board::Board;
 use crate::game::movement::resources::AnimationTimer;
 use crate::utils::offset_coordinate;
 
-use super::render_2_5_d::render_object;
+use super::render_2_5_d::{render_object, render_object_with_sticker};
 use super::{render_entity, spawn_from_atlas};
 
 //render the entire map based on Board
@@ -88,16 +88,17 @@ pub fn render_board(
                     board.insert_entities(position, entities);
                 }
                 GameObject::Turtle { color, direction } => {
-                    let entities = render_object(
+                    let [entity1, entity2, _entity3] = render_object_with_sticker(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
                         direction.to_num() * 4 + 1,
                         direction.to_num() * 4,
+                        4 * 4 + color,
                         x,
                         y,
                         Turtle,
                     );
-                    board.insert_entities(position, entities);
+                    board.insert_entities(position, [entity1, entity2]);
                 }
                 GameObject::TurtleHead { direction } => {
                     let entities = render_object(

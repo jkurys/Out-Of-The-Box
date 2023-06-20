@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    consts::{LOWER_HALF_OBJECT_Z_INDEX, TILE_SIZE, UPPER_HALF_OBJECT_Z_INDEX},
+    consts::{LOWER_HALF_OBJECT_Z_INDEX, TILE_SIZE, UPPER_HALF_OBJECT_Z_INDEX, UPPER_HALF_STICKER_Z_INDEX},
     game::GameItem,
 };
 
@@ -50,4 +50,37 @@ where
         .insert((component, GameItem))
         .id();
     [entity1, entity2]
+}
+
+pub fn render_object_with_sticker<T>(
+    commands: &mut Commands,
+    atlas_handle: Handle<TextureAtlas>,
+    bottom_index: usize,
+    top_index: usize,
+    sticker_index: usize,
+    x: i32,
+    y: i32,
+    component: T,
+) -> [Entity; 3]
+where
+    T: Component + Clone,
+{
+    let [entity1, entity2] = render_object(commands, atlas_handle.clone(), bottom_index, top_index, x, y, component.clone());
+    let mut sticker_image = TextureAtlasSprite::new(sticker_index);
+    sticker_image.custom_size = Some(Vec2::splat(TILE_SIZE));
+    let (sticker_x, sticker_y, sticker_z) = (
+        x as f32 * TILE_SIZE,
+        (y as f32 + 0.24) * TILE_SIZE,
+        UPPER_HALF_STICKER_Z_INDEX,
+    );
+    let entity3 = commands
+        .spawn(SpriteSheetBundle {
+            sprite: sticker_image,
+            texture_atlas: atlas_handle.clone(),
+            transform: Transform::from_xyz(sticker_x, sticker_y, sticker_z),
+            ..default()
+        })
+        .insert((component.clone(), GameItem))
+        .id();
+    [entity1, entity2, entity3]
 }
