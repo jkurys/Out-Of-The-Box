@@ -1,6 +1,7 @@
 use bevy::prelude::*;
+use serde::{Serialize, Deserialize};
 
-#[derive(Resource)]
+#[derive(Resource, Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct BoardSize {
     pub width: u32,
     pub height: u32,

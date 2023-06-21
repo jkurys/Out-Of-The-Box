@@ -8,6 +8,8 @@ pub enum DisplayState {
     LevelSelect,
     Victory,
     SpriteSelect,
+    LevelEditorSelect,
+    LevelEditorLevelSelect,
     LevelEditorInput,
     LevelEditorBoard,
     LevelEditorSave,

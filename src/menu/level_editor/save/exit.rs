@@ -7,7 +7,7 @@ use crate::{board::Board, resources::StateStack, state::DisplayState};
 use super::events::FileSavedEvent;
 
 pub fn save_board_to_file(
-    mut board: ResMut<Board>,
+    board: Res<Board>,
     mut reader: EventReader<FileSavedEvent>,
     mut app_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
@@ -29,5 +29,8 @@ pub fn save_board_to_file(
         _ => (),
     }
     app_state.set(state_stack.0.pop().unwrap_or(DisplayState::MainMenu));
+}
+
+pub fn clear_board(mut board: ResMut<Board>) {
     board.clear();
 }

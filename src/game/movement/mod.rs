@@ -11,11 +11,12 @@ use warp::handle_warp;
 use crate::game::game_objects::{Box, Player};
 
 use self::{
+    animation::GameAnimationPlugin,
     button::handle_button,
     end_move::end_move,
     events::{EnteredFloorEvent, TryMoveEvent},
     resources::AnimationTimer,
-    turtle::handle_turtle, animation::GameAnimationPlugin,
+    turtle::handle_turtle,
 };
 
 mod animation;

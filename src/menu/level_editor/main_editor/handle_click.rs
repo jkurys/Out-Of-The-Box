@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     board::Board,
     components::GameEntity,
-    consts::TURTLE_TEXTURES,
+    consts::{TILE_TEXTURE, TURTLE_TEXTURES},
     game::game_objects::{Direction, Floor, GameObject},
 };
 
@@ -18,6 +18,7 @@ pub fn handle_level_editor_click(
         (&Interaction, &UiImage, &GameEntity, &mut BackgroundColor),
         Without<LevelEditorChangable>,
     >,
+    mouse: Res<Input<MouseButton>>,
     mut board: ResMut<Board>,
     mut current_object: Local<GameEntity>,
     mut image: Local<(UiImage, bool)>,
@@ -40,6 +41,11 @@ pub fn handle_level_editor_click(
                     );
                 }
             }
+        }
+        if *interaction == Interaction::Hovered && mouse.just_pressed(MouseButton::Right) {
+            board.delete_object(position);
+            board.delete_floor(position);
+            *new_image = asset_server.load(TILE_TEXTURE).into();
         }
     }
     for (&interaction, new_image, object_or_floor, mut color) in clickable_query.iter_mut() {

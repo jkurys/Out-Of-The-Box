@@ -3,7 +3,9 @@ use bevy::prelude::*;
 use crate::{exit::handle_esc, state::DisplayState, utils::delete_all_components};
 
 use self::{
-    events::FileSavedEvent, exit::save_board_to_file, handle_click::handle_file_get,
+    events::FileSavedEvent,
+    exit::{clear_board, save_board_to_file},
+    handle_click::handle_file_get,
     setup::setup_file_name_getter,
 };
 
@@ -28,8 +30,8 @@ impl Plugin for LevelEditorSavePlugin {
                 (handle_file_get, save_board_to_file, handle_esc)
                     .in_set(OnUpdate(DisplayState::LevelEditorSave)),
             )
-            .add_system(
-                delete_all_components::<LevelEditorSaveItem>
+            .add_systems(
+                (delete_all_components::<LevelEditorSaveItem>, clear_board)
                     .in_schedule(OnExit(DisplayState::LevelEditorSave)),
             );
     }

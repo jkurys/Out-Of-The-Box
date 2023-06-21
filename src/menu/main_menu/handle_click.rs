@@ -25,7 +25,7 @@ pub fn handle_menu_click(
                     app_exit.send(AppExit);
                 }
                 MenuItemType::LevelEditor => {
-                    app_state.set(DisplayState::LevelEditorInput);
+                    app_state.set(DisplayState::LevelEditorSelect);
                 }
             },
             Interaction::Hovered => {

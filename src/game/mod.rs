@@ -16,7 +16,7 @@ use self::victory::VictoryItem;
 
 pub mod display;
 pub mod game_objects;
-mod maps;
+pub mod maps;
 pub mod movement;
 mod resources;
 mod restart;

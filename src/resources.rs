@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use serde::{Deserialize, Serialize};
 
 use crate::consts::*;
 use crate::state::DisplayState;
@@ -65,12 +64,6 @@ impl FromWorld for Images {
             turtle_images,
         }
     }
-}
-
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub struct MapSize {
-    pub height: u32,
-    pub width: u32,
 }
 
 #[derive(Resource)]

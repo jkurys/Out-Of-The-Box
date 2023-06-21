@@ -5,7 +5,7 @@ use crate::{
     components::GameEntity,
     consts::{INITIAL_MAP, MAX_MAPS},
     game::game_objects::{Direction, Floor, GameObject, Position},
-    resources::MapSize,
+    menu::level_editor::resources::BoardSize,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -15,7 +15,7 @@ struct SingleBoard {
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
     buttons: Vec<Vec<Position>>,
-    map_size: MapSize,
+    map_size: BoardSize,
     warp_positions: [Position; MAX_MAPS],
 }
 
@@ -35,7 +35,7 @@ impl Board {
                 floors: HashMap::new(),
                 goals: Vec::new(),
                 buttons: vec![Vec::new(), Vec::new(), Vec::new()],
-                map_size: MapSize {
+                map_size: BoardSize {
                     width: 0,
                     height: 0,
                 },
@@ -52,11 +52,11 @@ impl Board {
         self.current = current;
     }
 
-    pub fn set_map_size(&mut self, map_size: MapSize) {
+    pub fn set_map_size(&mut self, map_size: BoardSize) {
         self.boards[self.current].map_size = map_size;
     }
 
-    pub fn get_map_size(&self) -> MapSize {
+    pub fn get_map_size(&self) -> BoardSize {
         self.boards[self.current].map_size
     }
 
@@ -194,6 +194,14 @@ impl Board {
     pub fn delete_object_n(&mut self, position: Position, map: usize) {
         self.boards[map].objects.remove(&position);
         self.boards[map].entities.remove(&position);
+    }
+
+    pub fn delete_floor(&mut self, position: Position) {
+        self.delete_floor_n(position, self.current);
+    }
+
+    pub fn delete_floor_n(&mut self, position: Position, map: usize) {
+        self.boards[map].floors.remove(&position);
     }
 
     pub fn get_warp_position(&self, from: usize, to: usize) -> Position {

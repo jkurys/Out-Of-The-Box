@@ -13,7 +13,7 @@ use crate::{
         utils::{spawn_small_button, spawn_small_button_with_sticker, spawn_small_image},
         LevelEditorItem,
     },
-    resources::{CurrentSprite, Images, MapSize},
+    resources::{CurrentSprite, Images},
     utils::offset_coordinate,
 };
 
@@ -27,8 +27,8 @@ pub fn setup_level_editor_board(
     asset_server: Res<AssetServer>,
     current_sprite: Res<CurrentSprite>,
 ) {
+    boards.set_map_size(*board_size);
     let BoardSize { width, height } = *board_size;
-    boards.set_map_size(MapSize { width, height });
     let plus_image = asset_server.load(PLUS_TEXTURE);
     let bottom_border = offset_coordinate(0, height as i32);
     let top_border = offset_coordinate(height as i32 - 1, height as i32);
