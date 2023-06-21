@@ -5,7 +5,6 @@ use crate::game::game_objects::*;
 use crate::resources::{CurrentSprite, Images};
 
 use crate::board::Board;
-use crate::game::movement::resources::AnimationTimer;
 use crate::utils::offset_coordinate;
 
 use super::render_2_5_d::{render_object, render_object_with_sticker};
@@ -16,20 +15,16 @@ pub fn render_board(
     mut commands: Commands,
     mut board: ResMut<Board>,
     images: Res<Images>,
-    timer: ResMut<AnimationTimer>,
     current_sprite: Res<CurrentSprite>,
 ) {
-    if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
-        return;
-    }
     let map_size = board.get_map_size();
     let bottom_border = offset_coordinate(0, map_size.height as i32);
     let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
     let left_border = offset_coordinate(0, map_size.width as i32);
     let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
     // render all objects found in board
-    for y in bottom_border..(top_border + 1) {
-        for x in left_border..(right_border + 1) {
+    for y in bottom_border..=top_border {
+        for x in left_border..=right_border {
             let position = Position { x, y };
             let game_object = board.get_object_type(position);
             match game_object {
@@ -116,8 +111,8 @@ pub fn render_board(
             }
         }
     }
-    for y in bottom_border..(top_border + 1) {
-        for x in left_border..(right_border + 1) {
+    for y in bottom_border..=top_border {
+        for x in left_border..=right_border {
             let position = Position { x, y };
             let floor = board.get_floor_type(position);
             match floor {
@@ -191,22 +186,14 @@ pub fn render_board(
     }
 }
 
-pub fn render_border(
-    mut commands: Commands,
-    mut board: ResMut<Board>,
-    images: Res<Images>,
-    timer: Res<AnimationTimer>,
-) {
-    if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
-        return;
-    }
+pub fn render_border(mut commands: Commands, mut board: ResMut<Board>, images: Res<Images>) {
     let map_size = board.get_map_size();
     let bottom_border = offset_coordinate(-1, map_size.height as i32);
     let top_border = offset_coordinate(map_size.height as i32, map_size.height as i32);
     let left_border = offset_coordinate(-1, map_size.width as i32);
     let right_border = offset_coordinate(map_size.width as i32, map_size.width as i32);
     //spawn horizontal border for the level and insert it to board
-    for x in left_border..(right_border + 1) {
+    for x in left_border..=right_border {
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
@@ -241,7 +228,7 @@ pub fn render_border(
         board.insert_object(Position { x: right_border, y }, GameObject::Wall);
     }
     //spawn vertical borders for the level and insert it to board
-    for x in left_border..(right_border + 1) {
+    for x in left_border..=right_border {
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),

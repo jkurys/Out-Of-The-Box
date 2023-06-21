@@ -5,7 +5,6 @@ use bevy::window::{PrimaryWindow, WindowMode};
 use self::background::render_border;
 use self::text::{display_level_text, LevelText};
 use crate::consts::*;
-use crate::game::movement::resources::AnimationTimer;
 use crate::game::{game_objects::Position, GameItem};
 use crate::resources::Images;
 use crate::state::{DisplayState, MoveState};
@@ -86,15 +85,7 @@ where
         .id()
 }
 
-pub fn despawn_board(
-    query: Query<Entity, With<GameItem>>,
-    mut commands: Commands,
-    timer: Res<AnimationTimer>,
-) {
-    if !timer.0.finished() && timer.0.elapsed_secs() != 0. {
-        //so the board doesn't re-render
-        return;
-    }
+pub fn despawn_board(query: Query<Entity, With<GameItem>>, mut commands: Commands) {
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
     }

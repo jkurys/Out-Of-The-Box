@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
 use self::{
-    edit_or_new::EditLevelEditorPlugin, main_editor::LevelEditorMainPlugin,
-    save::LevelEditorSavePlugin, start_input::LevelEditorStartInputPlugin, level_select::LevelEditorSelectPlugin,
+    edit_or_new::EditLevelEditorPlugin, level_select::LevelEditorSelectPlugin,
+    main_editor::LevelEditorMainPlugin, save::LevelEditorSavePlugin,
+    start_input::LevelEditorStartInputPlugin,
 };
 
 mod edit_or_new;

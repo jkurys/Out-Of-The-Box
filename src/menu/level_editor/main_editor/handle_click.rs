@@ -1,19 +1,47 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
     board::Board,
     components::GameEntity,
-    consts::{TILE_TEXTURE, TURTLE_TEXTURES},
-    game::game_objects::{Direction, Floor, GameObject},
+    consts::{TURTLE_TEXTURES, TILE_SIZE},
+    game::game_objects::{Direction, Floor, GameObject, Position},
 };
 
 use super::LevelEditorChangable;
 
+fn offset_coordinate(
+    coord: f32,
+    window_coord: f32,
+) -> i32 {
+    ((coord - ((window_coord) / 2.)) / TILE_SIZE).round() as i32
+}
+
+fn vec2_to_position(
+    vec: Vec2,
+    window_size: Vec2,
+) -> Position {
+    Position { x: offset_coordinate(vec.x, window_size.x), y: offset_coordinate(vec.y, window_size.y) }
+}
+
+fn get_position_from_mouse_click(
+    mouse: &Res<Input<MouseButton>>,
+    windows: &Query<&Window, With<PrimaryWindow>>,
+) -> Option<(Position, MouseButton)> {
+    let window = windows.single();
+    if let Some(position) = window.cursor_position() {
+        let pos = vec2_to_position(position, Vec2 { x: window.width(), y: window.height() });
+        if mouse.just_pressed(MouseButton::Left) {
+            return Some((pos, MouseButton::Left));
+        }
+        if mouse.just_pressed(MouseButton::Right) {
+            return Some((pos, MouseButton::Right));
+        }
+    }
+    None
+}
+
 pub fn handle_level_editor_click(
-    mut changable_query: Query<
-        (&LevelEditorChangable, &Interaction, &mut UiImage),
-        With<LevelEditorChangable>,
-    >,
+    windows: Query<&Window, With<PrimaryWindow>>,
     mut clickable_query: Query<
         (&Interaction, &UiImage, &GameEntity, &mut BackgroundColor),
         Without<LevelEditorChangable>,
@@ -25,27 +53,21 @@ pub fn handle_level_editor_click(
     input: Res<Input<KeyCode>>,
     asset_server: Res<AssetServer>,
 ) {
-    for (changable, interaction, mut new_image) in changable_query.iter_mut() {
-        let position = changable.0;
-        if *interaction == Interaction::Clicked {
-            if image.1 {
-                *new_image = image.0.clone();
-                board.insert(position, *current_object);
-                if let GameEntity::Object(GameObject::HidingWall { color }) = *current_object {
-                    board.insert_floor(
-                        position,
-                        Floor::HiddenWall {
-                            hidden_by_default: false,
-                            color,
-                        },
-                    );
-                }
+    if let Some((pos, button)) = get_position_from_mouse_click(&mouse, &windows) {
+        if button == MouseButton::Left {
+            board.insert(pos, *current_object);
+            if let GameEntity::Object(GameObject::HidingWall { color }) = *current_object {
+                board.insert_floor(
+                    pos,
+                    Floor::HiddenWall {
+                        hidden_by_default: false,
+                        color,
+                    },
+                );
             }
-        }
-        if *interaction == Interaction::Hovered && mouse.just_pressed(MouseButton::Right) {
-            board.delete_object(position);
-            board.delete_floor(position);
-            *new_image = asset_server.load(TILE_TEXTURE).into();
+        } else if button == MouseButton::Right {
+            board.delete_object(pos);
+            board.delete_floor(pos);
         }
     }
     for (&interaction, new_image, object_or_floor, mut color) in clickable_query.iter_mut() {

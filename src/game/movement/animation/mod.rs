@@ -1,12 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{
-    game::display::{
-        background::{render_board, render_border},
-        despawn_board,
-    },
-    state::MoveState,
-};
+use crate::state::MoveState;
 
 use self::{animation::move_animation, cont::continue_animation, end::end_animation};
 
@@ -21,13 +15,7 @@ pub struct GameAnimationPlugin;
 impl Plugin for GameAnimationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            (
-                move_animation,
-                despawn_board,
-                render_board,
-                render_border,
-                continue_animation,
-            )
+            (move_animation, continue_animation)
                 .distributive_run_if(is_in_game)
                 .chain()
                 .in_set(OnUpdate(MoveState::Animation)),
