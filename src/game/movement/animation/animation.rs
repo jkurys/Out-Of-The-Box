@@ -54,6 +54,35 @@ fn modify_transform(
         }
     }
 }
+pub fn move_event(
+    board: &Res<Board>,
+    event: &EnteredFloorEvent,
+    query: &mut Query<&mut Transform, MovableInQuery>,
+    timer: &mut ResMut<AnimationTimer>,
+) {
+    let (position, direction) = (event.position, event.direction);
+    let entity_opt = board.get_entities(event.position);
+    if let Some([higher_entities, lower_entities]) = entity_opt {
+        for &higher_entity in higher_entities.iter() {
+            let higher_transform = query
+                .get_mut(higher_entity)
+                .expect("Moved entity not found");
+            let (x, y) = (
+                position.x as f32 * TILE_SIZE,
+                (position.y as f32 + 0.24) * TILE_SIZE,
+            );
+            modify_transform(higher_transform, direction, &timer, x, y, event.floor);
+        }
+        for &lower_entity in lower_entities.iter() {
+            let lower_transform = query.get_mut(lower_entity).expect("Moved entity not found");
+            let (x2, y2) = (
+                position.x as f32 * TILE_SIZE,
+                (position.y as f32 - 0.375) * TILE_SIZE,
+            );
+            modify_transform(lower_transform, direction, &timer, x2, y2, event.floor);
+        }
+    }
+}
 
 pub fn move_animation(
     time: Res<Time>,
@@ -67,48 +96,12 @@ pub fn move_animation(
     if !moved.is_empty() {
         events.clear();
         for event in moved.iter() {
+            move_event(&board, event, &mut query, &mut timer);
             events.push(*event);
-            let (position, direction) = (event.position, event.direction);
-            let entity_opt = board.get_entities(event.position);
-            if let Some([higher_entity, lower_entity]) = entity_opt {
-                let higher_transform = query
-                    .get_mut(higher_entity)
-                    .expect("Moved entity not found");
-                let (x, y) = (
-                    position.x as f32 * TILE_SIZE,
-                    (position.y as f32 + 0.24) * TILE_SIZE,
-                );
-                modify_transform(higher_transform, direction, &timer, x, y, event.floor);
-                let lower_transform = query.get_mut(lower_entity).expect("Moved entity not found");
-                let (x2, y2) = (
-                    position.x as f32 * TILE_SIZE,
-                    (position.y as f32 - 0.375) * TILE_SIZE,
-                );
-                modify_transform(lower_transform, direction, &timer, x2, y2, event.floor);
-            }
         }
     } else {
         for event in &events {
-            let (position, direction) = (event.position, event.direction);
-            let entity_opt = board.get_entities(event.position);
-            if let Some([higher_entity, lower_entity]) = entity_opt {
-                let higher_transform = query
-                    .get_mut(higher_entity)
-                    .expect("Moved box entity not found");
-                let (x, y) = (
-                    position.x as f32 * TILE_SIZE,
-                    (position.y as f32 + 0.24) * TILE_SIZE,
-                );
-                modify_transform(higher_transform, direction, &timer, x, y, event.floor);
-                let lower_transform = query
-                    .get_mut(lower_entity)
-                    .expect("Moved box entity not found");
-                let (x, y) = (
-                    position.x as f32 * TILE_SIZE,
-                    (position.y as f32 - 0.375) * TILE_SIZE,
-                );
-                modify_transform(lower_transform, direction, &timer, x, y, event.floor);
-            }
+            move_event(&board, event, &mut query, &mut timer);
         }
     }
 }

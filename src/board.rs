@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SingleBoard {
-    entities: HashMap<Position, [Entity; 2]>,
+    entities: HashMap<Position, [Vec<Entity>; 2]>,
     objects: HashMap<Position, GameObject>,
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
@@ -70,8 +70,8 @@ impl Board {
         positions
     }
 
-    pub fn get_entities(&self, position: Position) -> Option<[Entity; 2]> {
-        self.boards[self.current].entities.get(&position).copied()
+    pub fn get_entities(&self, position: Position) -> Option<[Vec<Entity>; 2]> {
+        self.boards[self.current].entities.get(&position).cloned()
     }
 
     pub fn get_object_type(&self, position: Position) -> GameObject {
@@ -148,7 +148,7 @@ impl Board {
         self.boards[map].objects.insert(position, object);
     }
 
-    pub fn insert_entities(&mut self, position: Position, entities: [Entity; 2]) {
+    pub fn insert_entities(&mut self, position: Position, entities: [Vec<Entity>; 2]) {
         self.boards[self.current]
             .entities
             .insert(position, entities);

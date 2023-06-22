@@ -35,7 +35,7 @@ pub fn render_board(
                         0
                     };
 
-                    let entities = render_object(
+                    let [entity1, entity2] = render_object(
                         &mut commands,
                         images.box_images.clone().unwrap(),
                         1,
@@ -44,10 +44,10 @@ pub fn render_board(
                         y,
                         Box,
                     );
-                    board.insert_entities(position, entities);
+                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
                 }
                 GameObject::Wall => {
-                    let entities = render_object(
+                    let [entity1, entity2] = render_object(
                         &mut commands,
                         images.wall_images.clone().unwrap(),
                         1,
@@ -56,10 +56,10 @@ pub fn render_board(
                         y,
                         Wall,
                     );
-                    board.insert_entities(position, entities);
+                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
                 }
                 GameObject::Player => {
-                    let entities = render_object(
+                    let [entity1, entity2] = render_object(
                         &mut commands,
                         images.player_images.clone().unwrap(),
                         current_sprite.0 * 2 + 1,
@@ -68,10 +68,10 @@ pub fn render_board(
                         y,
                         Player,
                     );
-                    board.insert_entities(position, entities);
+                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
                 }
                 GameObject::HidingWall { color } => {
-                    let entities = render_object(
+                    let [entity1, entity2] = render_object(
                         &mut commands,
                         images.hidden_wall_images.clone().unwrap(),
                         color * 3 + 1,
@@ -80,10 +80,10 @@ pub fn render_board(
                         y,
                         HiddenWall,
                     );
-                    board.insert_entities(position, entities);
+                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
                 }
                 GameObject::Turtle { color, direction } => {
-                    let [entity1, entity2, _entity3] = render_object_with_sticker(
+                    let [entity1, entity2, entity3] = render_object_with_sticker(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
                         direction.to_num() * 4 + 1,
@@ -93,10 +93,10 @@ pub fn render_board(
                         y,
                         Turtle,
                     );
-                    board.insert_entities(position, [entity1, entity2]);
+                    board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
                 }
                 GameObject::TurtleHead { direction, color: _ } => {
-                    let entities = render_object(
+                    let [entity1, entity2] = render_object(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
                         direction.to_num() * 4 + 3,
@@ -105,7 +105,7 @@ pub fn render_board(
                         y,
                         Turtle,
                     );
-                    board.insert_entities(position, entities);
+                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
                 }
                 _ => (),
             }
