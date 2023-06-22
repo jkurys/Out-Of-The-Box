@@ -118,6 +118,16 @@ impl Board {
         turtle_vec
     }
 
+    pub fn get_all_turtle_heads(&self) -> Vec<Vec<(Position, Direction)>> {
+        let mut all_heads_vec = vec![Vec::new(), Vec::new(), Vec::new()];
+        for (&pos, &obj) in self.boards[self.current].objects.iter() {
+            if let GameObject::TurtleHead { direction: dir, color } = obj {
+                all_heads_vec[color].push((pos, dir));
+            }
+        }
+        all_heads_vec
+    }
+
     pub fn get_current_map(&self) -> usize {
         self.current
     }

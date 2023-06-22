@@ -12,7 +12,7 @@ pub enum GameObject {
     Empty,
     Player,
     Turtle { direction: Direction, color: usize },
-    TurtleHead { direction: Direction },
+    TurtleHead { direction: Direction, color: usize },
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -143,6 +143,27 @@ impl Position {
         }
     }
 
+    pub fn prev_position(&self, dir: Direction) -> Position {
+        match dir {
+            Direction::Up => Position {
+                x: self.x,
+                y: self.y - 1,
+            },
+            Direction::Down => Position {
+                x: self.x,
+                y: self.y + 1,
+            },
+            Direction::Left => Position {
+                x: self.x + 1,
+                y: self.y,
+            },
+            Direction::Right => Position {
+                x: self.x - 1,
+                y: self.y,
+            },
+        }
+    }
+
     pub fn cmp_to_other(&self, other: &Self, dir: Direction) -> Ordering {
         match dir {
             Direction::Up => other.y.cmp(&self.y),
@@ -168,6 +189,14 @@ impl Direction {
             Direction::Right => 1,
             Direction::Down => 2,
             Direction::Up => 3,
+        }
+    }
+    pub fn opposite(&self) -> Self {
+        match &self {
+            Direction::Down => Direction::Up,
+            Direction::Up => Direction::Down,
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left,
         }
     }
 }

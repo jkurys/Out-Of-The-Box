@@ -29,11 +29,14 @@ mod keyboard;
 pub mod resources;
 mod try_move;
 mod turtle;
+mod utils;
 mod warp;
 
 use crate::game::movement::try_move::try_move;
 
-pub type MovableInQuery = Or<(With<Box>, With<Player>)>;
+use super::game_objects::Turtle;
+
+pub type MovableInQuery = Or<(With<Box>, With<Player>, With<Turtle>)>;
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {

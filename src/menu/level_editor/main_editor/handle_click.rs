@@ -3,24 +3,21 @@ use bevy::{prelude::*, window::PrimaryWindow};
 use crate::{
     board::Board,
     components::GameEntity,
-    consts::{TURTLE_TEXTURES, TILE_SIZE},
+    consts::{TILE_SIZE, TURTLE_TEXTURES},
     game::game_objects::{Direction, Floor, GameObject, Position},
 };
 
 use super::LevelEditorChangable;
 
-fn offset_coordinate(
-    coord: f32,
-    window_coord: f32,
-) -> i32 {
+fn offset_coordinate(coord: f32, window_coord: f32) -> i32 {
     ((coord - ((window_coord) / 2.)) / TILE_SIZE).round() as i32
 }
 
-fn vec2_to_position(
-    vec: Vec2,
-    window_size: Vec2,
-) -> Position {
-    Position { x: offset_coordinate(vec.x, window_size.x), y: offset_coordinate(vec.y, window_size.y) }
+fn vec2_to_position(vec: Vec2, window_size: Vec2) -> Position {
+    Position {
+        x: offset_coordinate(vec.x, window_size.x),
+        y: offset_coordinate(vec.y, window_size.y),
+    }
 }
 
 fn get_position_from_mouse_click(
@@ -29,7 +26,13 @@ fn get_position_from_mouse_click(
 ) -> Option<(Position, MouseButton)> {
     let window = windows.single();
     if let Some(position) = window.cursor_position() {
-        let pos = vec2_to_position(position, Vec2 { x: window.width(), y: window.height() });
+        let pos = vec2_to_position(
+            position,
+            Vec2 {
+                x: window.width(),
+                y: window.height(),
+            },
+        );
         if mouse.just_pressed(MouseButton::Left) {
             return Some((pos, MouseButton::Left));
         }

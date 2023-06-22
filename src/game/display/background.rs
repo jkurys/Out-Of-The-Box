@@ -95,7 +95,7 @@ pub fn render_board(
                     );
                     board.insert_entities(position, [entity1, entity2]);
                 }
-                GameObject::TurtleHead { direction } => {
+                GameObject::TurtleHead { direction, color: _ } => {
                     let entities = render_object(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),

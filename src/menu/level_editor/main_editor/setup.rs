@@ -125,9 +125,11 @@ pub fn setup_level_editor_board(
                 GameEntity::Floor(Floor::Warp(1)),
             );
         });
-    commands.spawn(NodeBundle {
-        background_color: Color::BLUE.into(),
-        style: TABS_COMPARTMENT_STYLE,
-        ..default()
-    }).insert(LevelEditorItem);
+    commands
+        .spawn(NodeBundle {
+            background_color: Color::BLUE.into(),
+            style: TABS_COMPARTMENT_STYLE,
+            ..default()
+        })
+        .insert(LevelEditorItem);
 }
