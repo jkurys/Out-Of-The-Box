@@ -10,6 +10,7 @@ pub struct CurrentLevel {
     pub level_number: usize,
     pub level_map_string: String,
     pub level_amount: usize,
+    pub is_in_level: bool,
 }
 
 #[derive(Resource)]

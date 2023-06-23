@@ -41,6 +41,7 @@ pub fn handle_level_click(
                         level_number: *number,
                         level_map_string: level_names.0[*number - 1].clone(),
                         level_amount,
+                        is_in_level: true,
                     };
                     state_stack.0.push(app_state.0);
                     next_state.set(DisplayState::Game);

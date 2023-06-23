@@ -27,6 +27,7 @@ fn main() {
             level_number: 1,
             level_amount: 0,
             level_map_string: "".to_string(),
+            is_in_level: false,
         })
         .insert_resource(CurrentSprite(0))
         .add_state::<DisplayState>()

@@ -81,5 +81,6 @@ pub fn setup_level_select(
         level_amount: file_amount,
         level_number: 0,
         level_map_string: first_name,
+        is_in_level: false,
     };
 }
