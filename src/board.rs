@@ -97,9 +97,13 @@ impl Board {
     pub fn get_all_goals(&self) -> Vec<Position> {
         let mut goals_vec = Vec::new();
         for map in 0..MAX_MAPS {
-            goals_vec.push(self.boards[map].goals.clone());
+            for (&pos, &floor) in self.boards[map].floors.iter() {
+                if floor == Floor::Goal {
+                    goals_vec.push(pos);
+                }
+            }
         }
-        goals_vec.concat() //realistically, this vector won't exceed 20 entries so cloning isn't a problem
+        goals_vec
     }
 
     pub fn get_all_buttons(&self) -> Vec<Vec<Position>> {
