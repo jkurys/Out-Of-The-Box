@@ -95,7 +95,10 @@ pub fn render_board(
                     );
                     board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
                 }
-                GameObject::TurtleHead { direction, color: _ } => {
+                GameObject::TurtleHead {
+                    direction,
+                    color: _,
+                } => {
                     let [entity1, entity2] = render_object(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),

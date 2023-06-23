@@ -5,7 +5,7 @@ use crate::{
     components::GameEntity,
     consts::{
         BOX_TEXTURE, HIDDEN_WALL_TEXTURES, PLAYER_TEXTURES, SHOWN_HIDDEN_WALL_TEXTURES,
-        STICKER_TEXTURES, TURTLE_TEXTURES, WALL_TEXTURE,
+        STICKER_TEXTURES, TURTLE_TEXTURES, WALL_TEXTURE, PLUS_TEXTURE, MAX_MAPS,
     },
     game::game_objects::{Direction, Floor, GameObject},
     menu::level_editor::{
@@ -16,7 +16,7 @@ use crate::{
     resources::{CurrentSprite, Images},
 };
 
-use super::styles::*;
+use super::{styles::*, LevelEditorTabPlus, LevelEditorTab};
 
 pub fn set_board_size(board_size: Res<BoardSize>, mut boards: ResMut<Board>) {
     boards.set_map_size(*board_size);
@@ -35,6 +35,7 @@ pub fn setup_level_editor_board(
     let hidden_wall_images = SHOWN_HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
     let bottom_hidden_wall_images = HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
     let player_image = asset_server.load(PLAYER_TEXTURES[current_sprite.0]);
+    let plus_image = asset_server.load(PLUS_TEXTURE);
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::DARK_GREEN),
@@ -131,5 +132,34 @@ pub fn setup_level_editor_board(
             style: TABS_COMPARTMENT_STYLE,
             ..default()
         })
-        .insert(LevelEditorItem);
+        .insert(LevelEditorItem)
+        .with_children(|parent| {
+            parent.spawn(ButtonBundle {
+                style: Style {
+                    size: Size {
+                        width: Val::Percent(10.),
+                        height: Val::Percent(100.),
+                    },
+                    ..default()
+                },
+                ..default()
+            }).insert(LevelEditorTab(0));
+            for i in 1..MAX_MAPS {
+                parent.spawn(ButtonBundle {
+                visibility: Visibility::Hidden,
+                style: Style {
+                    size: Size {
+                        width: Val::Percent(10.),
+                        height: Val::Percent(100.),
+                    },
+                    ..default()
+                },
+                ..default()
+            }).insert(LevelEditorTab(i));
+            }
+            parent.spawn(ImageBundle {
+                image: plus_image.into(),
+                ..default()
+            }).insert((LevelEditorTabPlus, ButtonBundle::default()));
+        });
 }

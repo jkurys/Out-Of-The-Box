@@ -30,7 +30,7 @@ pub fn handle_plus_click(
                 *is_clicked = false;
                 *tabs_amount += 1;
                 for (mut style, mut visible) in tab_query.iter_mut() {
-                    if *visible != Visibility::Visible {
+                    if *visible == Visibility::Hidden {
                         style.display = Display::Flex;
                         *visible = Visibility::Visible;
                         if *tabs_amount >= 9 {

@@ -15,9 +15,9 @@ use crate::{
 use self::{
     exit::handle_exit_to_save,
     handle_click::handle_level_editor_click,
-    // plus::handle_plus_click,
+    plus::handle_plus_click,
     setup::{set_board_size, setup_level_editor_board},
-    // tabs::handle_tab_click,
+    tabs::handle_tab_click,
 };
 
 use super::LevelEditorItem;
@@ -61,8 +61,8 @@ impl Plugin for LevelEditorMainPlugin {
                 despawn_board,
                 render_board,
                 render_border,
-                // handle_plus_click,
-                // handle_tab_click,
+                handle_plus_click,
+                handle_tab_click,
                 handle_exit_to_save,
             )
                 .chain()

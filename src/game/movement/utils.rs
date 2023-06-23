@@ -18,7 +18,10 @@ pub fn is_moveable(obj: GameObject) -> bool {
             direction: _,
             color: _,
         } => true,
-        GameObject::TurtleHead { direction: _, color: _ } => true,
+        GameObject::TurtleHead {
+            direction: _,
+            color: _,
+        } => true,
         _ => false,
     }
 }
@@ -37,7 +40,11 @@ pub fn move_strong(
     let mut positions_to_move = Vec::new();
     let (mut next_position, mut next_map) =
         board.get_next_position_for_move(position, direction, board.get_current_map());
-    if let GameObject::TurtleHead { direction: dir, color: _ } = board.get_object_type(next_position) {
+    if let GameObject::TurtleHead {
+        direction: dir,
+        color: _,
+    } = board.get_object_type(next_position)
+    {
         if dir != direction && dir.opposite() != direction {
             let body_position = next_position.prev_position(dir);
             move_strong(
@@ -60,7 +67,11 @@ pub fn move_strong(
     {
         if dir != direction && dir.opposite() != direction {
             let head_position = next_position.next_position(dir);
-            if let GameObject::TurtleHead { direction: _, color: _ } = board.get_object_type(head_position) {
+            if let GameObject::TurtleHead {
+                direction: _,
+                color: _,
+            } = board.get_object_type(head_position)
+            {
                 move_strong(
                     &mut board,
                     head_position,
@@ -118,7 +129,11 @@ pub fn move_weak(
     let mut position_to_move = (position, board.get_current_map());
     let (mut next_position, mut next_map) =
         board.get_next_position_for_move(position, direction, board.get_current_map());
-    if let GameObject::TurtleHead { direction: dir , color: _ } = board.get_object_type(next_position) {
+    if let GameObject::TurtleHead {
+        direction: dir,
+        color: _,
+    } = board.get_object_type(next_position)
+    {
         let body_position = next_position.prev_position(dir);
         move_weak(
             &mut board,

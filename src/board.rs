@@ -5,7 +5,7 @@ use crate::{
     components::GameEntity,
     consts::{INITIAL_MAP, MAX_MAPS},
     game::game_objects::{Direction, Floor, GameObject, Position},
-    menu::level_editor::resources::BoardSize,
+    menu::level_editor::resources::BoardSize, utils::offset_coordinate,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,7 +14,6 @@ struct SingleBoard {
     objects: HashMap<Position, GameObject>,
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
-    buttons: Vec<Vec<Position>>,
     map_size: BoardSize,
     warp_positions: [Position; MAX_MAPS],
 }
@@ -34,7 +33,6 @@ impl Board {
                 objects: HashMap::new(),
                 floors: HashMap::new(),
                 goals: Vec::new(),
-                buttons: vec![Vec::new(), Vec::new(), Vec::new()],
                 map_size: BoardSize {
                     width: 0,
                     height: 0,
@@ -105,7 +103,13 @@ impl Board {
     }
 
     pub fn get_all_buttons(&self) -> Vec<Vec<Position>> {
-        self.boards[self.current].buttons.clone()
+        let mut buttons = vec![Vec::new(), Vec::new(), Vec::new()];
+        for (&pos, &floor) in self.boards[self.current].floors.iter() {
+            if let Floor::Button(color) = floor {
+                buttons[color].push(pos);
+            }
+        }
+        buttons
     }
 
     pub fn get_all_turtles(&self) -> Vec<Vec<(Position, Direction)>> {
@@ -121,7 +125,11 @@ impl Board {
     pub fn get_all_turtle_heads(&self) -> Vec<Vec<(Position, Direction)>> {
         let mut all_heads_vec = vec![Vec::new(), Vec::new(), Vec::new()];
         for (&pos, &obj) in self.boards[self.current].objects.iter() {
-            if let GameObject::TurtleHead { direction: dir, color } = obj {
+            if let GameObject::TurtleHead {
+                direction: dir,
+                color,
+            } = obj
+            {
                 all_heads_vec[color].push((pos, dir));
             }
         }
@@ -133,6 +141,14 @@ impl Board {
     }
 
     pub fn insert(&mut self, position: Position, floor_or_object: GameEntity) {
+        let map_size = self.boards[self.current].map_size;
+        let bottom_border = offset_coordinate(0, map_size.height as i32);
+        let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
+        let left_border = offset_coordinate(0, map_size.width as i32);
+        let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
+        if position.x < left_border || position.x > right_border || position.y < bottom_border || position.y > top_border {
+            return;
+        }
         match floor_or_object {
             GameEntity::Floor(f) => self.insert_floor_to_map(position, f, self.current),
             GameEntity::Object(o) => self.insert_object(position, o),
@@ -163,7 +179,6 @@ impl Board {
         self.boards[map].floors.insert(position, floor);
         match floor {
             Floor::Goal => self.boards[map].goals.push(position),
-            Floor::Button(color) => self.boards[map].buttons[color].push(position),
             Floor::Warp(next_map) => {
                 self.boards[map].warp_positions[next_map] = position;
             }
@@ -238,9 +253,6 @@ impl Board {
             self.boards[map].objects.clear();
             self.boards[map].floors.clear();
             self.boards[map].goals.clear();
-            self.boards[map].buttons[0].clear();
-            self.boards[map].buttons[1].clear();
-            self.boards[map].buttons[2].clear();
         }
     }
 

@@ -8,7 +8,8 @@ pub fn handle_button(mut board: ResMut<Board>) {
     let mut color = 0;
     for button_color in buttons {
         for button_position in button_color {
-            if board.get_object_type(button_position) != GameObject::Empty {
+            let object = board.get_object_type(button_position);
+            if object != GameObject::Empty {
                 is_clicked = true;
             }
         }

@@ -20,19 +20,28 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
                 let direction = *direction;
                 let turtle_head_pos = turtle_pos.next_position(direction);
                 match board.get_object_type(turtle_head_pos) {
-                    GameObject::TurtleHead { direction: _ , color: _ } => (),
+                    GameObject::TurtleHead {
+                        direction: _,
+                        color: _,
+                    } => (),
                     _ => writer.send(TryMoveEvent {
-                            position: turtle_head_pos,
-                            direction,
-                            is_weak: false,
-                            insert_after: Some((GameObject::TurtleHead { direction, color }, turtle_head_pos)),
-                        }),
+                        position: turtle_head_pos,
+                        direction,
+                        is_weak: false,
+                        insert_after: Some((
+                            GameObject::TurtleHead { direction, color },
+                            turtle_head_pos,
+                        )),
+                    }),
                 }
             }
             let turtle_heads = board.get_all_turtle_heads();
             for &(pos, dir) in turtle_heads[color].iter() {
                 match board.get_object_type(pos.prev_position(dir)) {
-                    GameObject::Turtle { direction: inside_dir, color: _ } if inside_dir == dir => (),
+                    GameObject::Turtle {
+                        direction: inside_dir,
+                        color: _,
+                    } if inside_dir == dir => (),
                     _ => board.delete_object(pos),
                 }
             }

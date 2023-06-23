@@ -4,10 +4,8 @@ use crate::{
     board::Board,
     components::GameEntity,
     consts::{TILE_SIZE, TURTLE_TEXTURES},
-    game::game_objects::{Direction, Floor, GameObject, Position},
+    game::{game_objects::{Direction, Floor, GameObject, Position}},
 };
-
-use super::LevelEditorChangable;
 
 fn offset_coordinate(coord: f32, window_coord: f32) -> i32 {
     ((coord - ((window_coord) / 2.)) / TILE_SIZE).round() as i32
@@ -23,7 +21,7 @@ fn vec2_to_position(vec: Vec2, window_size: Vec2) -> Position {
 fn get_position_from_mouse_click(
     mouse: &Res<Input<MouseButton>>,
     windows: &Query<&Window, With<PrimaryWindow>>,
-) -> Option<(Position, MouseButton)> {
+) -> (Position, Option<MouseButton>) {
     let window = windows.single();
     if let Some(position) = window.cursor_position() {
         let pos = vec2_to_position(
@@ -34,20 +32,20 @@ fn get_position_from_mouse_click(
             },
         );
         if mouse.just_pressed(MouseButton::Left) {
-            return Some((pos, MouseButton::Left));
+            return (pos, Some(MouseButton::Left));
         }
         if mouse.just_pressed(MouseButton::Right) {
-            return Some((pos, MouseButton::Right));
+            return (pos, Some(MouseButton::Right));
         }
+        return (pos, None)
     }
-    None
+    panic!("Window not found");
 }
 
 pub fn handle_level_editor_click(
     windows: Query<&Window, With<PrimaryWindow>>,
     mut clickable_query: Query<
         (&Interaction, &UiImage, &GameEntity, &mut BackgroundColor),
-        Without<LevelEditorChangable>,
     >,
     mouse: Res<Input<MouseButton>>,
     mut board: ResMut<Board>,
@@ -56,7 +54,7 @@ pub fn handle_level_editor_click(
     input: Res<Input<KeyCode>>,
     asset_server: Res<AssetServer>,
 ) {
-    if let Some((pos, button)) = get_position_from_mouse_click(&mouse, &windows) {
+    if let (pos, Some(button)) = get_position_from_mouse_click(&mouse, &windows) {
         if button == MouseButton::Left {
             board.insert(pos, *current_object);
             if let GameEntity::Object(GameObject::HidingWall { color }) = *current_object {

@@ -33,7 +33,6 @@ impl Plugin for DisplayPlugin {
     }
 }
 
-//render an object with a given image and position
 pub fn render_entity<T>(
     component: T,
     commands: &mut Commands,
