@@ -26,83 +26,121 @@ pub fn is_moveable(obj: GameObject) -> bool {
     }
 }
 
-pub fn move_strong(
+pub fn calc_positions_to_move_strong(
     mut board: &mut ResMut<Board>,
     mut position: Position,
     direction: Direction,
+    mut positions_to_move: &mut Vec<(Position, usize)>,
     mut moved_positions: &mut Vec<Position>,
     positions: &Vec<Position>,
-    mut was_map_saved: &mut bool,
-    mut was_moved: &mut bool,
-    mut writer: &mut EventWriter<EnteredFloorEvent>,
-    mut board_states: &mut ResMut<BoardStates>,
-) {
-    let mut positions_to_move = Vec::new();
+) -> (Position, usize) {
     let (mut next_position, mut next_map) =
         board.get_next_position_for_move(position, direction, board.get_current_map());
-    if let GameObject::TurtleHead {
-        direction: dir,
-        color: _,
-    } = board.get_object_type(next_position)
-    {
-        if dir != direction && dir.opposite() != direction {
-            let body_position = next_position.prev_position(dir);
-            move_strong(
-                &mut board,
-                body_position,
-                direction,
-                &mut moved_positions,
-                &positions,
-                &mut was_map_saved,
-                &mut was_moved,
-                &mut writer,
-                &mut board_states,
-            );
-        }
-    }
-    if let GameObject::Turtle {
-        direction: dir,
-        color: _,
-    } = board.get_object_type(next_position)
-    {
-        if dir != direction && dir.opposite() != direction {
-            let head_position = next_position.next_position(dir);
-            if let GameObject::TurtleHead {
-                direction: _,
-                color: _,
-            } = board.get_object_type(head_position)
-            {
-                move_strong(
-                    &mut board,
-                    head_position,
-                    direction,
-                    &mut moved_positions,
-                    &positions,
-                    &mut was_map_saved,
-                    &mut was_moved,
-                    &mut writer,
-                    &mut board_states,
-                );
-            }
-        }
-    }
     positions_to_move.push((position, board.get_current_map()));
     while !moved_positions.contains(&next_position)
         && !positions.contains(&next_position)
         && (is_moveable(board.get_object_from_map(next_position, next_map)))
     {
+        if let GameObject::TurtleHead {
+            direction: dir,
+            color: _,
+        } = board.get_object_type(next_position)
+        {
+            if dir != direction && dir.opposite() != direction {
+                let body_position = next_position.prev_position(dir);
+                calc_positions_to_move_strong(
+                    &mut board,
+                    body_position,
+                    direction,
+                    &mut positions_to_move,
+                    &mut moved_positions,
+                    &positions,
+                );
+            }
+        }
+        if let GameObject::Turtle {
+            direction: dir,
+            color: _,
+        } = board.get_object_type(next_position)
+        {
+            if dir != direction && dir.opposite() != direction {
+                let head_position = next_position.next_position(dir);
+                if let GameObject::TurtleHead {
+                    direction: _,
+                    color: _,
+                } = board.get_object_type(head_position)
+                {
+                    calc_positions_to_move_strong(
+                        &mut board,
+                        head_position,
+                        direction,
+                        &mut positions_to_move,
+                        &mut moved_positions,
+                        &positions,
+                    );
+                }
+            }
+        }
         position = next_position;
         positions_to_move.push((position, next_map));
         (next_position, next_map) =
             board.get_next_position_for_move(next_position, direction, next_map);
     }
-    positions_to_move.reverse();
+    (next_position, next_map)
+}
+
+pub fn move_strong(
+    board: &mut ResMut<Board>,
+    position: Position,
+    direction: Direction,
+    moved_positions: &mut Vec<Position>,
+    positions: &Vec<Position>,
+    was_map_saved: &mut bool,
+    was_moved: &mut bool,
+    writer: &mut EventWriter<EnteredFloorEvent>,
+    board_states: &mut ResMut<BoardStates>,
+) {
+    let mut positions_to_move = Vec::new();
+    let (next_position, next_map) = calc_positions_to_move_strong(board, position, direction, &mut positions_to_move, moved_positions, positions);
     let object_blocking = board.get_object_from_map(next_position, next_map);
     if object_blocking == GameObject::Empty {
         if !*was_map_saved {
             board_states.boards.push(board.clone());
             *was_map_saved = true;
         }
+        positions_to_move.sort_by(|(pos1, _), (pos2, _)| {
+            match direction {
+                Direction::Down => {
+                    if pos1.y != pos2.y {
+                        pos1.y.cmp(&pos2.y)
+                    } else {
+                        pos1.x.cmp(&pos2.x)
+                    }
+                }
+                Direction::Left => {
+                    if pos1.x != pos2.x {
+                        pos1.x.cmp(&pos2.x)
+                    } else {
+                        pos1.y.cmp(&pos2.y)
+                    }
+                }
+                Direction::Right => {
+                    if pos1.x != pos2.x {
+                        pos2.x.cmp(&pos1.x)
+                    } else {
+                        pos2.y.cmp(&pos1.y)
+                    }
+                }
+                Direction::Up => {
+                    if pos1.y != pos2.y {
+                        pos2.y.cmp(&pos1.y)
+                    } else {
+                        pos2.x.cmp(&pos1.x)
+                    }
+                }
+            }
+        });
+        positions_to_move.dedup();
         for (position, map) in positions_to_move {
             board.move_object(position, direction, map);
             let next_position = position.next_position(direction);
