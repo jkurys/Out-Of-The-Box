@@ -1,3 +1,5 @@
+mod tests;
+
 use bevy::{prelude::*, utils::HashMap};
 use serde::{Deserialize, Serialize};
 
@@ -144,15 +146,20 @@ impl Board {
         self.current
     }
 
-    pub fn insert(&mut self, position: Position, floor_or_object: GameEntity) {
+    fn is_position_on_board(&self, position: Position) -> bool {
         let map_size = self.boards[self.current].map_size;
         let bottom_border = offset_coordinate(0, map_size.height as i32);
         let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
         let left_border = offset_coordinate(0, map_size.width as i32);
         let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
         if position.x < left_border || position.x > right_border || position.y < bottom_border || position.y > top_border {
-            return;
+            false
+        } else {
+            true
         }
+    }
+
+    pub fn insert(&mut self, position: Position, floor_or_object: GameEntity) {
         match floor_or_object {
             GameEntity::Floor(f) => self.insert_floor_to_map(position, f, self.current),
             GameEntity::Object(o) => self.insert_object(position, o),
@@ -164,6 +171,14 @@ impl Board {
     }
 
     pub fn insert_object_to_map(&mut self, position: Position, object: GameObject, map: usize) {
+        if !self.is_position_on_board(position) {
+            return;
+        }
+            self.boards[map].objects.remove(&position);
+            self.boards[map].objects.insert(position, object);
+    }
+
+    pub fn insert_object_to_map_unchecked(&mut self, position: Position, object: GameObject, map: usize) {
         self.boards[map].objects.remove(&position);
         self.boards[map].objects.insert(position, object);
     }
@@ -179,6 +194,9 @@ impl Board {
     }
 
     pub fn insert_floor_to_map(&mut self, position: Position, floor: Floor, map: usize) {
+        if !self.is_position_on_board(position) {
+            return;
+        }
         self.boards[map].floors.remove(&position);
         self.boards[map].floors.insert(position, floor);
         match floor {

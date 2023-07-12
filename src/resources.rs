@@ -5,7 +5,7 @@ use crate::state::DisplayState;
 use std::fs::File;
 use std::io::Read;
 
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct CurrentLevel {
     pub level_number: usize,
     pub level_map_string: String,

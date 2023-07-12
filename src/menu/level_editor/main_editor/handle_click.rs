@@ -39,7 +39,10 @@ fn get_position_from_mouse_click(
         }
         return (pos, None)
     }
-    panic!("Window not found");
+    return (Position {
+        x: 0,
+        y: 0
+    }, None);
 }
 
 pub fn handle_level_editor_click(

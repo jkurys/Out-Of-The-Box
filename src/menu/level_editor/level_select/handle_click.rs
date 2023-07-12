@@ -17,6 +17,7 @@ pub fn handle_click(
                     *current_level = CurrentLevel {
                         level_number: number,
                         level_map_string: level_names.0[number - 1].clone(),
+                        is_in_level: true,
                         ..*current_level
                     };
                     next_state.set(DisplayState::LevelEditorBoard);

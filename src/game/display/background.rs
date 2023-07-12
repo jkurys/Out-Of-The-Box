@@ -191,6 +191,7 @@ pub fn render_board(
 
 pub fn render_border(mut commands: Commands, mut board: ResMut<Board>, images: Res<Images>) {
     let map_size = board.get_map_size();
+    let map = board.get_current_map();
     let bottom_border = offset_coordinate(-1, map_size.height as i32);
     let top_border = offset_coordinate(map_size.height as i32, map_size.height as i32);
     let left_border = offset_coordinate(-1, map_size.width as i32);
@@ -206,7 +207,7 @@ pub fn render_border(mut commands: Commands, mut board: ResMut<Board>, images: R
             top_border,
             Wall,
         );
-        board.insert_object(Position { x, y: top_border }, GameObject::Wall);
+        board.insert_object_to_map_unchecked(Position { x, y: top_border }, GameObject::Wall, map);
     }
     for y in (bottom_border..=top_border).rev() {
         render_object(
@@ -227,8 +228,8 @@ pub fn render_border(mut commands: Commands, mut board: ResMut<Board>, images: R
             y,
             Wall,
         );
-        board.insert_object(Position { x: left_border, y }, GameObject::Wall);
-        board.insert_object(Position { x: right_border, y }, GameObject::Wall);
+        board.insert_object_to_map_unchecked(Position { x: left_border, y }, GameObject::Wall, map);
+        board.insert_object_to_map_unchecked(Position { x: right_border, y }, GameObject::Wall, map);
     }
     //spawn vertical borders for the level and insert it to board
     for x in left_border..=right_border {
@@ -241,6 +242,7 @@ pub fn render_border(mut commands: Commands, mut board: ResMut<Board>, images: R
             bottom_border,
             Wall,
         );
+        board.insert_object_to_map_unchecked(Position { x, y: bottom_border }, GameObject::Wall, map);
         board.insert_object(
             Position {
                 x,

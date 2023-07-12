@@ -41,6 +41,7 @@ pub fn calc_positions_to_move_strong(
         && !positions.contains(&next_position)
         && (is_moveable(board.get_object_from_map(next_position, next_map)))
     {
+        // let mut new_positions_to_move = Vec::new();
         if let GameObject::TurtleHead {
             direction: dir,
             color: _,
