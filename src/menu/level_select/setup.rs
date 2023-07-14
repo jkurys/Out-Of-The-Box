@@ -74,7 +74,7 @@ pub fn setup_level_select(
                 );
             }
 
-            spawn_button(parent, LevelSelectItemType::Back, menu_font.clone(), "back");
+            spawn_button(parent, LevelSelectItemType::Back, menu_font.clone(), "Back");
         });
     level_names.0 = file_paths;
     *current_level = CurrentLevel {

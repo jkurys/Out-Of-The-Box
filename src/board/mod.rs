@@ -1,3 +1,4 @@
+#[cfg(test)]
 mod tests;
 
 use bevy::{prelude::*, utils::HashMap};

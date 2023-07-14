@@ -1,5 +1,4 @@
 use crate::{menu::level_editor::resources::BoardSize, game::game_objects::{Position, Floor, GameObject}};
-
 use super::Board;
 
 #[test]

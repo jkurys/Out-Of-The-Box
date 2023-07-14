@@ -21,7 +21,7 @@ pub struct DisplayPlugin;
 impl Plugin for DisplayPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Images>();
-        // app.add_startup_system(window_set_fullscreen);
+        app.add_startup_system(window_set_fullscreen);
         app.add_system(display_level_text.in_schedule(OnEnter(DisplayState::Game)));
         app.add_system(delete_all_components::<LevelText>.in_schedule(OnExit(DisplayState::Game)));
         app.add_systems(

@@ -27,7 +27,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
         .with_children(|parent| {
             parent.spawn(
                 TextBundle::from_section(
-                    "Main Menu",
+                    "MAIN MENU",
                     TextStyle {
                         font_size: 50.0,
                         color: Color::WHITE,

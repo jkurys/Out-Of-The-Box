@@ -60,7 +60,7 @@ pub const PLUS_TEXTURE: &str = "textures/plus.png";
 pub const HOVERED_PLUS_TEXTURE: &str = "textures/hovered-plus.png";
 /** FONTS */
 
-pub const MAIN_MENU_FONT: &str = "fonts/square-deal.ttf";
+pub const MAIN_MENU_FONT: &str = "fonts/njal_bold.otf";
 pub const LEVEL_FONT: &str = "fonts/pixel NES.otf";
 
 /** SAVES */
