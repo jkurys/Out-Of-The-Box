@@ -5,10 +5,7 @@ use crate::{
     menu::spawn_button,
 };
 
-use super::{
-    handle_click::{SpriteSelectItem, SpriteSelectItemType},
-    styles::{BACKGROUND_STYLE, IMAGE_STYLE},
-};
+use super::handle_click::{SpriteSelectItem, SpriteSelectItemType};
 
 pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer>) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
@@ -16,7 +13,14 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
             visibility: Visibility::Visible,
-            style: BACKGROUND_STYLE,
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceEvenly,
+                ..default()
+            },
             ..default()
         })
         .insert(SpriteSelectItem)
@@ -43,7 +47,14 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                     texture: asset_server.load(PLAYER_TEXTURES[0]),
                     ..default()
                 },
-                style: IMAGE_STYLE,
+                style: Style {
+                    width: Val::Px(100.0),
+                    height: Val::Px(100.0),
+                    flex_direction: FlexDirection::ColumnReverse,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::SpaceEvenly,
+                    ..default()
+                },
                 ..default()
             });
             spawn_button(
@@ -57,7 +68,14 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                     texture: asset_server.load(PLAYER_TEXTURES[1]),
                     ..default()
                 },
-                style: IMAGE_STYLE,
+                style: Style {
+                    width: Val::Px(100.0),
+                    height: Val::Px(100.0),
+                    flex_direction: FlexDirection::ColumnReverse,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::SpaceEvenly,
+                    ..default()
+                },
                 ..default()
             });
             spawn_button(
@@ -71,7 +89,14 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                     texture: asset_server.load(PLAYER_TEXTURES[2]),
                     ..default()
                 },
-                style: IMAGE_STYLE,
+                style: Style {
+                    width: Val::Px(100.0),
+                    height: Val::Px(100.0),
+                    flex_direction: FlexDirection::ColumnReverse,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::SpaceEvenly,
+                    ..default()
+                },
                 ..default()
             });
             spawn_button(

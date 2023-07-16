@@ -22,10 +22,14 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup_main_menu.in_schedule(OnEnter(DisplayState::MainMenu)))
-            .add_systems((handle_esc, handle_menu_click).in_set(OnUpdate(DisplayState::MainMenu)))
-            .add_system(
-                delete_all_components::<MainMenuItem>.in_schedule(OnExit(DisplayState::MainMenu)),
+        app.add_systems(
+            OnEnter(DisplayState::MainMenu),
+            setup_main_menu
+        )
+            .add_systems(Update,(handle_esc, handle_menu_click).run_if(in_state(DisplayState::MainMenu)))
+            .add_systems(
+                OnExit(DisplayState::MainMenu),
+                delete_all_components::<MainMenuItem>,
             );
     }
 }

@@ -25,14 +25,18 @@ pub struct LevelEditorSavePlugin;
 impl Plugin for LevelEditorSavePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<FileSavedEvent>();
-        app.add_system(setup_file_name_getter.in_schedule(OnEnter(DisplayState::LevelEditorSave)))
+        app.add_systems(
+            OnEnter(DisplayState::LevelEditorSave),
+            setup_file_name_getter
+        )
             .add_systems(
+                Update,
                 (handle_file_get, save_board_to_file, handle_esc)
-                    .in_set(OnUpdate(DisplayState::LevelEditorSave)),
+                    .run_if(in_state(DisplayState::LevelEditorSave)),
             )
             .add_systems(
+                OnExit(DisplayState::LevelEditorSave),
                 (delete_all_components::<LevelEditorSaveItem>, clear_board)
-                    .in_schedule(OnExit(DisplayState::LevelEditorSave)),
             );
     }
 }

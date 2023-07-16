@@ -11,10 +11,8 @@ pub fn setup_level_editor(asset_server: Res<AssetServer>, mut commands: Commands
             background_color: BackgroundColor(Color::BLACK),
             visibility: Visibility::Visible,
             style: Style {
-                size: Size {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                },
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,

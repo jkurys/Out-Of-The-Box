@@ -69,10 +69,8 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
             background_color: BackgroundColor(Color::LIME_GREEN),
             visibility: Visibility::Visible,
             style: Style {
-                size: Size {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                },
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,
@@ -84,7 +82,7 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
         .with_children(|parent| {
             parent.spawn(
                 TextBundle::from_section(
-                    "Level completed!",
+                    "Level completed",
                     TextStyle {
                         font_size: 50.0,
                         color: Color::WHITE,

@@ -35,7 +35,7 @@ pub fn handle_level_click(
     let bool_buf: Vec<bool> = buf.iter().map(|&value| value != 0).collect();
     query.for_each_mut(
         |(interaction, mut color, item)| match interaction.as_ref() {
-            Interaction::Clicked => match item.as_ref() {
+            Interaction::Pressed => match item.as_ref() {
                 LevelSelectItemType::Level(number) => {
                     *current_level = CurrentLevel {
                         level_number: *number,
@@ -43,7 +43,7 @@ pub fn handle_level_click(
                         level_amount,
                         is_in_level: true,
                     };
-                    state_stack.0.push(app_state.0);
+                    state_stack.0.push(*app_state.get());
                     next_state.set(DisplayState::Game);
                 }
                 LevelSelectItemType::Back => {

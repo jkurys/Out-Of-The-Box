@@ -49,6 +49,10 @@ impl Board {
         }
     }
 
+    pub fn clear_entities(&mut self) {
+        self.boards[self.current].entities.clear();
+    }
+
     pub fn set_current_map(&mut self, current: usize) {
         self.current = current;
     }

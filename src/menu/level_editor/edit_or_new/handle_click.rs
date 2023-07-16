@@ -10,7 +10,7 @@ pub fn handle_click(
 ) {
     for (&interaction, &button_type, mut color) in query.iter_mut() {
         match interaction {
-            Interaction::Clicked => match button_type {
+            Interaction::Pressed => match button_type {
                 ButtonType::Back => {
                     app_state.set(DisplayState::MainMenu);
                 }

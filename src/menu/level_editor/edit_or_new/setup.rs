@@ -20,10 +20,8 @@ pub fn setup_level_editor_choose(mut commands: Commands, asset_server: Res<Asset
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,
-                size: Size {
-                    width: Val::Percent(100.),
-                    height: Val::Percent(100.),
-                },
+                width: Val::Percent(100.),
+                height: Val::Percent(100.),
                 ..default()
             },
             background_color: BackgroundColor(Color::BLACK),

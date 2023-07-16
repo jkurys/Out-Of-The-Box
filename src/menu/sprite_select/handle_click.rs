@@ -27,7 +27,7 @@ pub fn handle_sprite_click(
 ) {
     query.for_each_mut(
         |(interaction, mut color, item)| match interaction.as_ref() {
-            Interaction::Clicked => match item.as_ref() {
+            Interaction::Pressed => match item.as_ref() {
                 SpriteSelectItemType::Back => {
                     app_state.set(DisplayState::MainMenu);
                 }

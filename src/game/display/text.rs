@@ -17,10 +17,8 @@ pub fn display_level_text(
             background_color: BackgroundColor(Color::GRAY),
             visibility: Visibility::Visible,
             style: Style {
-                size: Size {
-                    width: Val::Percent(100.0),
-                    height: Val::Px(100.0),
-                },
+                width: Val::Percent(100.0),
+                height: Val::Px(100.0),
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,

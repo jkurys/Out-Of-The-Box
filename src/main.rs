@@ -33,14 +33,14 @@ fn main() {
         .add_state::<DisplayState>()
         .add_state::<MoveState>()
         .add_plugins(DefaultPlugins)
-        .add_plugin(MenusPlugin)
-        .add_plugin(GamePlugin)
-        .add_plugin(DisplayPlugin)
-        .add_plugin(MovementPlugin)
-        .add_startup_system(spawn_camera)
-        .add_startup_system(init_images)
-        .add_system(update_images)
-        .add_system(spritemap_fix)
+        .add_plugins(MenusPlugin)
+        .add_plugins(GamePlugin)
+        .add_plugins(DisplayPlugin)
+        .add_plugins(MovementPlugin)
+        .add_systems(Startup, spawn_camera)
+        .add_systems(Startup, init_images)
+        .add_systems(Update, update_images)
+        .add_systems(Update, spritemap_fix)
         .run();
 }
 

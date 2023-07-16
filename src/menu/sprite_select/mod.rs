@@ -9,19 +9,22 @@ use self::{
 
 mod handle_click;
 mod setup;
-mod styles;
 
 pub struct SpriteSelectPlugin;
 
 impl Plugin for SpriteSelectPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup_sprite_select.in_schedule(OnEnter(DisplayState::SpriteSelect)))
+        app.add_systems(
+            OnEnter(DisplayState::SpriteSelect),
+            setup_sprite_select
+        )
             .add_systems(
-                (handle_sprite_click, handle_esc).in_set(OnUpdate(DisplayState::SpriteSelect)),
+                Update,
+                (handle_sprite_click, handle_esc).run_if(in_state(DisplayState::SpriteSelect)),
             )
-            .add_system(
+            .add_systems(
+                OnExit(DisplayState::SpriteSelect),
                 delete_all_components::<SpriteSelectItem>
-                    .in_schedule(OnExit(DisplayState::SpriteSelect)),
             );
     }
 }

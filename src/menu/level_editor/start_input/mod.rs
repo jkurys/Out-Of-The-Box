@@ -19,14 +19,18 @@ pub struct LevelEditorStartInputPlugin;
 
 impl Plugin for LevelEditorStartInputPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup_level_editor.in_schedule(OnEnter(DisplayState::LevelEditorInput)))
+        app.add_systems(
+            OnEnter(DisplayState::LevelEditorInput),
+            setup_level_editor
+        )
             .add_systems(
+                Update,
                 (handle_level_editor_input, handle_esc)
-                    .in_set(OnUpdate(DisplayState::LevelEditorInput)),
+                   .run_if(in_state(DisplayState::LevelEditorInput)),
             )
-            .add_system(
+            .add_systems(
+                OnExit(DisplayState::LevelEditorInput),
                 delete_all_components::<LevelEditorItem>
-                    .in_schedule(OnExit(DisplayState::LevelEditorInput)),
             );
     }
 }

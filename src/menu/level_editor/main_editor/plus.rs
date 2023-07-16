@@ -48,7 +48,7 @@ pub fn handle_plus_click(
                 ..default()
             };
         }
-        Interaction::Clicked => {
+        Interaction::Pressed => {
             *is_clicked = true;
         }
     }

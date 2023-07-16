@@ -7,10 +7,8 @@ pub fn spawn_small_image(parent: &mut ChildBuilder, image: Handle<Image>) {
             ..default()
         },
         style: Style {
-            size: Size {
-                height: Val::Px(50.),
-                width: Val::Px(50.),
-            },
+            height: Val::Px(50.),
+            width: Val::Px(50.),
             ..default()
         },
         ..default()
@@ -29,10 +27,8 @@ where
                 ..default()
             },
             style: Style {
-                size: Size {
-                    height: Val::Px(50.),
-                    width: Val::Px(50.),
-                },
+                height: Val::Px(50.),
+                width: Val::Px(50.),
                 ..default()
             },
             ..default()
@@ -56,10 +52,8 @@ pub fn spawn_small_button_with_sticker<T>(
                 ..default()
             },
             style: Style {
-                size: Size {
-                    height: Val::Px(50.),
-                    width: Val::Px(50.),
-                },
+                height: Val::Px(50.),
+                width: Val::Px(50.),
                 ..default()
             },
             ..default()

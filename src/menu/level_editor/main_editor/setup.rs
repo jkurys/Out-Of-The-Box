@@ -16,7 +16,7 @@ use crate::{
     resources::{CurrentSprite, Images},
 };
 
-use super::{styles::*, LevelEditorTabPlus, LevelEditorTab};
+use super::{LevelEditorTabPlus, LevelEditorTab};
 
 pub fn set_board_size(board_size: Res<BoardSize>, mut boards: ResMut<Board>) {
     boards.set_map_size(*board_size);
@@ -40,7 +40,15 @@ pub fn setup_level_editor_board(
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::DARK_GREEN),
             visibility: Visibility::Visible,
-            style: OBJECTS_COMPARTMENT_STYLE,
+            style: Style {
+                width: Val::Percent(5.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceEvenly,
+                align_self: AlignSelf::End,
+                ..default()
+            },
             ..default()
         })
         .insert(LevelEditorItem)
@@ -72,7 +80,15 @@ pub fn setup_level_editor_board(
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::GREEN),
             visibility: Visibility::Visible,
-            style: FLOORS_COMPARTMENT_STYLE,
+            style: Style {
+                width: Val::Percent(5.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceEvenly,
+                align_self: AlignSelf::Start,
+                ..default()
+            },
             ..default()
         })
         .insert(LevelEditorItem)
@@ -129,17 +145,23 @@ pub fn setup_level_editor_board(
     commands
         .spawn(NodeBundle {
             background_color: Color::BLUE.into(),
-            style: TABS_COMPARTMENT_STYLE,
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(3.0),
+                flex_direction: FlexDirection::Row,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceEvenly,
+                align_self: AlignSelf::Start,
+                ..default()
+            },
             ..default()
         })
         .insert(LevelEditorItem)
         .with_children(|parent| {
             parent.spawn(ButtonBundle {
                 style: Style {
-                    size: Size {
-                        width: Val::Percent(10.),
-                        height: Val::Percent(100.),
-                    },
+                    width: Val::Percent(10.),
+                    height: Val::Percent(100.),
                     ..default()
                 },
                 ..default()
@@ -148,10 +170,8 @@ pub fn setup_level_editor_board(
                 parent.spawn(ButtonBundle {
                 visibility: Visibility::Hidden,
                 style: Style {
-                    size: Size {
-                        width: Val::Percent(10.),
-                        height: Val::Percent(100.),
-                    },
+                    width: Val::Percent(10.),
+                    height: Val::Percent(100.),
                     ..default()
                 },
                 ..default()

@@ -30,18 +30,23 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            (load_starting_map, set_game_state).in_schedule(OnEnter(DisplayState::Game)),
+            OnEnter(DisplayState::Game),
+            (load_starting_map, set_game_state),
         )
         .add_systems(
+            Update,
             (handle_esc, handle_undo, handle_win, handle_restart)
-                .in_set(OnUpdate(DisplayState::Game)),
+                .run_if(in_state(DisplayState::Game))
         )
-        .add_system(clear_board.in_schedule(OnExit(DisplayState::Game)));
+        .add_systems(OnExit(DisplayState::Game), clear_board);
 
-        app.add_system(setup_win.in_schedule(OnEnter(DisplayState::Victory)))
-            .add_system(handle_win_click.in_set(OnUpdate(DisplayState::Victory)))
-            .add_system(
-                delete_all_components::<VictoryItem>.in_schedule(OnExit(DisplayState::Victory)),
+        app.add_systems(OnEnter(DisplayState::Victory), setup_win)
+            .add_systems(
+                Update,
+                handle_win_click.run_if(in_state(DisplayState::Victory)))
+            .add_systems(
+                OnExit(DisplayState::Victory),
+                delete_all_components::<VictoryItem>
             );
 
         app.insert_resource(Board::new())

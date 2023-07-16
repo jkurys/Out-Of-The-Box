@@ -41,25 +41,28 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(GameAnimationPlugin);
-        app.add_system(
+        app.add_plugins(GameAnimationPlugin);
+        app.add_systems(
+            Update,
             handle_keypress
                 .run_if(is_in_game)
-                .in_set(OnUpdate(MoveState::Static)),
+                .run_if(in_state(MoveState::Static))
         );
 
         app.add_systems(
+            Update,
             (try_move, handle_warp)
-                .distributive_run_if(is_in_game)
+                .run_if(is_in_game)
+                .run_if(in_state(MoveState::Calculating))
                 .chain()
-                .in_set(OnUpdate(MoveState::Calculating)),
         );
 
         app.add_systems(
+            Update,
             (handle_button, handle_turtle, handle_ice, end_move)
-                .distributive_run_if(is_in_game)
+                .run_if(is_in_game)
+                .run_if(in_state(MoveState::AfterAnimationCalc))
                 .chain()
-                .in_set(OnUpdate(MoveState::AfterAnimationCalc)),
         );
 
         app.add_event::<TryMoveEvent>();
@@ -72,5 +75,5 @@ impl Plugin for MovementPlugin {
 }
 
 pub fn is_in_game(display_state: Res<State<DisplayState>>) -> bool {
-    display_state.0 == DisplayState::Game
+    display_state.get() == &DisplayState::Game
 }

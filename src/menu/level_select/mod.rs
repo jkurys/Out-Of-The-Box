@@ -20,13 +20,18 @@ pub struct LevelSelectPlugin;
 
 impl Plugin for LevelSelectPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup_level_select.in_schedule(OnEnter(DisplayState::LevelSelect)))
+        app.add_systems(
+            OnEnter(DisplayState::LevelSelect),
+            setup_level_select
+        )
             .add_systems(
-                (handle_level_click, handle_esc).in_set(OnUpdate(DisplayState::LevelSelect)),
+                Update,
+                (handle_level_click, handle_esc)
+                    .run_if(in_state(DisplayState::LevelSelect)),
             )
-            .add_system(
+            .add_systems(
+                OnExit(DisplayState::LevelSelect),
                 delete_all_components::<LevelSelectItem>
-                    .in_schedule(OnExit(DisplayState::LevelSelect)),
             );
     }
 }

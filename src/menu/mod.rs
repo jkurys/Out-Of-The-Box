@@ -18,10 +18,10 @@ pub struct MenusPlugin;
 
 impl Plugin for MenusPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(SpriteSelectPlugin);
-        app.add_plugin(LevelSelectPlugin);
-        app.add_plugin(MainMenuPlugin);
-        app.add_plugin(LevelEditorPlugin);
+        app.add_plugins(SpriteSelectPlugin);
+        app.add_plugins(LevelSelectPlugin);
+        app.add_plugins(MainMenuPlugin);
+        app.add_plugins(LevelEditorPlugin);
 
         app.init_resource::<StateStack>();
         app.insert_resource(LevelNames(Vec::new()));
@@ -36,10 +36,8 @@ where
     parent
         .spawn(ButtonBundle {
             style: Style {
-                size: Size {
-                    width: Val::Percent(10.0),
-                    height: Val::Px(30.0),
-                },
+                width: Val::Percent(10.0),
+                height: Val::Px(30.0),
                 flex_direction: FlexDirection::ColumnReverse,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,

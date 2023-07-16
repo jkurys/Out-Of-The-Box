@@ -38,7 +38,6 @@ mod exit;
 mod handle_click;
 mod plus;
 mod setup;
-mod styles;
 mod tabs;
 
 pub struct LevelEditorMainPlugin;
@@ -46,6 +45,7 @@ pub struct LevelEditorMainPlugin;
 impl Plugin for LevelEditorMainPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            OnEnter(DisplayState::LevelEditorBoard),
             (
                 set_board_size,
                 setup_level_editor_board,
@@ -53,9 +53,9 @@ impl Plugin for LevelEditorMainPlugin {
                 render_border,
             )
                 .chain()
-                .in_schedule(OnEnter(DisplayState::LevelEditorBoard)),
         )
         .add_systems(
+            Update,
             (
                 handle_level_editor_click,
                 despawn_board,
@@ -66,11 +66,11 @@ impl Plugin for LevelEditorMainPlugin {
                 handle_exit_to_save,
             )
                 .chain()
-                .in_set(OnUpdate(DisplayState::LevelEditorBoard)),
+                .run_if(in_state(DisplayState::LevelEditorBoard))
         )
-        .add_system(
+        .add_systems(
+            OnExit(DisplayState::LevelEditorBoard),
             delete_all_components::<LevelEditorItem>
-                .in_schedule(OnExit(DisplayState::LevelEditorBoard)),
         );
     }
 }

@@ -14,7 +14,7 @@ pub fn handle_menu_click(
 ) {
     query.for_each_mut(
         |(interaction, mut color, item)| match interaction.as_ref() {
-            Interaction::Clicked => match item.as_ref() {
+            Interaction::Pressed => match item.as_ref() {
                 MenuItemType::LevelSelect => {
                     app_state.set(DisplayState::LevelSelect);
                 }

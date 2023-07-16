@@ -7,7 +7,7 @@ use crate::{board::Board, resources::StateStack, state::DisplayState};
 use super::events::FileSavedEvent;
 
 pub fn save_board_to_file(
-    board: Res<Board>,
+    mut board: ResMut<Board>,
     mut reader: EventReader<FileSavedEvent>,
     mut app_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
@@ -20,6 +20,7 @@ pub fn save_board_to_file(
         return;
     }
     let mut file = File::create(format!("assets/maps/{}.txt", file_name)).unwrap();
+    board.clear_entities();
     let file_prelude = serde_json::to_string(&board.clone());
     match file_prelude {
         Ok(str) => {

@@ -12,7 +12,7 @@ pub fn handle_click(
 ) {
     for (&interaction, mut color, &button_type) in query.iter_mut() {
         match interaction {
-            Interaction::Clicked => match button_type {
+            Interaction::Pressed => match button_type {
                 ButtonType::Level(number) => {
                     *current_level = CurrentLevel {
                         level_number: number,

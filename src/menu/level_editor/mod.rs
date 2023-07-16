@@ -20,10 +20,10 @@ pub struct LevelEditorPlugin;
 
 impl Plugin for LevelEditorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(LevelEditorStartInputPlugin);
-        app.add_plugin(LevelEditorMainPlugin);
-        app.add_plugin(LevelEditorSavePlugin);
-        app.add_plugin(EditLevelEditorPlugin);
-        app.add_plugin(LevelEditorSelectPlugin);
+        app.add_plugins(LevelEditorStartInputPlugin);
+        app.add_plugins(LevelEditorMainPlugin);
+        app.add_plugins(LevelEditorSavePlugin);
+        app.add_plugins(EditLevelEditorPlugin);
+        app.add_plugins(LevelEditorSelectPlugin);
     }
 }

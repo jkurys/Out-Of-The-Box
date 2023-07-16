@@ -20,16 +20,22 @@ pub struct LevelEditorSelectPlugin;
 
 impl Plugin for LevelEditorSelectPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup.in_schedule(OnEnter(DisplayState::LevelEditorLevelSelect)));
-        app.add_system(handle_click.in_set(OnUpdate(DisplayState::LevelEditorLevelSelect)));
         app.add_systems(
+            OnEnter(DisplayState::LevelEditorLevelSelect),
+            setup
+        );
+        app.add_systems(
+            Update,
+            handle_click.run_if(in_state(DisplayState::LevelEditorLevelSelect))
+        );
+        app.add_systems(
+            OnExit(DisplayState::LevelEditorLevelSelect),
             (
                 load_starting_map.run_if(exited_to_level),
                 handle_exit,
                 delete_all_components::<LevelSelectItem>,
             )
                 .chain()
-                .in_schedule(OnExit(DisplayState::LevelEditorLevelSelect)),
         );
     }
 }

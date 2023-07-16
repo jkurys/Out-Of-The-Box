@@ -14,7 +14,7 @@ pub fn handle_tab_click(
 ) {
     for (tab_num, interaction, mut color) in tab_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 boards.set_current_map(tab_num.0);
                 app_state.set(DisplayState::LevelEditorInput);
             }

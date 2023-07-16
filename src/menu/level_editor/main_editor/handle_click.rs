@@ -4,7 +4,7 @@ use crate::{
     board::Board,
     components::GameEntity,
     consts::{TILE_SIZE, TURTLE_TEXTURES},
-    game::{game_objects::{Direction, Floor, GameObject, Position}},
+    game::game_objects::{Direction, Floor, GameObject, Position},
 };
 
 fn offset_coordinate(coord: f32, window_coord: f32) -> i32 {
@@ -14,7 +14,7 @@ fn offset_coordinate(coord: f32, window_coord: f32) -> i32 {
 fn vec2_to_position(vec: Vec2, window_size: Vec2) -> Position {
     Position {
         x: offset_coordinate(vec.x, window_size.x),
-        y: offset_coordinate(vec.y, window_size.y),
+        y: offset_coordinate(window_size.y - vec.y, window_size.y),
     }
 }
 
@@ -76,7 +76,7 @@ pub fn handle_level_editor_click(
     }
     for (&interaction, new_image, object_or_floor, mut color) in clickable_query.iter_mut() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 image.0 = new_image.clone();
                 image.1 = true;
                 *current_object = *object_or_floor;
