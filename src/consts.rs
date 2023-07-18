@@ -5,14 +5,7 @@ pub const PLAYER_TEXTURES: [&str; 3] = [
     "textures/black_sprite.png",
 ];
 
-// pub const LOWER_PLAYER_TEXTURES: [&str; 3] = [
-//     "textures/player_lower.png",
-//     "textures/white_sprite_lower.png",
-//     "textures/black_sprite_lower.png",
-// ];
-
 pub const TILE_TEXTURE: &str = "textures/tile.png";
-// pub const LOWER_WALL_TEXTURE: &str = "textures/wall_lower.png";
 pub const WALL_TEXTURE: &str = "textures/wall_higher.png";
 pub const WALL_ATLAS: &str = "textures/wall_atlas.png";
 pub const TURTLE_TEXTURES: [&str; 4] = [
@@ -30,9 +23,7 @@ pub const TURTLE_ATLAS: &str = "textures/turtle_atlas.png";
 pub const PLAYER_ATLAS: &str = "textures/player_atlas.png";
 pub const BOX_ATLAS: &str = "textures/box_atlas.png";
 pub const BOX_TEXTURE: &str = "textures/box2.png";
-// pub const LOWER_BOX_TEXTURE: &str = "textures/box_lower.png";
 pub const GOAL_TEXTURE: &str = "textures/goal.png";
-// pub const HIGHER_BOX_ON_GOAL_TEXTURE: &str = "textures/box_on_goal2.png";
 pub const ICE_TEXTURE: &str = "textures/ice.png";
 pub const WARP_TEXTURE: &str = "textures/warp.png";
 pub const HIDDEN_WALL_TEXTURES: [&str; 3] = [
@@ -41,11 +32,6 @@ pub const HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_green.png",
 ];
 pub const HIDING_WALL_ATLAS: &str = "textures/hiding_wall_atlas.png";
-// pub const LOWER_SHOWN_HIDDEN_WALL_TEXTURES: [&str; 3] = [
-//     "textures/hidden_wall_lower.png",
-//     "textures/hidden_wall_lower_blue.png",
-//     "textures/hidden_wall_lower_green.png",
-// ];
 pub const SHOWN_HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_higher.png",
     "textures/hidden_wall_higher_blue.png",
@@ -58,6 +44,7 @@ pub const BUTTON_TEXTURES: [&str; 3] = [
 ];
 pub const PLUS_TEXTURE: &str = "textures/plus.png";
 pub const HOVERED_PLUS_TEXTURE: &str = "textures/hovered-plus.png";
+pub const BACKGROUND_TEXTURE: &str = "textures/background.png";
 /** FONTS */
 
 pub const MAIN_MENU_FONT: &str = "fonts/njal_bold.otf";

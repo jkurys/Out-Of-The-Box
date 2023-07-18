@@ -14,7 +14,7 @@ pub fn display_level_text(
     let current_level = current_level.level_number;
     commands
         .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::GRAY),
+            background_color: Color::rgba(0.5, 0.5, 0.5, 0.3).into(),
             visibility: Visibility::Visible,
             style: Style {
                 width: Val::Percent(100.0),

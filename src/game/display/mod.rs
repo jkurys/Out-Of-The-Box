@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowMode};
 
 use self::background::render_border;
+use self::level_background::render_background;
 use self::text::{display_level_text, LevelText};
 use crate::consts::*;
 use crate::game::{game_objects::Position, GameItem};
@@ -13,6 +14,7 @@ use crate::utils::delete_all_components;
 use super::movement::is_in_game;
 
 pub mod background;
+mod level_background;
 mod render_2_5_d;
 mod text;
 
@@ -22,7 +24,7 @@ impl Plugin for DisplayPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Images>();
         app.add_systems(Startup, window_set_fullscreen);
-        app.add_systems(OnEnter(DisplayState::Game), display_level_text);
+        app.add_systems(OnEnter(DisplayState::Game), (render_background, display_level_text));
         app.add_systems(OnExit(DisplayState::Game), delete_all_components::<LevelText>);
         app.add_systems(
             Update,
