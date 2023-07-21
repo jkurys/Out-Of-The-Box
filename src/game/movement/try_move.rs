@@ -18,8 +18,10 @@ pub fn try_move(
     mut board_states: ResMut<BoardStates>,
     mut app_state: ResMut<NextState<MoveState>>,
 ) {
-    let mut was_moved = false;
-    let was_map_saved = false;
+    let mut move_data = MoveData {
+        was_map_saved: false,
+        was_moved: false,
+    };
     let mut events = Vec::new();
     for event in reader.iter() {
         events.push(event);
@@ -49,10 +51,7 @@ pub fn try_move(
                 position,
                 direction,
                 &mut moved_positions,
-                &mut MoveData {
-                    was_map_saved,
-                    was_moved,
-                },
+                &mut move_data,
                 &mut writer,
                 &mut board_states,
             );
@@ -62,7 +61,7 @@ pub fn try_move(
                 position,
                 direction,
                 &mut moved_positions,
-                &mut was_moved,
+                &mut move_data,
                 &mut writer,
             );
         }
@@ -72,7 +71,7 @@ pub fn try_move(
             }
         }
     }
-    if was_moved {
+    if move_data.was_moved {
         app_state.set(MoveState::Animation);
     } else {
         app_state.set(MoveState::Static);

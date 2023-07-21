@@ -139,7 +139,7 @@ pub fn move_weak(
     mut position: Position,
     direction: Direction,
     moved_positions: &mut Vec<Position>,
-    was_moved: &mut bool,
+    move_data: &mut MoveData,
     writer: &mut EventWriter<EnteredFloorEvent>,
 ) {
     let mut position_to_move = (position, board.get_current_map());
@@ -156,7 +156,7 @@ pub fn move_weak(
             body_position,
             direction,
             moved_positions,
-            was_moved,
+            move_data,
             writer,
         );
     }
@@ -171,7 +171,7 @@ pub fn move_weak(
             head_position,
             direction,
             moved_positions,
-            was_moved,
+            move_data,
             writer,
         );
     }
@@ -200,7 +200,7 @@ pub fn move_weak(
             direction,
             object: board.get_object_from_map(next_position, map),
         });
-        *was_moved = true;
+        move_data.was_moved = true;
         moved_positions.push(position_to_move.0);
     }
 }
