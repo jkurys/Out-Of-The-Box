@@ -46,7 +46,7 @@ impl Plugin for MovementPlugin {
             Update,
             handle_keypress
                 .run_if(is_in_game)
-                .run_if(in_state(MoveState::Static))
+                .run_if(in_state(MoveState::Static)),
         );
 
         app.add_systems(
@@ -54,7 +54,7 @@ impl Plugin for MovementPlugin {
             (try_move, handle_warp)
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::Calculating))
-                .chain()
+                .chain(),
         );
 
         app.add_systems(
@@ -62,7 +62,7 @@ impl Plugin for MovementPlugin {
             (handle_button, handle_turtle, handle_ice, end_move)
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::AfterAnimationCalc))
-                .chain()
+                .chain(),
         );
 
         app.add_event::<TryMoveEvent>();

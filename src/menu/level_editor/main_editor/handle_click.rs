@@ -3,7 +3,7 @@ use bevy::{prelude::*, window::PrimaryWindow};
 use crate::{
     board::Board,
     components::GameEntity,
-    consts::{TILE_SIZE, TURTLE_TEXTURES},
+    consts::TILE_SIZE,
     game::game_objects::{Direction, Floor, GameObject, Position},
 };
 
@@ -37,30 +37,23 @@ fn get_position_from_mouse_click(
         if mouse.just_pressed(MouseButton::Right) {
             return (pos, Some(MouseButton::Right));
         }
-        return (pos, None)
+        return (pos, None);
     }
-    return (Position {
-        x: 0,
-        y: 0
-    }, None);
+    (Position { x: 0, y: 0 }, None)
 }
 
 pub fn handle_level_editor_click(
     windows: Query<&Window, With<PrimaryWindow>>,
-    mut clickable_query: Query<
-        (&Interaction, &UiImage, &GameEntity, &mut BackgroundColor),
-    >,
+    mut clickable_query: Query<(&Interaction, &GameEntity, &mut BackgroundColor)>,
     mouse: Res<Input<MouseButton>>,
     mut board: ResMut<Board>,
-    mut current_object: Local<GameEntity>,
-    mut image: Local<(UiImage, bool)>,
+    mut entity: Local<GameEntity>,
     input: Res<Input<KeyCode>>,
-    asset_server: Res<AssetServer>,
 ) {
     if let (pos, Some(button)) = get_position_from_mouse_click(&mouse, &windows) {
         if button == MouseButton::Left {
-            board.insert(pos, *current_object);
-            if let GameEntity::Object(GameObject::HidingWall { color }) = *current_object {
+            board.insert(pos, *entity);
+            if let GameEntity::Object(GameObject::HidingWall { color }) = *entity {
                 board.insert_floor(
                     pos,
                     Floor::HiddenWall {
@@ -74,12 +67,10 @@ pub fn handle_level_editor_click(
             board.delete_floor(pos);
         }
     }
-    for (&interaction, new_image, object_or_floor, mut color) in clickable_query.iter_mut() {
+    for (&interaction, object_or_floor, mut color) in clickable_query.iter_mut() {
         match interaction {
             Interaction::Pressed => {
-                image.0 = new_image.clone();
-                image.1 = true;
-                *current_object = *object_or_floor;
+                *entity = *object_or_floor;
             }
             Interaction::Hovered => {
                 *color = Color::rgb(0.7, 0.7, 0.7).into();
@@ -92,7 +83,7 @@ pub fn handle_level_editor_click(
     if let GameEntity::Object(GameObject::Turtle {
         direction: _,
         color,
-    }) = *current_object
+    }) = *entity
     {
         let mut maybe_dir = None;
         if input.just_pressed(KeyCode::Up) {
@@ -105,8 +96,7 @@ pub fn handle_level_editor_click(
             maybe_dir = Some(Direction::Right);
         }
         if let Some(dir) = maybe_dir {
-            image.0 = asset_server.load(TURTLE_TEXTURES[dir.to_num()]).into();
-            *current_object = GameEntity::Object(GameObject::Turtle {
+            *entity = GameEntity::Object(GameObject::Turtle {
                 direction: dir,
                 color,
             });

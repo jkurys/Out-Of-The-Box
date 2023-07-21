@@ -95,14 +95,14 @@ impl<'de> Visitor<'de> for PositionVisitor {
             return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
         }
         let x_char = x_char_opt.unwrap();
-        if let Ok(x) = i32::from_str_radix(x_char, 10) {
+        if let Ok(x) = x_char.parse::<i32>() {
             let y_char_opt = splits.next();
             if y_char_opt.is_none() {
                 return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
             }
             let y_char = y_char_opt.unwrap();
-            if let Ok(y) = i32::from_str_radix(y_char, 10) {
-                return Ok(Position { x, y });
+            if let Ok(y) = y_char.parse::<i32>() {
+                Ok(Position { x, y })
             } else {
                 return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
             }
@@ -183,8 +183,8 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn to_num(&self) -> usize {
-        match &self {
+    pub fn to_num(self) -> usize {
+        match self {
             Direction::Left => 0,
             Direction::Right => 1,
             Direction::Down => 2,

@@ -4,8 +4,8 @@ use crate::{
     board::Board,
     components::GameEntity,
     consts::{
-        BOX_TEXTURE, HIDDEN_WALL_TEXTURES, PLAYER_TEXTURES, SHOWN_HIDDEN_WALL_TEXTURES,
-        STICKER_TEXTURES, TURTLE_TEXTURES, WALL_TEXTURE, PLUS_TEXTURE, MAX_MAPS,
+        BOX_TEXTURE, HIDDEN_WALL_TEXTURES, MAX_MAPS, PLAYER_TEXTURES, PLUS_TEXTURE,
+        SHOWN_HIDDEN_WALL_TEXTURES, STICKER_TEXTURES, TURTLE_TEXTURES, WALL_TEXTURE,
     },
     game::game_objects::{Direction, Floor, GameObject},
     menu::level_editor::{
@@ -16,7 +16,7 @@ use crate::{
     resources::{CurrentSprite, Images},
 };
 
-use super::{LevelEditorTabPlus, LevelEditorTab};
+use super::{LevelEditorTab, LevelEditorTabPlus};
 
 pub fn set_board_size(board_size: Res<BoardSize>, mut boards: ResMut<Board>) {
     boards.set_map_size(*board_size);
@@ -58,10 +58,10 @@ pub fn setup_level_editor_board(
                 box_image.clone(),
                 GameEntity::Object(GameObject::Box),
             );
-            for color in 0..3 {
+            for (color, image) in hidden_wall_images.iter().enumerate() {
                 spawn_small_button(
                     parent,
-                    hidden_wall_images[color].clone(),
+                    image.clone(),
                     GameEntity::Object(GameObject::HidingWall { color }),
                 );
             }
@@ -103,24 +103,24 @@ pub fn setup_level_editor_board(
                 images.ice_image.clone(),
                 GameEntity::Floor(Floor::Ice),
             );
-            for color in 0..3 {
+            for (color, image) in images.button_images.iter().enumerate() {
                 spawn_small_button(
                     parent,
-                    images.button_images[color].clone(),
+                    image.clone(),
                     GameEntity::Floor(Floor::Button(color)),
                 );
             }
-            for color in 0..3 {
+            for (color, image) in bottom_hidden_wall_images.iter().enumerate() {
                 spawn_small_button(
                     parent,
-                    bottom_hidden_wall_images[color].clone(),
+                    image.clone(),
                     GameEntity::Floor(Floor::HiddenWall {
                         hidden_by_default: true,
                         color,
                     }),
                 );
             }
-            for color in 0..3 {
+            for (color, image) in sticker_images.iter().enumerate() {
                 spawn_small_button_with_sticker(
                     parent,
                     turtle_image.clone(),
@@ -128,7 +128,7 @@ pub fn setup_level_editor_board(
                         color,
                         direction: Direction::Left,
                     }),
-                    sticker_images[color].clone(),
+                    image.clone(),
                 );
             }
             spawn_small_button(
@@ -158,28 +158,34 @@ pub fn setup_level_editor_board(
         })
         .insert(LevelEditorItem)
         .with_children(|parent| {
-            parent.spawn(ButtonBundle {
-                style: Style {
-                    width: Val::Percent(10.),
-                    height: Val::Percent(100.),
+            parent
+                .spawn(ButtonBundle {
+                    style: Style {
+                        width: Val::Percent(10.),
+                        height: Val::Percent(100.),
+                        ..default()
+                    },
                     ..default()
-                },
-                ..default()
-            }).insert(LevelEditorTab(0));
+                })
+                .insert(LevelEditorTab(0));
             for i in 1..MAX_MAPS {
-                parent.spawn(ButtonBundle {
-                visibility: Visibility::Hidden,
-                style: Style {
-                    width: Val::Percent(10.),
-                    height: Val::Percent(100.),
-                    ..default()
-                },
-                ..default()
-            }).insert(LevelEditorTab(i));
+                parent
+                    .spawn(ButtonBundle {
+                        visibility: Visibility::Hidden,
+                        style: Style {
+                            width: Val::Percent(10.),
+                            height: Val::Percent(100.),
+                            ..default()
+                        },
+                        ..default()
+                    })
+                    .insert(LevelEditorTab(i));
             }
-            parent.spawn(ImageBundle {
-                image: plus_image.into(),
-                ..default()
-            }).insert((LevelEditorTabPlus, ButtonBundle::default()));
+            parent
+                .spawn(ImageBundle {
+                    image: plus_image.into(),
+                    ..default()
+                })
+                .insert((LevelEditorTabPlus, ButtonBundle::default()));
         });
 }

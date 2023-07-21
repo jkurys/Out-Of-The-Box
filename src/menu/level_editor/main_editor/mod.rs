@@ -52,7 +52,7 @@ impl Plugin for LevelEditorMainPlugin {
                 render_board,
                 render_border,
             )
-                .chain()
+                .chain(),
         )
         .add_systems(
             Update,
@@ -66,11 +66,11 @@ impl Plugin for LevelEditorMainPlugin {
                 handle_exit_to_save,
             )
                 .chain()
-                .run_if(in_state(DisplayState::LevelEditorBoard))
+                .run_if(in_state(DisplayState::LevelEditorBoard)),
         )
         .add_systems(
             OnExit(DisplayState::LevelEditorBoard),
-            delete_all_components::<LevelEditorItem>
+            delete_all_components::<LevelEditorItem>,
         );
     }
 }

@@ -22,7 +22,6 @@ pub fn setup(
     mut level_names: ResMut<LevelNames>,
 ) {
     let paths = read_dir("./assets/maps").unwrap();
-    let mut file_amount = 0;
     let mut file_paths = Vec::new();
     let mut first_name = "".to_string();
     for path in paths {
@@ -33,11 +32,10 @@ pub fn setup(
             .unwrap()
             .to_string_lossy()
             .into_owned();
-        if first_name == "".to_string() {
+        if first_name == *"" {
             first_name = path_str.clone();
         }
         file_paths.push(path_str);
-        file_amount += 1;
     }
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
@@ -67,8 +65,7 @@ pub fn setup(
                 )
                 .with_text_alignment(TextAlignment::Center),
             );
-            for level_number in 0..file_amount {
-                let level_name = &file_paths[level_number];
+            for (level_number, level_name) in file_paths.iter().enumerate() {
                 spawn_button(
                     parent,
                     ButtonType::Level(level_number + 1),

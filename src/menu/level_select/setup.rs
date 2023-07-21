@@ -28,7 +28,7 @@ pub fn setup_level_select(
             .unwrap()
             .to_string_lossy()
             .into_owned();
-        if first_name == "".to_string() {
+        if first_name == *"" {
             first_name = path_str.clone();
         }
         file_paths.push(path_str);
@@ -62,8 +62,7 @@ pub fn setup_level_select(
                 )
                 .with_text_alignment(TextAlignment::Center),
             );
-            for level_number in 0..file_amount {
-                let level_name = &file_paths[level_number];
+            for (level_number, level_name) in file_paths.iter().enumerate() {
                 spawn_button(
                     parent,
                     LevelSelectItemType::Level(level_number + 1),

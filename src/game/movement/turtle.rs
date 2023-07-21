@@ -7,9 +7,8 @@ use super::events::TryMoveEvent;
 pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEvent>) {
     let buttons = board.get_all_buttons();
     let mut is_clicked = false;
-    let mut color = 0;
     let turtles = board.get_all_turtles();
-    for button_color in buttons {
+    for (color, button_color) in buttons.into_iter().enumerate() {
         for button_position in button_color {
             if board.get_object_type(button_position) != GameObject::Empty {
                 is_clicked = true;
@@ -51,7 +50,6 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
                 board.delete_object(pos);
             }
         }
-        color += 1;
         is_clicked = false;
     }
 }

@@ -10,8 +10,7 @@ use crate::{
 pub fn render_object<T>(
     commands: &mut Commands,
     atlas_handle: Handle<TextureAtlas>,
-    bottom_index: usize,
-    top_index: usize,
+    indices: (usize, usize),
     x: i32,
     y: i32,
     component: T,
@@ -19,6 +18,7 @@ pub fn render_object<T>(
 where
     T: Component + Clone,
 {
+    let (bottom_index, top_index) = indices;
     let mut higher_image = TextureAtlasSprite::new(top_index);
     let mut lower_image = TextureAtlasSprite::new(bottom_index);
     higher_image.custom_size = Some(Vec2::splat(TILE_SIZE + 0.5));
@@ -45,7 +45,7 @@ where
     let entity2 = commands
         .spawn(SpriteSheetBundle {
             sprite: lower_image,
-            texture_atlas: atlas_handle.clone(),
+            texture_atlas: atlas_handle,
             transform: Transform::from_xyz(lower_x, lower_y, lower_z),
             ..default()
         })
@@ -57,8 +57,7 @@ where
 pub fn render_object_with_sticker<T>(
     commands: &mut Commands,
     atlas_handle: Handle<TextureAtlas>,
-    bottom_index: usize,
-    top_index: usize,
+    indices: (usize, usize),
     sticker_index: usize,
     x: i32,
     y: i32,
@@ -67,11 +66,11 @@ pub fn render_object_with_sticker<T>(
 where
     T: Component + Clone,
 {
+    let (bottom_index, top_index) = indices;
     let [entity1, entity2] = render_object(
         commands,
         atlas_handle.clone(),
-        bottom_index,
-        top_index,
+        (bottom_index, top_index),
         x,
         y,
         component.clone(),
@@ -86,11 +85,11 @@ where
     let entity3 = commands
         .spawn(SpriteSheetBundle {
             sprite: sticker_image,
-            texture_atlas: atlas_handle.clone(),
+            texture_atlas: atlas_handle,
             transform: Transform::from_xyz(sticker_x, sticker_y, sticker_z),
             ..default()
         })
-        .insert((component.clone(), GameItem))
+        .insert((component, GameItem))
         .id();
     [entity1, entity2, entity3]
 }

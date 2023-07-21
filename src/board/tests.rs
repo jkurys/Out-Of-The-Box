@@ -1,5 +1,8 @@
-use crate::{menu::level_editor::resources::BoardSize, game::game_objects::{Position, Floor, GameObject}};
 use super::Board;
+use crate::{
+    game::game_objects::{Floor, GameObject, Position},
+    menu::level_editor::resources::BoardSize,
+};
 
 #[test]
 pub fn insert_does_nothing_outside_borders() {

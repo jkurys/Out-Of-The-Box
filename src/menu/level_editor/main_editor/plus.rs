@@ -4,15 +4,12 @@ use crate::consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE};
 
 use super::{LevelEditorTab, LevelEditorTabPlus};
 
+type PlusQueryConstraint = (With<LevelEditorTabPlus>, Without<LevelEditorTab>);
+type TabQueryConstraint = (With<LevelEditorTab>, Without<LevelEditorTabPlus>);
+
 pub fn handle_plus_click(
-    mut plus_query: Query<
-        (&mut Style, &Interaction, &mut UiImage),
-        (With<LevelEditorTabPlus>, Without<LevelEditorTab>),
-    >,
-    mut tab_query: Query<
-        (&mut Style, &mut Visibility),
-        (With<LevelEditorTab>, Without<LevelEditorTabPlus>),
-    >,
+    mut plus_query: Query<(&mut Style, &Interaction, &mut UiImage), PlusQueryConstraint>,
+    mut tab_query: Query<(&mut Style, &mut Visibility), TabQueryConstraint>,
     asset_server: Res<AssetServer>,
     mut tabs_amount: Local<u32>,
     mut is_clicked: Local<bool>,

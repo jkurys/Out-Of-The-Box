@@ -2,13 +2,13 @@ use bevy::prelude::*;
 
 use crate::state::MoveState;
 
-use self::{animation::move_animation, cont::continue_animation, end::end_animation};
+use self::{cont::continue_animation, end::end_animation, frame::move_animation};
 
 use super::is_in_game;
 
-mod animation;
 mod cont;
 mod end;
+mod frame;
 
 pub struct GameAnimationPlugin;
 
@@ -19,13 +19,12 @@ impl Plugin for GameAnimationPlugin {
             (move_animation, continue_animation)
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::Animation))
-                .chain()
+                .chain(),
         );
 
         app.add_systems(
             OnExit(MoveState::Animation),
-            end_animation
-                .run_if(is_in_game)
+            end_animation.run_if(is_in_game),
         );
     }
 }

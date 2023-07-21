@@ -24,14 +24,20 @@ impl Plugin for DisplayPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Images>();
         app.add_systems(Startup, window_set_fullscreen);
-        app.add_systems(OnEnter(DisplayState::Game), (render_background, display_level_text));
-        app.add_systems(OnExit(DisplayState::Game), delete_all_components::<LevelText>);
+        app.add_systems(
+            OnEnter(DisplayState::Game),
+            (render_background, display_level_text),
+        );
+        app.add_systems(
+            OnExit(DisplayState::Game),
+            delete_all_components::<LevelText>,
+        );
         app.add_systems(
             Update,
             (despawn_board, render_board, render_border)
                 .chain()
                 .run_if(is_in_game)
-                .run_if(in_state(MoveState::Static))
+                .run_if(in_state(MoveState::Static)),
         );
     }
 }
@@ -79,7 +85,7 @@ where
     commands
         .spawn(SpriteSheetBundle {
             sprite: image,
-            texture_atlas: atlas_handle.clone(),
+            texture_atlas: atlas_handle,
             transform: Transform::from_xyz(x, y, z),
             ..default()
         })

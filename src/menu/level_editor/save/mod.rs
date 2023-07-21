@@ -27,16 +27,16 @@ impl Plugin for LevelEditorSavePlugin {
         app.add_event::<FileSavedEvent>();
         app.add_systems(
             OnEnter(DisplayState::LevelEditorSave),
-            setup_file_name_getter
+            setup_file_name_getter,
         )
-            .add_systems(
-                Update,
-                (handle_file_get, save_board_to_file, handle_esc)
-                    .run_if(in_state(DisplayState::LevelEditorSave)),
-            )
-            .add_systems(
-                OnExit(DisplayState::LevelEditorSave),
-                (delete_all_components::<LevelEditorSaveItem>, clear_board)
-            );
+        .add_systems(
+            Update,
+            (handle_file_get, save_board_to_file, handle_esc)
+                .run_if(in_state(DisplayState::LevelEditorSave)),
+        )
+        .add_systems(
+            OnExit(DisplayState::LevelEditorSave),
+            (delete_all_components::<LevelEditorSaveItem>, clear_board),
+        );
     }
 }

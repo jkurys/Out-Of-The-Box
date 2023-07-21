@@ -36,17 +36,18 @@ impl Plugin for GamePlugin {
         .add_systems(
             Update,
             (handle_esc, handle_undo, handle_win, handle_restart)
-                .run_if(in_state(DisplayState::Game))
+                .run_if(in_state(DisplayState::Game)),
         )
         .add_systems(OnExit(DisplayState::Game), clear_board);
 
         app.add_systems(OnEnter(DisplayState::Victory), setup_win)
             .add_systems(
                 Update,
-                handle_win_click.run_if(in_state(DisplayState::Victory)))
+                handle_win_click.run_if(in_state(DisplayState::Victory)),
+            )
             .add_systems(
                 OnExit(DisplayState::Victory),
-                delete_all_components::<VictoryItem>
+                delete_all_components::<VictoryItem>,
             );
 
         app.insert_resource(Board::new())

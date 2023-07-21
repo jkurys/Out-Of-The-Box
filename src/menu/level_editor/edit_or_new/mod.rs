@@ -19,12 +19,12 @@ impl Plugin for EditLevelEditorPlugin {
 
         app.add_systems(
             Update,
-            handle_click.run_if(in_state(DisplayState::LevelEditorSelect))
+            handle_click.run_if(in_state(DisplayState::LevelEditorSelect)),
         );
 
         app.add_systems(
             OnExit(DisplayState::LevelEditorSelect),
-            delete_all_components::<LevelEditorChooseElement>
+            delete_all_components::<LevelEditorChooseElement>,
         );
     }
 }

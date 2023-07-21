@@ -71,7 +71,7 @@ pub fn move_event(
                 position.x as f32 * TILE_SIZE,
                 (position.y as f32 + 0.24) * TILE_SIZE,
             );
-            modify_transform(higher_transform, direction, &timer, x, y, event.floor);
+            modify_transform(higher_transform, direction, timer, x, y, event.floor);
         }
         for &lower_entity in lower_entities.iter() {
             let lower_transform = query.get_mut(lower_entity).expect("Moved entity not found");
@@ -79,7 +79,7 @@ pub fn move_event(
                 position.x as f32 * TILE_SIZE,
                 (position.y as f32 - 0.375) * TILE_SIZE,
             );
-            modify_transform(lower_transform, direction, &timer, x2, y2, event.floor);
+            modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
         }
     }
 }

@@ -8,7 +8,8 @@ use crate::{
     components::GameEntity,
     consts::{INITIAL_MAP, MAX_MAPS},
     game::game_objects::{Direction, Floor, GameObject, Position},
-    menu::level_editor::resources::BoardSize, utils::offset_coordinate,
+    menu::level_editor::resources::BoardSize,
+    utils::offset_coordinate,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -157,11 +158,10 @@ impl Board {
         let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
         let left_border = offset_coordinate(0, map_size.width as i32);
         let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
-        if position.x < left_border || position.x > right_border || position.y < bottom_border || position.y > top_border {
-            false
-        } else {
-            true
-        }
+        !(position.x < left_border
+            || position.x > right_border
+            || position.y < bottom_border
+            || position.y > top_border)
     }
 
     pub fn insert(&mut self, position: Position, floor_or_object: GameEntity) {
@@ -179,11 +179,16 @@ impl Board {
         if !self.is_position_on_board(position) {
             return;
         }
-            self.boards[map].objects.remove(&position);
-            self.boards[map].objects.insert(position, object);
+        self.boards[map].objects.remove(&position);
+        self.boards[map].objects.insert(position, object);
     }
 
-    pub fn insert_object_to_map_unchecked(&mut self, position: Position, object: GameObject, map: usize) {
+    pub fn insert_object_to_map_unchecked(
+        &mut self,
+        position: Position,
+        object: GameObject,
+        map: usize,
+    ) {
         self.boards[map].objects.remove(&position);
         self.boards[map].objects.insert(position, object);
     }
@@ -216,12 +221,12 @@ impl Board {
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
         let mut object_opt = self.boards[map].objects.remove(&position);
         let mut object = GameObject::Empty;
-        if !object_opt.is_none() {
+        if object_opt.is_some() {
             object = object_opt.unwrap();
         }
-        while !object_opt.is_none() {
+        while object_opt.is_some() {
             object_opt = self.boards[map].objects.remove(&position);
-            if !object_opt.is_none() {
+            if object_opt.is_some() {
                 object = object_opt.unwrap();
             }
         }

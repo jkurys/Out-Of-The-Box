@@ -38,8 +38,7 @@ pub fn render_board(
                     let [entity1, entity2] = render_object(
                         &mut commands,
                         images.box_images.clone().unwrap(),
-                        1,
-                        top_index,
+                        (1, top_index),
                         x,
                         y,
                         Box,
@@ -50,8 +49,7 @@ pub fn render_board(
                     let [entity1, entity2] = render_object(
                         &mut commands,
                         images.wall_images.clone().unwrap(),
-                        1,
-                        0,
+                        (1, 0),
                         x,
                         y,
                         Wall,
@@ -62,8 +60,7 @@ pub fn render_board(
                     let [entity1, entity2] = render_object(
                         &mut commands,
                         images.player_images.clone().unwrap(),
-                        current_sprite.0 * 2 + 1,
-                        current_sprite.0 * 2,
+                        (current_sprite.0 * 2 + 1, current_sprite.0 * 2),
                         x,
                         y,
                         Player,
@@ -74,8 +71,7 @@ pub fn render_board(
                     let [entity1, entity2] = render_object(
                         &mut commands,
                         images.hidden_wall_images.clone().unwrap(),
-                        color * 3 + 1,
-                        color * 3,
+                        (color * 3 + 1, color * 3),
                         x,
                         y,
                         HiddenWall,
@@ -86,8 +82,7 @@ pub fn render_board(
                     let [entity1, entity2, entity3] = render_object_with_sticker(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
-                        direction.to_num() * 4 + 1,
-                        direction.to_num() * 4,
+                        (direction.to_num() * 4 + 1, direction.to_num() * 4),
                         4 * 4 + color,
                         x,
                         y,
@@ -102,8 +97,7 @@ pub fn render_board(
                     let [entity1, entity2] = render_object(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
-                        direction.to_num() * 4 + 3,
-                        direction.to_num() * 4 + 2,
+                        (direction.to_num() * 4 + 3, direction.to_num() * 4 + 2),
                         x,
                         y,
                         Turtle,
@@ -201,8 +195,7 @@ pub fn render_border(mut commands: Commands, mut board: ResMut<Board>, images: R
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
-            1,
-            0,
+            (1, 0),
             x,
             top_border,
             Wall,
@@ -213,8 +206,7 @@ pub fn render_border(mut commands: Commands, mut board: ResMut<Board>, images: R
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
-            1,
-            0,
+            (1, 0),
             left_border,
             y,
             Wall,
@@ -222,27 +214,36 @@ pub fn render_border(mut commands: Commands, mut board: ResMut<Board>, images: R
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
-            1,
-            0,
+            (1, 0),
             right_border,
             y,
             Wall,
         );
         board.insert_object_to_map_unchecked(Position { x: left_border, y }, GameObject::Wall, map);
-        board.insert_object_to_map_unchecked(Position { x: right_border, y }, GameObject::Wall, map);
+        board.insert_object_to_map_unchecked(
+            Position { x: right_border, y },
+            GameObject::Wall,
+            map,
+        );
     }
     //spawn vertical borders for the level and insert it to board
     for x in left_border..=right_border {
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
-            1,
-            0,
+            (1, 0),
             x,
             bottom_border,
             Wall,
         );
-        board.insert_object_to_map_unchecked(Position { x, y: bottom_border }, GameObject::Wall, map);
+        board.insert_object_to_map_unchecked(
+            Position {
+                x,
+                y: bottom_border,
+            },
+            GameObject::Wall,
+            map,
+        );
         board.insert_object(
             Position {
                 x,
