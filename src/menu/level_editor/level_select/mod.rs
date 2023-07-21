@@ -31,9 +31,9 @@ impl Plugin for LevelEditorSelectPlugin {
         app.add_systems(
             OnExit(DisplayState::LevelEditorLevelSelect),
             (
+                delete_all_components::<LevelSelectItem>,
                 load_starting_map.run_if(exited_to_level),
                 handle_exit,
-                delete_all_components::<LevelSelectItem>,
             )
                 .chain()
         );

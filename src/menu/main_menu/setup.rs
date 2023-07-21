@@ -6,7 +6,7 @@ use super::{MainMenuItem, MenuItemType};
 
 pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
-
+    let background = asset_server.load("textures/menu_background.png");
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),
@@ -22,13 +22,25 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         })
         .insert(MainMenuItem)
+        .insert(ImageBundle {
+            style: Style {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::SpaceEvenly,
+                ..default()
+            },
+            image: background.into(),
+            ..default()
+        })
         .with_children(|parent| {
             parent.spawn(
                 TextBundle::from_section(
                     "MAIN MENU",
                     TextStyle {
                         font_size: 50.0,
-                        color: Color::WHITE,
+                        color: Color::rgba(0., 0., 0., 0.),
                         font: menu_font.clone(),
                     },
                 )
