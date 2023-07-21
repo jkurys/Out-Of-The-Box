@@ -221,13 +221,13 @@ impl Board {
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
         let mut object_opt = self.boards[map].objects.remove(&position);
         let mut object = GameObject::Empty;
-        if object_opt.is_some() {
-            object = object_opt.unwrap();
+        if let Some(obj) = object_opt {
+            object = obj;
         }
         while object_opt.is_some() {
             object_opt = self.boards[map].objects.remove(&position);
-            if object_opt.is_some() {
-                object = object_opt.unwrap();
+            if let Some(obj) = object_opt {
+                object = obj;
             }
         }
         self.boards[map]

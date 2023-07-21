@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use bevy::prelude::*;
 
 use crate::{
@@ -10,7 +8,12 @@ use crate::{
     },
 };
 
-use super::events::EnteredFloorEvent;
+use super::{events::EnteredFloorEvent, sort_positions::sort_positions};
+
+pub struct MoveData {
+    pub was_moved: bool,
+    pub was_map_saved: bool,
+}
 
 pub fn is_moveable(obj: GameObject) -> bool {
     matches!(
@@ -34,16 +37,13 @@ pub fn calc_positions_to_move_strong(
     direction: Direction,
     positions_to_move: &mut Vec<(Position, usize)>,
     moved_positions: &mut Vec<Position>,
-    positions: &Vec<Position>,
 ) -> (Position, usize) {
     let (mut next_position, mut next_map) =
         board.get_next_position_for_move(position, direction, board.get_current_map());
     positions_to_move.push((position, board.get_current_map()));
     while !moved_positions.contains(&next_position)
-        && !positions.contains(&next_position)
         && (is_moveable(board.get_object_from_map(next_position, next_map)))
     {
-        // let mut new_positions_to_move = Vec::new();
         if let GameObject::TurtleHead {
             direction: dir,
             color: _,
@@ -57,7 +57,6 @@ pub fn calc_positions_to_move_strong(
                     direction,
                     positions_to_move,
                     moved_positions,
-                    positions,
                 );
             }
         }
@@ -79,7 +78,6 @@ pub fn calc_positions_to_move_strong(
                         direction,
                         positions_to_move,
                         moved_positions,
-                        positions,
                     );
                 }
             }
@@ -92,54 +90,19 @@ pub fn calc_positions_to_move_strong(
     (next_position, next_map)
 }
 
-type SortFn = dyn FnMut(&(Position, usize), &(Position, usize)) -> Ordering;
-
-pub fn sort_positions(dir: Direction) -> Box<SortFn> {
-    Box::new(
-        move |&(pos1, _): &(Position, usize), &(pos2, _): &(Position, usize)| match dir {
-            Direction::Down => {
-                if pos1.y != pos2.y {
-                    pos1.y.cmp(&pos2.y)
-                } else {
-                    pos1.x.cmp(&pos2.x)
-                }
-            }
-            Direction::Left => {
-                if pos1.x != pos2.x {
-                    pos1.x.cmp(&pos2.x)
-                } else {
-                    pos1.y.cmp(&pos2.y)
-                }
-            }
-            Direction::Right => {
-                if pos1.x != pos2.x {
-                    pos2.x.cmp(&pos1.x)
-                } else {
-                    pos2.y.cmp(&pos1.y)
-                }
-            }
-            Direction::Up => {
-                if pos1.y != pos2.y {
-                    pos2.y.cmp(&pos1.y)
-                } else {
-                    pos2.x.cmp(&pos1.x)
-                }
-            }
-        },
-    )
-}
-
 pub fn move_strong(
     board: &mut ResMut<Board>,
     position: Position,
     direction: Direction,
     moved_positions: &mut Vec<Position>,
-    positions: &Vec<Position>,
-    was_map_saved: &mut bool,
-    was_moved: &mut bool,
+    move_data: &mut MoveData,
     writer: &mut EventWriter<EnteredFloorEvent>,
     board_states: &mut ResMut<BoardStates>,
 ) {
+    let MoveData {
+        was_map_saved,
+        was_moved: _,
+    } = move_data;
     let mut positions_to_move = Vec::new();
     let (next_position, next_map) = calc_positions_to_move_strong(
         board,
@@ -147,13 +110,12 @@ pub fn move_strong(
         direction,
         &mut positions_to_move,
         moved_positions,
-        positions,
     );
     let object_blocking = board.get_object_from_map(next_position, next_map);
     if object_blocking == GameObject::Empty {
         if !*was_map_saved {
             board_states.boards.push(board.clone());
-            *was_map_saved = true;
+            move_data.was_map_saved = true;
         }
         positions_to_move.sort_by(sort_positions(direction));
         positions_to_move.dedup();
@@ -167,7 +129,7 @@ pub fn move_strong(
                 object: board.get_object_from_map(next_position, map),
             });
             moved_positions.push(position);
-            *was_moved = true;
+            move_data.was_moved = true;
         }
     }
 }

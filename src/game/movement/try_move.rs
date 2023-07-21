@@ -8,7 +8,7 @@ use crate::{
 
 use super::{
     events::{EnteredFloorEvent, TryMoveEvent},
-    utils::{move_strong, move_weak},
+    utils::{move_strong, move_weak, MoveData},
 };
 
 pub fn try_move(
@@ -19,11 +19,9 @@ pub fn try_move(
     mut app_state: ResMut<NextState<MoveState>>,
 ) {
     let mut was_moved = false;
-    let mut was_map_saved = false;
+    let was_map_saved = false;
     let mut events = Vec::new();
-    let mut positions = Vec::new();
     for event in reader.iter() {
-        positions.push(event.position);
         events.push(event);
     }
     events.sort_by(|event1, event2| {
@@ -51,9 +49,10 @@ pub fn try_move(
                 position,
                 direction,
                 &mut moved_positions,
-                &positions,
-                &mut was_map_saved,
-                &mut was_moved,
+                &mut MoveData {
+                    was_map_saved,
+                    was_moved,
+                },
                 &mut writer,
                 &mut board_states,
             );
