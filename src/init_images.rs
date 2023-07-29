@@ -7,11 +7,6 @@ pub fn init_images(
     mut atlases: ResMut<Assets<TextureAtlas>>,
     asset_server: Res<AssetServer>,
 ) {
-    // images.goal_image = asset_server.load(GOAL_TEXTURE);
-    // images.ice_image = asset_server.load(ICE_TEXTURE);
-    // images.warp_image = asset_server.load(WARP_TEXTURE);
-    // images.tile_image = asset_server.load(TILE_TEXTURE);
-
     let wall_atlas_texture = asset_server.load(WALL_ATLAS);
     let wall_atlas = TextureAtlas::from_grid(
         wall_atlas_texture,
