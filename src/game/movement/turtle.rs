@@ -26,17 +26,22 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
                         direction: _,
                         color: _,
                     } => (),
-                    _ => writer.send(TryMoveEvent {
-                        block: Block {
-                            positions: HashSet::from([turtle_head_pos]),
-                        },
-                        direction,
-                        is_weak: false,
-                        insert_after: Some((
-                            GameObject::TurtleHead { direction, color },
-                            turtle_head_pos,
-                        )),
-                    }),
+                    _ => {
+                        writer.send(TryMoveEvent {
+                            block: Block {
+                                positions: HashSet::from([turtle_head_pos]),
+                            },
+                            direction,
+                            is_weak: false,
+                            insert_after: Some((
+                                GameObject::TurtleHead { direction, color },
+                                turtle_head_pos,
+                            )),
+                        });
+                        board.insert_block(Block {
+                            positions: HashSet::from([*turtle_pos, turtle_head_pos]),
+                        })
+                    }
                 }
             }
             let turtle_heads = board.get_all_turtle_heads();
@@ -46,7 +51,12 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
                         direction: inside_dir,
                         color: _,
                     } if inside_dir == dir => (),
-                    _ => board.delete_object(pos),
+                    _ => {
+                        board.delete_object(pos);
+                        board.delete_block(&Block {
+                            positions: HashSet::from([pos, pos.prev_position(dir)]),
+                        })
+                    }
                 }
             }
         } else {
