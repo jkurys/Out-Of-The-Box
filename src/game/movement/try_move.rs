@@ -8,7 +8,7 @@ use crate::{
 
 use super::{
     events::{EnteredFloorEvent, TryMoveEvent},
-    utils::{move_strong, move_weak, MoveData},
+    utils::{move_strong, move_weak},
 };
 
 pub fn try_move(
@@ -18,60 +18,58 @@ pub fn try_move(
     mut board_states: ResMut<BoardStates>,
     mut app_state: ResMut<NextState<MoveState>>,
 ) {
-    let mut move_data = MoveData {
-        was_map_saved: false,
-        was_moved: false,
-    };
+    let mut was_map_saved = false;
+    let mut was_moved = false;
     let mut events = Vec::new();
+    let mut ice_events = Vec::new();
+    let mut all_blocks = Vec::new();
     for event in reader.iter() {
-        events.push(event);
-    }
-    events.sort_by(|event1, event2| {
-        event1
-            .position
-            .cmp_to_other(&event2.position, event1.direction)
-    });
-    let mut moved_positions = Vec::new();
-    for &TryMoveEvent {
-        position,
-        direction,
-        is_weak,
-        insert_after,
-    } in events
-    {
-        if board.get_object_type(position) == GameObject::Empty {
-            if let Some((object, position)) = insert_after {
-                board.insert_object(position, object);
-            }
-            continue;
-        }
-        if !is_weak {
-            move_strong(
-                &mut board,
-                position,
-                direction,
-                &mut moved_positions,
-                &mut move_data,
-                &mut writer,
-                &mut board_states,
-            );
+        if event.is_weak {
+            ice_events.push(event);
+            all_blocks.push(event.block.clone());
         } else {
-            move_weak(
-                &mut board,
-                position,
-                direction,
-                &mut moved_positions,
-                &mut move_data,
-                &mut writer,
-            );
+            events.push(event);
+        }
+    }
+    // trzeba zrobic zeby ruchy rzuwiowe dzialy sie po ruchu ktory nacisnal guzik + jakis priorytet
+    // events.sort_by(|event1, event2| event1.block.cmp_to_other(&event2.block, event1.direction));
+    for TryMoveEvent {
+        block,
+        direction,
+        is_weak: _,
+        insert_after,
+    } in events.iter()
+    {
+        let can_block_move = move_strong(&mut board, block.clone(), *direction, &mut writer);
+        was_moved = was_moved || can_block_move;
+        if !was_map_saved {
+            board_states.boards.push(board.clone());
+            was_map_saved = true;
         }
         if let Some((object, position)) = insert_after {
-            if board.get_object_type(position) == GameObject::Empty {
-                board.insert_object(position, object);
+            if board.get_object_type(*position) == GameObject::Empty {
+                board.insert_object(*position, *object);
             }
         }
     }
-    if move_data.was_moved {
+    for TryMoveEvent {
+        block,
+        direction,
+        insert_after: _,
+        is_weak: _,
+    } in ice_events.iter()
+    {
+        let can_block_move = move_weak(
+            &mut board,
+            block.clone(),
+            &all_blocks,
+            *direction,
+            &mut writer,
+        );
+        was_moved = was_moved || can_block_move;
+        // no insert_after_implemented here
+    }
+    if was_moved {
         app_state.set(MoveState::Animation);
     } else {
         app_state.set(MoveState::Static);

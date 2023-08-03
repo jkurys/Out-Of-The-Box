@@ -1,6 +1,9 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 
-use crate::{board::Board, game::game_objects::GameObject};
+use crate::{
+    board::Board,
+    game::game_objects::{Block, GameObject},
+};
 
 use super::events::TryMoveEvent;
 
@@ -24,7 +27,9 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
                         color: _,
                     } => (),
                     _ => writer.send(TryMoveEvent {
-                        position: turtle_head_pos,
+                        block: Block {
+                            positions: HashSet::from([turtle_head_pos]),
+                        },
                         direction,
                         is_weak: false,
                         insert_after: Some((

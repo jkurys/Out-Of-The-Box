@@ -1,7 +1,7 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 
 use super::events::{EnteredFloorEvent, TryMoveEvent};
-use crate::game::game_objects::Floor;
+use crate::game::game_objects::{Block, Floor};
 
 pub fn handle_ice(
     mut writer: EventWriter<TryMoveEvent>,
@@ -28,7 +28,9 @@ pub fn handle_ice(
             continue;
         }
         writer.send(TryMoveEvent {
-            position,
+            block: Block {
+                positions: HashSet::from([position]),
+            },
             direction,
             is_weak: true,
             insert_after: None,

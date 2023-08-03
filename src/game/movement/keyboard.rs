@@ -1,7 +1,8 @@
 use bevy::prelude::*;
+use bevy::utils::HashSet;
 
 use crate::board::Board;
-use crate::game::game_objects::Direction;
+use crate::game::game_objects::{Block, Direction};
 use crate::state::MoveState;
 
 use super::events::TryMoveEvent;
@@ -32,7 +33,9 @@ pub fn handle_keypress(
     });
     for position in positions {
         writer.send(TryMoveEvent {
-            position,
+            block: Block {
+                positions: HashSet::from([position]),
+            },
             direction,
             is_weak: false,
             insert_after: None,

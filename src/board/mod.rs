@@ -1,13 +1,16 @@
 #[cfg(test)]
 mod tests;
 
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{
+    prelude::*,
+    utils::{HashMap, HashSet},
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{
     components::GameEntity,
     consts::{INITIAL_MAP, MAX_MAPS},
-    game::game_objects::{Direction, Floor, GameObject, Position},
+    game::game_objects::{Block, Direction, Floor, GameObject, Position},
     menu::level_editor::resources::BoardSize,
     utils::offset_coordinate,
 };
@@ -20,6 +23,7 @@ struct SingleBoard {
     goals: Vec<Position>,
     map_size: BoardSize,
     warp_positions: [Position; MAX_MAPS],
+    blocks: Vec<Block>,
 }
 
 #[derive(Resource, Debug, Clone, Serialize, Deserialize)]
@@ -42,11 +46,23 @@ impl Board {
                     height: 0,
                 },
                 warp_positions: [Position { x: 0, y: 0 }; 10],
+                blocks: Vec::new(),
             });
         }
         Board {
             current: INITIAL_MAP,
             boards,
+        }
+    }
+
+    pub fn get_block(&self, position: Position) -> Block {
+        for block in self.boards[self.current].blocks.iter() {
+            if block.contains_position(position) {
+                return block.clone();
+            }
+        }
+        Block {
+            positions: HashSet::from([position]),
         }
     }
 

@@ -1,6 +1,7 @@
 use std::{cmp::Ordering, fmt};
 
 use bevy::prelude::*;
+use bevy::utils::HashSet;
 use serde::de::{self, Unexpected, Visitor};
 use serde::{Deserialize, Deserializer, Serialize};
 
@@ -26,6 +27,20 @@ pub enum Floor {
     Goal,
     Warp(usize),
     Button(usize),
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct Block {
+    pub positions: HashSet<Position>,
+}
+
+impl Block {
+    pub fn contains_position(&self, position: Position) -> bool {
+        self.positions.contains(&position)
+    }
+    // pub fn cmp_to_other(&self, other: &Block, dir: Direction) -> Ordering {
+    //
+    // }
 }
 
 #[derive(Component)]
