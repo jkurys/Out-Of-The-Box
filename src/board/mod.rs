@@ -66,6 +66,27 @@ impl Board {
         }
     }
 
+    pub fn insert_block(&mut self, block: Block) {
+        self.boards[self.current].blocks.push(block);
+    }
+
+    pub fn delete_block(&mut self, block: &Block) {
+        self.boards[self.current].blocks = self.boards[self.current]
+            .blocks
+            .clone()
+            .into_iter()
+            .filter(|b| b != block)
+            .collect();
+    }
+
+    pub fn modify_position_in_block(&mut self, position: Position, dir: Direction) {
+        let mut block = self.get_block(position);
+        self.delete_block(&block);
+        block.positions.remove(&position);
+        block.positions.insert(position.next_position(dir));
+        self.insert_block(block);
+    }
+
     pub fn clear_entities(&mut self) {
         self.boards[self.current].entities.clear();
     }
@@ -258,6 +279,7 @@ impl Board {
                     .entities
                     .insert(position.next_position(dir), entity)
             });
+        self.modify_position_in_block(position, dir);
     }
 
     pub fn delete_object(&mut self, position: Position) {
