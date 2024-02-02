@@ -1,25 +1,25 @@
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
+use bevy::prelude::*;
+
+#[derive(Copy, Clone, PartialEq, Default, Eq, Debug, Hash, States)]
 pub enum DisplayState {
     Game,
+    #[default]
     MainMenu,
     LevelSelect,
     Victory,
+    SpriteSelect,
+    LevelEditorSelect,
+    LevelEditorLevelSelect,
+    LevelEditorInput,
+    LevelEditorBoard,
+    LevelEditorSave,
 }
 
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
-pub struct GameState(pub Option<Move>);
-
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
-pub enum Move {
-    Moving,
+#[derive(Clone, PartialEq, Eq, Debug, Hash, Default, States)]
+pub enum MoveState {
+    Animation,
+    #[default]
     Static,
+    Calculating,
+    AfterAnimationCalc,
 }
-
-impl Default for GameState {
-    fn default() -> Self {
-        GameState(Some(Move::Static))
-    }
-}
-
-#[derive(Clone, PartialEq, Eq, Debug, Hash)]
-pub struct CurrentMap(pub Option<usize>);

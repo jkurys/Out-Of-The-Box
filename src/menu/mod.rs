@@ -1,55 +1,31 @@
 use bevy::prelude::*;
 
+pub mod level_editor;
 mod level_select;
 mod main_menu;
-use crate::{exit::handle_esc, state::DisplayState, utils::delete_all_components};
+mod resources;
+mod sprite_select;
+use crate::resources::StateStack;
 
-use level_select::{handle_level_click, setup_level_select};
-use main_menu::{handle_menu_click, setup_main_menu};
-
-use self::{level_select::LevelSelectItem, main_menu::MainMenuItem};
+use self::level_editor::resources::BoardSize;
+use self::level_editor::LevelEditorPlugin;
+use self::level_select::LevelSelectPlugin;
+use self::main_menu::MainMenuPlugin;
+use self::resources::LevelNames;
+use self::sprite_select::SpriteSelectPlugin;
 
 pub struct MenusPlugin;
 
 impl Plugin for MenusPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_enter(DisplayState::MainMenu).with_system(setup_main_menu),
-        )
-        .add_system_set(SystemSet::on_resume(DisplayState::MainMenu).with_system(setup_main_menu))
-        .add_system_set(
-            SystemSet::on_update(DisplayState::MainMenu)
-                .with_system(handle_menu_click)
-                .with_system(handle_esc),
-        )
-        .add_system_set(
-            SystemSet::on_pause(DisplayState::MainMenu)
-                .with_system(delete_all_components::<MainMenuItem>),
-        )
-        .add_system_set(
-            SystemSet::on_exit(DisplayState::MainMenu)
-                .with_system(delete_all_components::<MainMenuItem>),
-        );
+        app.add_plugins(SpriteSelectPlugin);
+        app.add_plugins(LevelSelectPlugin);
+        app.add_plugins(MainMenuPlugin);
+        app.add_plugins(LevelEditorPlugin);
 
-        app.add_system_set(
-            SystemSet::on_enter(DisplayState::LevelSelect).with_system(setup_level_select),
-        )
-        .add_system_set(
-            SystemSet::on_resume(DisplayState::LevelSelect).with_system(setup_level_select),
-        )
-        .add_system_set(
-            SystemSet::on_update(DisplayState::LevelSelect)
-                .with_system(handle_level_click)
-                .with_system(handle_esc),
-        )
-        .add_system_set(
-            SystemSet::on_exit(DisplayState::LevelSelect)
-                .with_system(delete_all_components::<LevelSelectItem>),
-        )
-        .add_system_set(
-            SystemSet::on_pause(DisplayState::LevelSelect)
-                .with_system(delete_all_components::<LevelSelectItem>),
-        );
+        app.init_resource::<StateStack>();
+        app.insert_resource(LevelNames(Vec::new()));
+        app.init_resource::<BoardSize>();
     }
 }
 
@@ -60,10 +36,8 @@ where
     parent
         .spawn(ButtonBundle {
             style: Style {
-                size: Size {
-                    width: Val::Percent(10.0),
-                    height: Val::Px(30.0),
-                },
+                width: Val::Percent(10.0),
+                height: Val::Px(30.0),
                 flex_direction: FlexDirection::ColumnReverse,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,
@@ -82,10 +56,7 @@ where
                         font: menu_font,
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
         });
 }

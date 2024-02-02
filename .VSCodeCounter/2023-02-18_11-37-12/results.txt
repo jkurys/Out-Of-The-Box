@@ -1,0 +1,62 @@
+Date : 2023-02-18 11:37:12
+Directory : c:\Users\morta\out_of_the_box\Out-Of-The-Box\src
+Total : 32 files,  2571 codes, 68 comments, 217 blanks, all 2856 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Rust     |         32 |      2,571 |         68 |        217 |      2,856 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                   |         32 |      2,571 |         68 |        217 |      2,856 |
+| . (Files)                                                                           |          7 |        200 |          8 |         29 |        237 |
+| game                                                                                |         19 |      1,449 |         47 |        141 |      1,637 |
+| game (Files)                                                                        |          6 |        656 |         28 |         77 |        761 |
+| game\display                                                                        |          3 |        394 |          9 |         21 |        424 |
+| game\movement                                                                       |         10 |        399 |         10 |         43 |        452 |
+| menu                                                                                |          6 |        922 |         13 |         47 |        982 |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                            | language | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\consts.rs                          | Rust     |         40 |          8 |          7 |         55 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\exit.rs                            | Rust     |         16 |          0 |          3 |         19 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\display\background.rs         | Rust     |        231 |          7 |          7 |        245 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\display\mod.rs                | Rust     |         76 |          2 |         10 |         88 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\display\text.rs               | Rust     |         87 |          0 |          4 |         91 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\game_objects.rs               | Rust     |        120 |         28 |         19 |        167 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\maps.rs                       | Rust     |         90 |          0 |          5 |         95 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\mod.rs                        | Rust     |         97 |          0 |         12 |        109 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\animation.rs         | Rust     |         90 |          3 |          7 |        100 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\button.rs            | Rust     |         23 |          0 |          4 |         27 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\consts.rs            | Rust     |          3 |          0 |          1 |          4 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\events.rs            | Rust     |         14 |          0 |          3 |         17 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\ice.rs               | Rust     |         79 |          5 |          3 |         87 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\keyboard.rs          | Rust     |         49 |          1 |          4 |         54 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\mod.rs               | Rust     |         85 |          0 |         11 |         96 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\position_updating.rs | Rust     |         20 |          1 |          4 |         25 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\resources.rs         | Rust     |          3 |          0 |          2 |          5 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\movement\warp.rs              | Rust     |         33 |          0 |          4 |         37 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\resources.rs                  | Rust     |        191 |          0 |         29 |        220 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\restart.rs                    | Rust     |         42 |          0 |          3 |         45 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\game\victory.rs                    | Rust     |        116 |          0 |          9 |        125 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\labels.rs                          | Rust     |          7 |          0 |          2 |          9 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\main.rs                            | Rust     |         45 |          0 |          4 |         49 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\menu\level_editor.rs               | Rust     |        362 |         11 |         13 |        386 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\menu\level_select.rs               | Rust     |        122 |          0 |          8 |        130 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\menu\main_menu.rs                  | Rust     |        106 |          0 |          7 |        113 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\menu\mod.rs                        | Rust     |        165 |          0 |          9 |        174 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\menu\resources.rs                  | Rust     |         17 |          2 |          6 |         25 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\menu\sprite_select.rs              | Rust     |        150 |          0 |          4 |        154 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\resources.rs                       | Rust     |         59 |          0 |          6 |         65 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\state.rs                           | Rust     |         24 |          0 |          5 |         29 |
+| c:\Users\morta\out_of_the_box\Out-Of-The-Box\src\utils.rs                           | Rust     |          9 |          0 |          2 |         11 |
+| Total                                                                               |          |      2,571 |         68 |        217 |      2,856 |
++-------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

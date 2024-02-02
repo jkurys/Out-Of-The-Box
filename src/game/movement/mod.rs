@@ -1,100 +1,80 @@
 use crate::{
     consts::MOVE_ANIMATION_TIME,
-    labels::Labels,
-    state::{GameState, Move},
+    state::{DisplayState, MoveState},
 };
 use bevy::prelude::*;
 
-use animation::{end_animation, move_animation};
-use events::MoveEvent;
 use ice::handle_ice;
 use keyboard::handle_keypress;
-use position_updating::handle_move;
 use warp::handle_warp;
 
 use crate::game::game_objects::{Box, Player};
 
-use super::display::{
-    background::{render_board, render_border},
-    despawn_board,
+use self::{
+    animation::GameAnimationPlugin,
+    button::handle_button,
+    end_move::end_move,
+    events::{EnteredFloorEvent, TryMoveEvent},
+    resources::AnimationTimer,
+    turtle::handle_turtle,
 };
 
-use resources::{AnimationTimer, MovementData};
-
 mod animation;
+mod button;
 pub mod consts;
+mod end_move;
 mod events;
 mod ice;
 mod keyboard;
-mod position_updating;
 pub mod resources;
+mod try_move;
+mod turtle;
+mod utils;
 mod warp;
+mod sort_positions;
 
-pub type MovableInQuery = Or<(With<Box>, With<Player>)>;
+use crate::game::movement::try_move::try_move;
+
+use super::game_objects::Turtle;
+
+pub type MovableInQuery = Or<(With<Box>, With<Player>, With<Turtle>)>;
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_update(GameState(Some(Move::Moving)))
-                .with_system(handle_move.before(move_animation))
-                .with_system(move_animation.before(handle_warp).before(handle_ice))
-                .with_system(handle_warp.before(despawn_board))
-                .with_system(handle_ice.before(despawn_board)) //otherwise it could ignore the positions_on_ice and end the animation
-                .with_system(despawn_board.before(render_board).before(render_border))
-                .with_system(render_board.before(continue_animation))
-                .with_system(render_border.before(continue_animation))
-                .with_system(continue_animation),
-        )
-        .add_system_set(
-            SystemSet::on_exit(GameState(Some(Move::Moving))).with_system(end_animation),
+        app.add_plugins(GameAnimationPlugin);
+        app.add_systems(
+            Update,
+            handle_keypress
+                .run_if(is_in_game)
+                .run_if(in_state(MoveState::Static)),
         );
 
-        app.add_system_set(
-            SystemSet::on_update(GameState(Some(Move::Static)))
-                .label(Labels::Movement)
-                .with_system(handle_keypress),
+        app.add_systems(
+            Update,
+            (try_move, handle_warp)
+                .run_if(is_in_game)
+                .run_if(in_state(MoveState::Calculating))
+                .chain(),
         );
-        app.add_event::<MoveEvent>();
+
+        app.add_systems(
+            Update,
+            (handle_button, handle_turtle, handle_ice, end_move)
+                .run_if(is_in_game)
+                .run_if(in_state(MoveState::AfterAnimationCalc))
+                .chain(),
+        );
+
+        app.add_event::<TryMoveEvent>();
+        app.init_resource::<Events<EnteredFloorEvent>>();
         app.insert_resource(AnimationTimer(Timer::from_seconds(
             MOVE_ANIMATION_TIME,
             TimerMode::Once,
         )));
-        app.insert_resource(MovementData {
-            positions_on_ice: None,
-            moved_positions: Vec::new(),
-            direction: None,
-            is_on_ice: false,
-        });
     }
 }
 
-fn continue_animation(
-    mut movement_data: ResMut<MovementData>,
-    mut app_state: ResMut<State<GameState>>,
-    mut writer: EventWriter<MoveEvent>,
-    mut timer: ResMut<AnimationTimer>,
-) {
-    if !timer.0.finished() {
-        return;
-    }
-    let positions = movement_data.positions_on_ice.clone();
-    if positions.is_none() {
-        return;
-    }
-    let positions = positions.unwrap();
-    if !positions.is_empty() {
-        writer.send(MoveEvent {
-            direction: movement_data.direction.expect("Movement missing direction"),
-            positions, //this vector has less than 20 entries
-        });
-        movement_data.direction = None;
-        movement_data.moved_positions.clear();
-        movement_data.positions_on_ice = None;
-        timer.0.reset();
-    } else {
-        app_state
-            .set(GameState(Some(Move::Static)))
-            .expect("Could not correctly finish movement animation");
-    }
+pub fn is_in_game(display_state: Res<State<DisplayState>>) -> bool {
+    display_state.get() == &DisplayState::Game
 }

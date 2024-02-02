@@ -14,13 +14,11 @@ pub fn display_level_text(
     let current_level = current_level.level_number;
     commands
         .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::GRAY),
-            visibility: Visibility { is_visible: true },
+            background_color: Color::rgba(0.5, 0.5, 0.5, 0.3).into(),
+            visibility: Visibility::Visible,
             style: Style {
-                size: Size {
-                    width: Val::Percent(100.0),
-                    height: Val::Px(100.0),
-                },
+                width: Val::Percent(100.0),
+                height: Val::Px(100.0),
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,
@@ -39,10 +37,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Right,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -53,10 +48,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Right,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -67,10 +59,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Right,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -81,10 +70,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Right,
-                }),
+                .with_text_alignment(TextAlignment::Center),
             );
         });
 }

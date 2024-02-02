@@ -1,11 +1,11 @@
-use self::resources::{Board, BoardStates, VictoryTimer};
+use self::resources::{BoardStates, VictoryTimer};
+use crate::board::Board;
 use crate::consts::MOVE_ANIMATION_TIME;
 use crate::exit::handle_esc;
 use crate::utils::delete_all_components;
 use crate::{
     consts::INITIAL_MAP,
-    labels::Labels,
-    state::{CurrentMap, DisplayState, GameState, Move},
+    state::{DisplayState, MoveState},
 };
 use bevy::prelude::*;
 use maps::load_starting_map;
@@ -16,7 +16,7 @@ use self::victory::VictoryItem;
 
 pub mod display;
 pub mod game_objects;
-mod maps;
+pub mod maps;
 pub mod movement;
 mod resources;
 mod restart;
@@ -29,38 +29,27 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_enter(DisplayState::Game)
-                .with_system(load_starting_map)
-                .with_system(set_game_state),
-        );
-        app.add_system_set(
-            SystemSet::on_update(DisplayState::Game)
-                .with_system(handle_esc)
-                .with_system(handle_win),
-        );
+        app.add_systems(
+            OnEnter(DisplayState::Game),
+            (load_starting_map, set_game_state),
+        )
+        .add_systems(
+            Update,
+            (handle_esc, handle_undo, handle_win, handle_restart)
+                .run_if(in_state(DisplayState::Game)),
+        )
+        .add_systems(OnExit(DisplayState::Game), clear_board);
 
-        app.add_system_set(
-            SystemSet::on_exit(DisplayState::Game)
-                .label(Labels::ExitGame)
-                .with_system(reset_game_state)
-                .with_system(clear_board),
-        );
-
-        app.add_system_set(SystemSet::on_enter(DisplayState::Victory).with_system(setup_win))
-            .add_system_set(
-                SystemSet::on_update(DisplayState::Victory).with_system(handle_win_click),
+        app.add_systems(OnEnter(DisplayState::Victory), setup_win)
+            .add_systems(
+                Update,
+                handle_win_click.run_if(in_state(DisplayState::Victory)),
             )
-            .add_system_set(
-                SystemSet::on_exit(DisplayState::Victory)
-                    .with_system(delete_all_components::<VictoryItem>),
+            .add_systems(
+                OnExit(DisplayState::Victory),
+                delete_all_components::<VictoryItem>,
             );
 
-        app.add_system_set(
-            SystemSet::on_update(GameState(Some(Move::Static)))
-                .with_system(handle_restart)
-                .with_system(handle_undo),
-        );
         app.insert_resource(Board::new())
             .insert_resource(BoardStates { boards: Vec::new() });
         app.insert_resource(VictoryTimer(Timer::from_seconds(
@@ -70,36 +59,9 @@ impl Plugin for GamePlugin {
     }
 }
 
-fn set_game_state(
-    mut game_state: ResMut<State<GameState>>,
-    mut current_map: ResMut<State<CurrentMap>>,
-) {
-    if game_state.current() != &GameState(Some(Move::Static)) {
-        game_state
-            .set(GameState(Some(Move::Static)))
-            .expect("Could not set static game state");
-    }
-    if current_map.current() != &CurrentMap(Some(INITIAL_MAP)) {
-        current_map
-            .set(CurrentMap(Some(INITIAL_MAP)))
-            .expect("Could not set initial map");
-    }
-}
-
-pub fn reset_game_state(
-    mut game_state: ResMut<State<GameState>>,
-    mut current_map: ResMut<State<CurrentMap>>,
-) {
-    if game_state.current() != &GameState(None) {
-        game_state
-            .overwrite_set(GameState(None))
-            .expect("Could not reset game state");
-    }
-    if current_map.current() != &CurrentMap(None) {
-        current_map
-            .overwrite_set(CurrentMap(None))
-            .expect("Could not reset game state");
-    }
+fn set_game_state(mut game_state: ResMut<NextState<MoveState>>, mut board: ResMut<Board>) {
+    game_state.set(MoveState::Static);
+    board.set_current_map(INITIAL_MAP);
 }
 
 pub fn clear_board(mut board: ResMut<Board>, mut boards: ResMut<BoardStates>) {
