@@ -5,7 +5,7 @@ use crate::{
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
 };
 
-use super::{events::EnteredFloorEvent, sort_positions::sort_positions};
+use super::{sort_positions::sort_positions, resources::{MoveData, MoveObject}};
 
 pub fn is_moveable(obj: GameObject) -> bool {
     matches!(
@@ -124,7 +124,7 @@ fn perform_move(
     blocks: Vec<Block>,
     board: &mut ResMut<Board>,
     direction: Direction,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    move_data: &mut ResMut<MoveData>,
 ) {
     let mut positions_vec: Vec<(Position, usize)> = blocks
         .iter()
@@ -140,7 +140,7 @@ fn perform_move(
         let map = board.get_current_map();
         board.move_object(position, direction, map);
         let next_position = board.get_next_position_for_move(position, direction, map).0;
-        writer.send(EnteredFloorEvent {
+        move_data.moves.push(MoveObject {
             floor: board.get_floor_type(next_position),
             position: next_position,
             object: board.get_object_type(next_position),
@@ -153,13 +153,13 @@ pub fn move_strong(
     board: &mut ResMut<Board>,
     block: Block,
     direction: Direction,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    move_data: &mut ResMut<MoveData>,
 ) -> bool {
     let mut next_blocks = vec![block.clone()];
     if !can_block_move(board, block, direction, &mut next_blocks) {
         return false;
     }
-    perform_move(next_blocks, board, direction, writer);
+    perform_move(next_blocks, board, direction, move_data);
     return true;
 }
 
@@ -168,7 +168,7 @@ pub fn move_weak(
     block: Block,
     all_blocks: &Vec<Block>,
     direction: Direction,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    move_data: &mut ResMut<MoveData>,
 ) -> bool {
     let mut next_blocks = Vec::new();
     let mut blocks_that_must_move = Vec::new();
@@ -180,176 +180,10 @@ pub fn move_weak(
         &mut next_blocks,
         &mut blocks_that_must_move,
     );
-    perform_move(blocks_that_must_move, board, direction, writer);
+    perform_move(blocks_that_must_move, board, direction, move_data);
     if !can_block_move {
         return false;
     }
-    perform_move(next_blocks, board, direction, writer);
+    perform_move(next_blocks, board, direction, move_data);
     return true;
 }
-// pub fn calc_positions_to_move_strong(
-//     board: &mut ResMut<Board>,
-//     mut position_before_move: Position,
-//     direction: Direction,
-//     next_move_positions: &mut Vec<(Position, usize)>,
-//     moved_positions: &mut Vec<Position>,
-// ) -> (Position, usize) {
-//     let (mut next_position, mut next_map) =
-//         board.get_next_position_for_move(position_before_move, direction, board.get_current_map());
-//     next_move_positions.push((position_before_move, board.get_current_map()));
-//     while !moved_positions.contains(&next_position)
-//         && (is_moveable(board.get_object_from_map(next_position, next_map)))
-//     {
-//         if let GameObject::TurtleHead {
-//             direction: turtle_head_direction,
-//             color: _,
-//         } = board.get_object_type(next_position)
-//         {
-//             if turtle_head_direction != direction && turtle_head_direction.opposite() != direction {
-//                 let body_position = next_position.prev_position(turtle_head_direction);
-//                 calc_positions_to_move_strong(
-//                     board,
-//                     body_position,
-//                     direction,
-//                     next_move_positions,
-//                     moved_positions,
-//                 );
-//             }
-//         }
-//         if let GameObject::Turtle {
-//             direction: turtle_direction,
-//             color: _,
-//         } = board.get_object_type(next_position)
-//         {
-//             if turtle_direction != direction && turtle_direction.opposite() != direction {
-//                 let head_position = next_position.next_position(turtle_direction);
-//                 if let GameObject::TurtleHead {
-//                     direction: _,
-//                     color: _,
-//                 } = board.get_object_type(head_position)
-//                 {
-//                     calc_positions_to_move_strong(
-//                         board,
-//                         head_position,
-//                         direction,
-//                         next_move_positions,
-//                         moved_positions,
-//                     );
-//                 }
-//             }
-//         }
-//         position_before_move = next_position;
-//         next_move_positions.push((position_before_move, next_map));
-//         (next_position, next_map) =
-//             board.get_next_position_for_move(next_position, direction, next_map);
-//     }
-//     (next_position, next_map)
-// }
-//
-// pub fn move_strong(
-//     board: &mut ResMut<Board>,
-//     block: Block,
-//     direction: Direction,
-//     moved_positions: &mut Vec<Position>,
-//     was_moved: &mut bool,
-//     writer: &mut EventWriter<EnteredFloorEvent>,
-// ) {
-//     let mut next_move_positions = Vec::new();
-//     let (next_position, next_map) = calc_positions_to_move_strong(
-//         board,
-//         position_before_move,
-//         direction,
-//         &mut next_move_positions,
-//         moved_positions,
-//     );
-//     let object_blocking = board.get_object_from_map(next_position, next_map);
-//     if object_blocking == GameObject::Empty {
-//         next_move_positions.sort_by(sort_positions(direction));
-//         next_move_positions.dedup();
-//         for (position, map) in next_move_positions {
-//             board.move_object(position, direction, map);
-//             let next_position = position.next_position(direction);
-//             writer.send(EnteredFloorEvent {
-//                 floor: board.get_floor_from_map(next_position, map),
-//                 position: next_position,
-//                 direction,
-//                 object: board.get_object_from_map(next_position, map),
-//             });
-//             moved_positions.push(position);
-//             *was_moved = true;
-//         }
-//     }
-// }
-//
-// pub fn move_weak(
-//     board: &mut ResMut<Board>,
-//     block: Block,
-//     direction: Direction,
-//     moved_positions: &mut Vec<Position>,
-//     was_moved: &mut bool,
-//     writer: &mut EventWriter<EnteredFloorEvent>,
-// ) {
-//     let mut can_block_move = false;
-//     // for position in block.positions.iter() {
-//     let mut position_to_move = (position, board.get_current_map());
-//     let (mut next_position, mut next_map) =
-//         board.get_next_position_for_move(position, direction, board.get_current_map());
-//     // if let GameObject::TurtleHead {
-//     //     direction: dir,
-//     //     color: _,
-//     // } = board.get_object_type(next_position)
-//     // {
-//     //     let body_position = next_position.prev_position(dir);
-//     //     move_weak(
-//     //         board,
-//     //         body_position,
-//     //         direction,
-//     //         moved_positions,
-//     //         was_moved,
-//     //         writer,
-//     //     );
-//     // }
-//     // if let GameObject::Turtle {
-//     //     direction: dir,
-//     //     color: _,
-//     // } = board.get_object_type(next_position)
-//     // {
-//     //     let head_position = next_position.next_position(dir);
-//     //     move_weak(
-//     //         board,
-//     //         head_position,
-//     //         direction,
-//     //         moved_positions,
-//     //         was_moved,
-//     //         writer,
-//     //     );
-//     // }
-//     let mut can_move = true;
-//     while !moved_positions.contains(&next_position)
-//         && is_moveable(board.get_object_from_map(next_position, next_map))
-//     {
-//         if board.get_floor_from_map(next_position, next_map) != Floor::Ice {
-//             can_move = false;
-//         }
-//         position = next_position;
-//         position_to_move = (position, next_map);
-//         (next_position, next_map) =
-//             board.get_next_position_for_move(next_position, direction, next_map);
-//     }
-//     let object_blocking = board.get_object_from_map(next_position, next_map);
-//     if can_move
-//         && (moved_positions.contains(&next_position) || object_blocking == GameObject::Empty)
-//     {
-//         let map = position_to_move.1;
-//         board.move_object(position, direction, map);
-//         let next_position = position.next_position(direction);
-//         writer.send(EnteredFloorEvent {
-//             floor: board.get_floor_from_map(next_position, map),
-//             position: next_position,
-//             direction,
-//             object: board.get_object_from_map(next_position, map),
-//         });
-//         *was_moved = true;
-//         moved_positions.push(position_to_move.0);
-//     }
-// }

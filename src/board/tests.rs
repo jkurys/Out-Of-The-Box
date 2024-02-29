@@ -17,3 +17,8 @@ pub fn insert_does_nothing_outside_borders() {
     board.insert_object(pos1, GameObject::Box);
     assert_eq!(board.get_object_type(pos1), GameObject::Empty);
 }
+
+#[test]
+pub fn basic_test() {
+    assert_eq!(15, 10 + 5);
+}

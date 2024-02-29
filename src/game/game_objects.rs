@@ -206,12 +206,12 @@ impl Direction {
             Direction::Up => 3,
         }
     }
-    pub fn opposite(&self) -> Self {
-        match &self {
-            Direction::Down => Direction::Up,
-            Direction::Up => Direction::Down,
-            Direction::Left => Direction::Right,
-            Direction::Right => Direction::Left,
-        }
-    }
+    // pub fn opposite(&self) -> Self {
+    //     match &self {
+    //         Direction::Down => Direction::Up,
+    //         Direction::Up => Direction::Down,
+    //         Direction::Left => Direction::Right,
+    //         Direction::Right => Direction::Left,
+    //     }
+    // }
 }

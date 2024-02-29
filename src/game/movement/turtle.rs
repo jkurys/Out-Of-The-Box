@@ -5,9 +5,10 @@ use crate::{
     game::game_objects::{Block, GameObject},
 };
 
-use super::events::TryMoveEvent;
+// use super::events::TryMoveEvent;
+use super::resources::*;
 
-pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEvent>) {
+pub fn handle_turtle(mut board: ResMut<Board>, mut moves: ResMut<MoveData> /* mut writer: EventWriter<TryMoveEvent> */) {
     let buttons = board.get_all_buttons();
     let mut is_clicked = false;
     let turtles = board.get_all_turtles();
@@ -27,7 +28,18 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut writer: EventWriter<TryMoveEv
                         color: _,
                     } => (),
                     _ => {
-                        writer.send(TryMoveEvent {
+                        // writer.send(TryMoveEvent {
+                        //     block: Block {
+                        //         positions: HashSet::from([turtle_head_pos]),
+                        //     },
+                        //     direction,
+                        //     is_weak: false,
+                        //     insert_after: Some((
+                        //         GameObject::TurtleHead { direction, color },
+                        //         turtle_head_pos,
+                        //     )),
+                        // });
+                        moves.push_atempts.push(PushAttempt {
                             block: Block {
                                 positions: HashSet::from([turtle_head_pos]),
                             },

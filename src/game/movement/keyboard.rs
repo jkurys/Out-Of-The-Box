@@ -6,11 +6,13 @@ use crate::game::game_objects::{Block, Direction};
 use crate::state::MoveState;
 
 use super::events::TryMoveEvent;
+use super::resources::{MoveData, PushAttempt};
 
 pub fn handle_keypress(
     keyboard_input: ResMut<Input<KeyCode>>,
     board: Res<Board>,
-    mut writer: EventWriter<TryMoveEvent>,
+    // mut writer: EventWriter<TryMoveEvent>,
+    mut move_data: ResMut<MoveData>,
     mut app_state: ResMut<NextState<MoveState>>,
 ) {
     let direction = if keyboard_input.any_pressed([KeyCode::Up, KeyCode::W]) {
@@ -32,7 +34,7 @@ pub fn handle_keypress(
         Direction::Up => pos2.y.cmp(&pos1.y),
     });
     for position in positions {
-        writer.send(TryMoveEvent {
+        move_data.push_atempts.push(PushAttempt {
             block: Block {
                 positions: HashSet::from([position]),
             },

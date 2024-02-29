@@ -1,7 +1,21 @@
 use bevy::prelude::*;
 
 use crate::consts::*;
-use crate::game::game_objects::*;
+use crate::game::game_objects::{
+    Player,
+    HiddenWall,
+    Turtle,
+    Button,
+    Background,
+    Position,
+    Wall,
+    Box,
+    GameObject,
+    Floor,
+    Ice,
+    Goal,
+    Warp
+};
 use crate::resources::{CurrentSprite, Images};
 
 use crate::board::Board;

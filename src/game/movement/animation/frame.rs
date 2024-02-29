@@ -9,7 +9,7 @@ use crate::{
         movement::{
             consts::{INTERVAL_DISTANCE_1, SPEED_1, TIME_INTERVAL_1},
             events::EnteredFloorEvent,
-            resources::AnimationTimer,
+            resources::*,
             MovableInQuery,
         },
     },
@@ -56,12 +56,12 @@ fn modify_transform(
 }
 pub fn move_event(
     board: &Res<Board>,
-    event: &EnteredFloorEvent,
+    mov: &MoveObject,
     query: &mut Query<&mut Transform, MovableInQuery>,
     timer: &mut ResMut<AnimationTimer>,
 ) {
-    let (position, direction) = (event.position, event.direction);
-    let entity_opt = board.get_entities(event.position);
+    let (position, direction) = (mov.position, mov.direction);
+    let entity_opt = board.get_entities(mov.position);
     if let Some([higher_entities, lower_entities]) = entity_opt {
         for &higher_entity in higher_entities.iter() {
             let higher_transform = query
@@ -71,7 +71,7 @@ pub fn move_event(
                 position.x as f32 * TILE_SIZE,
                 (position.y as f32 + 0.24) * TILE_SIZE,
             );
-            modify_transform(higher_transform, direction, timer, x, y, event.floor);
+            modify_transform(higher_transform, direction, timer, x, y, mov.floor);
         }
         for &lower_entity in lower_entities.iter() {
             let lower_transform = query.get_mut(lower_entity).expect("Moved entity not found");
@@ -79,29 +79,22 @@ pub fn move_event(
                 position.x as f32 * TILE_SIZE,
                 (position.y as f32 - 0.375) * TILE_SIZE,
             );
-            modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
+            modify_transform(lower_transform, direction, timer, x2, y2, mov.floor);
         }
     }
 }
 
 pub fn move_animation(
     time: Res<Time>,
-    mut moved: EventReader<EnteredFloorEvent>,
+    // mut moved: EventReader<EnteredFloorEvent>,
+    moves: ResMut<MoveData>,
     mut query: Query<&mut Transform, MovableInQuery>,
     mut timer: ResMut<AnimationTimer>,
     board: Res<Board>,
-    mut events: Local<Vec<EnteredFloorEvent>>,
+    // mut events: Local<Vec<EnteredFloorEvent>>,
 ) {
     timer.0.tick(time.delta());
-    if !moved.is_empty() {
-        events.clear();
-        for event in moved.iter() {
-            move_event(&board, event, &mut query, &mut timer);
-            events.push(*event);
-        }
-    } else {
-        for event in &events {
-            move_event(&board, event, &mut query, &mut timer);
-        }
+    for mov in moves.moves.iter() {
+        move_event(&board, mov, &mut query, &mut timer);
     }
 }

@@ -1,33 +1,33 @@
 use bevy::{prelude::*, utils::HashSet};
 
-use super::events::{EnteredFloorEvent, TryMoveEvent};
+use super::resources::{MoveData, MoveObject, PushAttempt};
 use crate::game::game_objects::{Block, Floor};
 
 pub fn handle_ice(
-    mut writer: EventWriter<TryMoveEvent>,
-    mut position_reader: EventReader<EnteredFloorEvent>,
+    // mut writer: EventWriter<TryMoveEvent>,
+    // mut position_reader: EventReader<EnteredFloorEvent>,
+    mut move_data: ResMut<MoveData>
 ) {
-    let mut events = Vec::new();
     let mut positions = Vec::new();
-    for event in position_reader.iter() {
-        positions.push(event.position);
-        events.push(event);
+    for mov in move_data.moves.iter() {
+        positions.push(mov.position);
     }
-    events.sort_by(|event1, event2| {
-        event1
+    move_data.moves.sort_by(|mov1, mov2| {
+        mov1
             .position
-            .cmp_to_other(&event2.position, event1.direction)
+            .cmp_to_other(&mov2.position, mov1.direction)
     });
-    for event in events.iter() {
-        let &&EnteredFloorEvent {
+    for mov in move_data.moves.clone().iter() {
+        let &MoveObject {
             position,
             direction,
+            floor,
             ..
-        } = event;
-        if event.floor != Floor::Ice {
+        } = mov;
+        if floor != Floor::Ice {
             continue;
         }
-        writer.send(TryMoveEvent {
+        move_data.push_atempts.push(PushAttempt {
             block: Block {
                 positions: HashSet::from([position]),
             },
@@ -36,4 +36,5 @@ pub fn handle_ice(
             insert_after: None,
         });
     }
+    move_data.moves.clear();
 }
