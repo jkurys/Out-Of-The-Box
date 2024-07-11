@@ -57,7 +57,9 @@ impl Board {
 
     pub fn get_block(&self, position: Position) -> Block {
         for block in self.boards[self.current].blocks.iter() {
-            if block.contains_position(position) {
+            if block.contains_position(position)
+                && self.get_object_type(position) != GameObject::Empty
+            {
                 return block.clone();
             }
         }
@@ -65,9 +67,19 @@ impl Board {
             positions: HashSet::from([position]),
         }
     }
+    pub fn is_block_empty(&self, block: &Block) -> bool {
+        for &position in block.positions.iter() {
+            if self.get_object_type(position) != GameObject::Empty {
+                return false;
+            }
+        }
+        true
+    }
 
     pub fn insert_block(&mut self, block: Block) {
-        self.boards[self.current].blocks.push(block);
+        if !self.is_block_empty(&block) {
+            self.boards[self.current].blocks.push(block);
+        }
     }
 
     pub fn delete_block(&mut self, block: &Block) {
@@ -76,6 +88,7 @@ impl Board {
             .clone()
             .into_iter()
             .filter(|b| b != block)
+            .filter(|b| !self.is_block_empty(b))
             .collect();
     }
 
@@ -84,7 +97,9 @@ impl Board {
         self.delete_block(&block);
         block.positions.remove(&position);
         block.positions.insert(position.next_position(dir));
-        self.insert_block(block);
+        if !self.is_block_empty(&block) {
+            self.insert_block(block);
+        }
     }
 
     pub fn clear_entities(&mut self) {
@@ -236,6 +251,17 @@ impl Board {
             .insert(position, entities);
     }
 
+    pub fn append_entities(&mut self, position: Position, mut entities: [Vec<Entity>; 2]) {
+        let empty_entities = &mut [Vec::new(), Vec::new()];
+        let old_entities = self.boards[self.current]
+            .entities
+            .get_mut(&position)
+            .unwrap_or(empty_entities);
+
+        old_entities[0].append(&mut entities[0]);
+        old_entities[1].append(&mut entities[1]);
+    }
+
     pub fn insert_floor(&mut self, position: Position, floor: Floor) {
         self.insert_floor_to_map(position, floor, self.current);
     }
@@ -256,6 +282,7 @@ impl Board {
     }
 
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
+        self.modify_position_in_block(position, dir);
         let mut object_opt = self.boards[map].objects.remove(&position);
         let mut object = GameObject::Empty;
         if let Some(obj) = object_opt {
@@ -279,7 +306,6 @@ impl Board {
                     .entities
                     .insert(position.next_position(dir), entity)
             });
-        self.modify_position_in_block(position, dir);
     }
 
     pub fn delete_object(&mut self, position: Position) {
@@ -323,6 +349,7 @@ impl Board {
             self.boards[map].objects.clear();
             self.boards[map].floors.clear();
             self.boards[map].goals.clear();
+            self.boards[map].blocks.clear();
         }
     }
 

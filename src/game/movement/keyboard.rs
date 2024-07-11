@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::utils::HashSet;
+use itertools::Itertools;
 
 use crate::board::Board;
 use crate::game::game_objects::{Block, Direction};
@@ -31,14 +31,16 @@ pub fn handle_keypress(
         Direction::Right => pos2.x.cmp(&pos1.x),
         Direction::Up => pos2.y.cmp(&pos1.y),
     });
-    for position in positions {
+    let blocks: Vec<Block> = positions
+        .into_iter()
+        .map(|p| board.get_block(p))
+        .unique()
+        .collect();
+    for block in blocks {
         writer.send(TryMoveEvent {
-            block: Block {
-                positions: HashSet::from([position]),
-            },
+            block,
             direction,
             is_weak: false,
-            insert_after: None,
         });
     }
     app_state.set(MoveState::Calculating);

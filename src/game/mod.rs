@@ -22,7 +22,7 @@ mod resources;
 mod restart;
 mod victory;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct GameItem;
 
 pub struct GamePlugin;

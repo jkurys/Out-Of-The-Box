@@ -39,6 +39,7 @@ fn modify_transform(
     } else {
         animation_weight(timer.0.percent())
     };
+    // let distance = timer.0.percent();
     match direction {
         Direction::Down => {
             transform.translation.y = starting_y - (distance - 1.) * TILE_SIZE;
@@ -64,22 +65,22 @@ pub fn move_event(
     let entity_opt = board.get_entities(event.position);
     if let Some([higher_entities, lower_entities]) = entity_opt {
         for &higher_entity in higher_entities.iter() {
-            let higher_transform = query
-                .get_mut(higher_entity)
-                .expect("Moved entity not found");
-            let (x, y) = (
-                position.x as f32 * TILE_SIZE,
-                (position.y as f32 + 0.24) * TILE_SIZE,
-            );
-            modify_transform(higher_transform, direction, timer, x, y, event.floor);
+            if let Ok(higher_transform) = query.get_mut(higher_entity) {
+                let (x, y) = (
+                    position.x as f32 * TILE_SIZE,
+                    (position.y as f32 + 0.24) * TILE_SIZE,
+                );
+                modify_transform(higher_transform, direction, timer, x, y, event.floor);
+            }
         }
         for &lower_entity in lower_entities.iter() {
-            let lower_transform = query.get_mut(lower_entity).expect("Moved entity not found");
-            let (x2, y2) = (
-                position.x as f32 * TILE_SIZE,
-                (position.y as f32 - 0.375) * TILE_SIZE,
-            );
-            modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
+            if let Ok(lower_transform) = query.get_mut(lower_entity) {
+                let (x2, y2) = (
+                    position.x as f32 * TILE_SIZE,
+                    (position.y as f32 - 0.375) * TILE_SIZE,
+                );
+                modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
+            }
         }
     }
 }

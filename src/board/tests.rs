@@ -5,7 +5,7 @@ use crate::{
 };
 
 #[test]
-pub fn insert_does_nothing_outside_borders() {
+pub fn insert_do_nothing_outside_borders() {
     let mut board = Board::new();
     board.set_map_size(BoardSize {
         width: 11,

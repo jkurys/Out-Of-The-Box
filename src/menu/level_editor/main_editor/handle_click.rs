@@ -1,10 +1,10 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, utils::HashSet, window::PrimaryWindow};
 
 use crate::{
     board::Board,
     components::GameEntity,
     consts::TILE_SIZE,
-    game::game_objects::{Direction, Floor, GameObject, Position},
+    game::game_objects::{Block, Direction, Floor, GameObject, Position},
 };
 
 fn offset_coordinate(coord: f32, window_coord: f32) -> i32 {
@@ -49,7 +49,28 @@ pub fn handle_level_editor_click(
     mut board: ResMut<Board>,
     mut entity: Local<GameEntity>,
     input: Res<Input<KeyCode>>,
+    mut block_positions: Local<Option<HashSet<Position>>>,
 ) {
+    if block_positions.is_some() {
+        if input.just_pressed(KeyCode::C) {
+            board.insert_block(Block {
+                positions: block_positions.clone().unwrap(),
+            });
+            *block_positions = None;
+            return;
+        }
+        if let (pos, Some(MouseButton::Left)) = get_position_from_mouse_click(&mouse, &windows) {
+            let mut positions = block_positions.clone().unwrap();
+            positions.insert(pos);
+            *block_positions = Some(positions);
+        }
+
+        return;
+    }
+
+    if input.just_pressed(KeyCode::C) {
+        *block_positions = Some(HashSet::new());
+    }
     if let (pos, Some(button)) = get_position_from_mouse_click(&mouse, &windows) {
         if button == MouseButton::Left {
             board.insert(pos, *entity);
