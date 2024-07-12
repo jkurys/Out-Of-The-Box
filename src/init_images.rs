@@ -60,4 +60,24 @@ pub fn init_images(
         None,
     );
     images.turtle_images = Some(atlases.add(turtle_atlas));
+    let glue_images_texture = asset_server.load(GLUE_ATLAS);
+    let glue_atlas = TextureAtlas::from_grid(
+        glue_images_texture,
+        Vec2::splat(16.),
+        2,
+        2,
+        Some(Vec2::splat(4.)),
+        None,
+    );
+    images.glue_images = Some(atlases.add(glue_atlas));
+    let box_glue_images_texture = asset_server.load(BOX_GLUE_ATLAS);
+    let box_glue_atlas = TextureAtlas::from_grid(
+        box_glue_images_texture,
+        Vec2::splat(16.),
+        2,
+        4,
+        Some(Vec2::splat(4.)),
+        None,
+    );
+    images.box_glue_images = Some(atlases.add(box_glue_atlas));
 }

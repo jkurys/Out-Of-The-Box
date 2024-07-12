@@ -25,6 +25,8 @@ pub struct Images {
     pub button_images: [Handle<Image>; 3],
     pub hidden_wall_images: Option<Handle<TextureAtlas>>,
     pub turtle_images: Option<Handle<TextureAtlas>>,
+    pub glue_images: Option<Handle<TextureAtlas>>,
+    pub box_glue_images: Option<Handle<TextureAtlas>>,
 }
 
 impl FromWorld for Images {
@@ -51,6 +53,8 @@ impl FromWorld for Images {
         let hidden_wall_images = None;
         let player_images = None;
         let turtle_images = None;
+        let glue_images = None;
+        let box_glue_images = None;
 
         Images {
             player_images,
@@ -63,6 +67,8 @@ impl FromWorld for Images {
             button_images,
             hidden_wall_images,
             turtle_images,
+            glue_images,
+            box_glue_images,
         }
     }
 }

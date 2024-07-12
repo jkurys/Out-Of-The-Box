@@ -75,14 +75,36 @@ where
         y,
         component.clone(),
     );
-    let mut sticker_image = TextureAtlasSprite::new(sticker_index);
-    sticker_image.custom_size = Some(Vec2::splat(TILE_SIZE));
-    let (sticker_x, sticker_y, sticker_z) = (
-        x as f32 * TILE_SIZE,
-        (y as f32 + 0.24) * TILE_SIZE,
+
+    let entity3 = render_sticker(
+        commands,
+        sticker_index,
+        x,
+        y,
+        atlas_handle,
+        component,
         UPPER_HALF_STICKER_Z_INDEX,
     );
-    let entity3 = commands
+    [entity1, entity2, entity3]
+}
+
+pub fn render_sticker<T>(
+    commands: &mut Commands,
+    sticker_index: usize,
+    x: i32,
+    y: i32,
+    atlas_handle: Handle<TextureAtlas>,
+    component: T,
+    z_index: f32,
+) -> Entity
+where
+    T: Component + Clone,
+{
+    let mut sticker_image = TextureAtlasSprite::new(sticker_index);
+    sticker_image.custom_size = Some(Vec2::splat(TILE_SIZE));
+    let (sticker_x, sticker_y, sticker_z) =
+        (x as f32 * TILE_SIZE, (y as f32 + 0.24) * TILE_SIZE, z_index);
+    commands
         .spawn(SpriteSheetBundle {
             sprite: sticker_image,
             texture_atlas: atlas_handle,
@@ -90,6 +112,5 @@ where
             ..default()
         })
         .insert((component, GameItem))
-        .id();
-    [entity1, entity2, entity3]
+        .id()
 }

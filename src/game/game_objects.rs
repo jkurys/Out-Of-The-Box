@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, fmt};
+use std::fmt;
 
 use bevy::prelude::*;
 use bevy::utils::HashSet;
@@ -39,8 +39,17 @@ impl Block {
         self.positions.contains(&position)
     }
     // pub fn cmp_to_other(&self, other: &Block, dir: Direction) -> Ordering {
-    //
     // }
+}
+
+impl std::hash::Hash for Block {
+    fn hash<H>(&self, state: &mut H)
+    where
+        H: std::hash::Hasher,
+    {
+        let positions_vec: Vec<Position> = self.positions.iter().map(|&p| p).collect();
+        positions_vec.hash(state);
+    }
 }
 
 #[derive(Component)]
@@ -75,6 +84,9 @@ pub struct Warp;
 
 #[derive(Component)]
 pub struct BoxButton;
+
+#[derive(Component, Clone)]
+pub struct Glue;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
 pub struct Position {
@@ -179,14 +191,14 @@ impl Position {
         }
     }
 
-    pub fn cmp_to_other(&self, other: &Self, dir: Direction) -> Ordering {
-        match dir {
-            Direction::Up => other.y.cmp(&self.y),
-            Direction::Down => self.y.cmp(&other.y),
-            Direction::Left => self.x.cmp(&other.x),
-            Direction::Right => other.x.cmp(&self.x),
-        }
-    }
+//     pub fn cmp_to_other(&self, other: &Self, dir: Direction) -> Ordering {
+//         match dir {
+//             Direction::Up => other.y.cmp(&self.y),
+//             Direction::Down => self.y.cmp(&other.y),
+//             Direction::Left => self.x.cmp(&other.x),
+//             Direction::Right => other.x.cmp(&self.x),
+//         }
+//     }
 }
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
@@ -206,12 +218,4 @@ impl Direction {
             Direction::Up => 3,
         }
     }
-    // pub fn opposite(&self) -> Self {
-    //     match &self {
-    //         Direction::Down => Direction::Up,
-    //         Direction::Up => Direction::Down,
-    //         Direction::Left => Direction::Right,
-    //         Direction::Right => Direction::Left,
-    //     }
-    // }
 }

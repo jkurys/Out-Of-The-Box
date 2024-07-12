@@ -19,6 +19,8 @@ pub const STICKER_TEXTURES: [&str; 3] = [
     "textures/turtle_blue_sticker.png",
     "textures/turtle_green_sticker.png",
 ];
+pub const GLUE_ATLAS: &str = "textures/glue_atlas.png";
+pub const BOX_GLUE_ATLAS: &str = "textures/box_glue_atlas.png";
 pub const TURTLE_ATLAS: &str = "textures/turtle_atlas.png";
 pub const PLAYER_ATLAS: &str = "textures/player_atlas.png";
 pub const BOX_ATLAS: &str = "textures/box_atlas.png";
@@ -65,6 +67,7 @@ pub const MAX_HEIGHT: u32 = 20;
 pub const LOWER_HALF_OBJECT_Z_INDEX: f32 = 2.5;
 pub const UPPER_HALF_OBJECT_Z_INDEX: f32 = 3.0;
 pub const UPPER_HALF_STICKER_Z_INDEX: f32 = 3.5;
+pub const CORNER_STICKER_Z_INDEX: f32 = 4.0;
 pub const FLOOR_Z_INDEX: f32 = 1.0;
 pub const FLOOR_STICKER_Z_INDEX: f32 = 1.5;
 

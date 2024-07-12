@@ -33,14 +33,14 @@ pub fn handle_level_editor_input(
                 local_data.0 = 0;
             }
             let (mut text, _) = change_number.single_mut();
-            text.sections[0].value = width.to_string();
+            text.sections[0].value = local_data.0.to_string();
         } else if ev.char.is_ascii_digit() {
             local_data.1 = height * 10 + ev.char.to_digit(10).unwrap();
             if height > MAX_HEIGHT {
                 local_data.1 = 0;
             }
             let (mut text, _) = change_number.single_mut();
-            text.sections[0].value = height.to_string();
+            text.sections[0].value = local_data.1.to_string();
         }
     }
     if input.just_pressed(KeyCode::Return) && !is_width_provided {

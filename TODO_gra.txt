@@ -1,0 +1,31 @@
+TODO gra:
+
+Duże:
+-dokończyć warp
+-dodać powiększanie + noże (?) które rozdzielają
+-więcej poziomów
+-jakieś lobby do wyboru poziomu
+-esc menu
+-kostium, który niszczy lód, ale zostawia popękaną podłogę
+-kostium, który przyciąga rzeczy
+
+Średnie:
+-więcej rodzajów map (na razie jako toggle)
+-przesuwanie kamerki za graczem
+-jakieś zapytanie czy na pewno wyjść
+-zapisywanie progressu (pewnie z jakimś serde oraz zwykłym fs)
+-sterowanie w menu za pomocą klawiatury
+-zmiana żeby stan planszy był statem i po prostu się ładowało on update tego statu
+
+Małe:
++błąd (?) z czekaniem na animację na innej mapie (też powinno to naprawić podświetlanie pudełek za późno)
++przejrzeć funkcje pod kątem przejrzystych nazw
+-dokumentacja
+-przytrzymanie esc wyłącza po chwili wszystko
+-spamienie undo może wywalić program
+-pewnie przyda się jakoś złączyć animację z displayem
+-podział resources i consts na odpowiednie foldery
+-main można zrobić żeby tylko wbijał pluginy
+-despawn_text
+-resize planszy
+-jakiś z poziomów powinien przedstawiać że można dużo pudełek naraz

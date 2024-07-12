@@ -1,18 +1,16 @@
 use bevy::prelude::*;
-use bevy::utils::HashSet;
+use itertools::Itertools;
 
 use crate::board::Board;
 use crate::game::game_objects::{Block, Direction};
 use crate::state::MoveState;
 
 use super::events::TryMoveEvent;
-use super::resources::{MoveData, PushAttempt};
 
 pub fn handle_keypress(
     keyboard_input: ResMut<Input<KeyCode>>,
     board: Res<Board>,
-    // mut writer: EventWriter<TryMoveEvent>,
-    mut move_data: ResMut<MoveData>,
+    mut writer: EventWriter<TryMoveEvent>,
     mut app_state: ResMut<NextState<MoveState>>,
 ) {
     let direction = if keyboard_input.any_pressed([KeyCode::Up, KeyCode::W]) {
@@ -33,14 +31,16 @@ pub fn handle_keypress(
         Direction::Right => pos2.x.cmp(&pos1.x),
         Direction::Up => pos2.y.cmp(&pos1.y),
     });
-    for position in positions {
-        move_data.push_atempts.push(PushAttempt {
-            block: Block {
-                positions: HashSet::from([position]),
-            },
+    let blocks: Vec<Block> = positions
+        .into_iter()
+        .map(|p| board.get_block(p))
+        .unique()
+        .collect();
+    for block in blocks {
+        writer.send(TryMoveEvent {
+            block,
             direction,
             is_weak: false,
-            insert_after: None,
         });
     }
     app_state.set(MoveState::Calculating);

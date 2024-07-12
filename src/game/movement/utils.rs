@@ -1,11 +1,12 @@
 use bevy::prelude::*;
+use itertools::Itertools;
 
 use crate::{
     board::Board,
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
 };
 
-use super::{sort_positions::sort_positions, resources::{MoveData, MoveObject}};
+use super::{events::EnteredFloorEvent, sort_positions::sort_positions};
 
 pub fn is_moveable(obj: GameObject) -> bool {
     matches!(
@@ -20,16 +21,8 @@ pub fn is_moveable(obj: GameObject) -> bool {
                 direction: _,
                 color: _,
             }
+            | GameObject::Empty,
     )
-}
-
-fn is_block_empty(block: &Block, board: &ResMut<Board>) -> bool {
-    for &position in block.positions.iter() {
-        if board.get_object_type(position) != GameObject::Empty {
-            return false;
-        }
-    }
-    true
 }
 
 fn can_block_move(
@@ -37,18 +30,31 @@ fn can_block_move(
     block: Block,
     dir: Direction,
     next_blocks: &mut Vec<Block>,
+    visited_blocks: &mut Vec<Block>,
 ) -> bool {
+    visited_blocks.push(block.clone());
+    if board.is_block_empty(&block) {
+        return false;
+    }
     for &position in block.positions.iter() {
+        if board.get_object_type(position) == GameObject::Empty {
+            continue;
+        }
         if !is_moveable(board.get_object_type(position)) {
             return false;
         }
         let (next_position, _next_map) =
             board.get_next_position_for_move(position, dir, board.get_current_map());
         let next_block = board.get_block(next_position);
-        if is_block_empty(&next_block, board) {
+        if board.is_block_empty(&next_block) {
             continue;
         }
-        if next_block != block && !can_block_move(board, next_block.clone(), dir, next_blocks) {
+        let can_move = if visited_blocks.contains(&next_block) {
+            true
+        } else {
+            can_block_move(board, next_block.clone(), dir, next_blocks, visited_blocks)
+        };
+        if next_block != block && !can_move {
             return false;
         }
         if next_block != block {
@@ -75,6 +81,8 @@ fn can_block_move_weak(
     next_blocks: &mut Vec<Block>,
     blocks_that_must_move: &mut Vec<Block>,
 ) -> bool {
+    // TODO: pewnie brak sortowania robi czasem psucie kleju/blokow
+    // na razie moze bez kleju tak o
     for &position in block.positions.iter() {
         let can_current_block_move_somehow = is_moveable(board.get_object_type(position))
             && board.get_floor_type(position) == Floor::Ice;
@@ -93,8 +101,8 @@ fn can_block_move_weak(
             next_block = board.get_block(next_position);
         }
 
-        if is_block_empty(&next_block, board) {
-            blocks_that_must_move.push(block.clone());
+        if board.is_block_empty(&next_block) {
+            next_blocks.push(block.clone());
             continue;
         }
         if !can_block_move_weak(
@@ -107,7 +115,7 @@ fn can_block_move_weak(
         ) {
             return false;
         }
-        let met_stationary_block = is_position_in_blocks(all_blocks, next_position);
+        let met_stationary_block = !is_position_in_blocks(all_blocks, next_position);
 
         if met_stationary_block {
             blocks_that_must_move.push(next_block.clone());
@@ -124,23 +132,25 @@ fn perform_move(
     blocks: Vec<Block>,
     board: &mut ResMut<Board>,
     direction: Direction,
-    move_data: &mut ResMut<MoveData>,
+    writer: &mut EventWriter<EnteredFloorEvent>,
 ) {
     let mut positions_vec: Vec<(Position, usize)> = blocks
         .iter()
         .map(|block| block.positions.clone())
         .flatten()
         .map(|p| (p, 0))
+        .unique()
         .collect();
     positions_vec.sort_by(sort_positions(direction));
     for (position, _) in positions_vec {
-        if board.get_object_type(position) == GameObject::Empty {
-            continue;
-        }
+        // if board.get_object_type(position) == GameObject::Empty {
+        //     board.modify_position_in_block(position, direction);
+        //     continue;
+        // }
         let map = board.get_current_map();
         board.move_object(position, direction, map);
         let next_position = board.get_next_position_for_move(position, direction, map).0;
-        move_data.moves.push(MoveObject {
+        writer.send(EnteredFloorEvent {
             floor: board.get_floor_type(next_position),
             position: next_position,
             object: board.get_object_type(next_position),
@@ -153,13 +163,20 @@ pub fn move_strong(
     board: &mut ResMut<Board>,
     block: Block,
     direction: Direction,
-    move_data: &mut ResMut<MoveData>,
+    writer: &mut EventWriter<EnteredFloorEvent>,
 ) -> bool {
     let mut next_blocks = vec![block.clone()];
-    if !can_block_move(board, block, direction, &mut next_blocks) {
+    let mut visited_blocks = Vec::new();
+    if !can_block_move(
+        board,
+        block,
+        direction,
+        &mut next_blocks,
+        &mut visited_blocks,
+    ) {
         return false;
     }
-    perform_move(next_blocks, board, direction, move_data);
+    perform_move(next_blocks, board, direction, writer);
     return true;
 }
 
@@ -168,22 +185,22 @@ pub fn move_weak(
     block: Block,
     all_blocks: &Vec<Block>,
     direction: Direction,
-    move_data: &mut ResMut<MoveData>,
+    writer: &mut EventWriter<EnteredFloorEvent>,
 ) -> bool {
     let mut next_blocks = Vec::new();
     let mut blocks_that_must_move = Vec::new();
     let can_block_move = can_block_move_weak(
         board,
-        block,
+        block.clone(),
         all_blocks,
         direction,
         &mut next_blocks,
         &mut blocks_that_must_move,
     );
-    perform_move(blocks_that_must_move, board, direction, move_data);
-    if !can_block_move {
-        return false;
+    let was_moved = can_block_move || !blocks_that_must_move.is_empty();
+    perform_move(blocks_that_must_move, board, direction, writer);
+    if can_block_move {
+        perform_move(next_blocks, board, direction, writer);
     }
-    perform_move(next_blocks, board, direction, move_data);
-    return true;
+    return was_moved;
 }

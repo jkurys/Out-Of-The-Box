@@ -5,20 +5,33 @@ use crate::{
     game::game_objects::{Block, GameObject},
 };
 
-// use super::events::TryMoveEvent;
-use super::resources::*;
+use super::events::TryMoveEvent;
 
-pub fn handle_turtle(mut board: ResMut<Board>, mut moves: ResMut<MoveData> /* mut writer: EventWriter<TryMoveEvent> */) {
+pub fn handle_turtle(
+    mut board: ResMut<Board>,
+    mut writer: EventWriter<TryMoveEvent>,
+    mut button_state: Local<[bool; 3]>,
+) {
     let buttons = board.get_all_buttons();
-    let mut is_clicked = false;
     let turtles = board.get_all_turtles();
-    for (color, button_color) in buttons.into_iter().enumerate() {
+    let mut is_clicked = false;
+    for (color, button_color) in buttons.clone().into_iter().enumerate() {
+        if button_state[color] {
+            for (turtle_pos, dir) in turtles[color].iter() {
+                if buttons[color].contains(&turtle_pos.next_position(*dir)) {
+                    is_clicked = true;
+                }
+            }
+        }
         for button_position in button_color {
             if board.get_object_type(button_position) != GameObject::Empty {
                 is_clicked = true;
             }
         }
         if is_clicked {
+            // BUG: nie odpala sie rzuw w poziomie 8
+            // BUG: jak jest kratka odstepu miedzy rzuwiami co sie na siebie patrza to sie pojawia
+            // jedna z glow
             for (turtle_pos, direction) in turtles[color].iter() {
                 let direction = *direction;
                 let turtle_head_pos = turtle_pos.next_position(direction);
@@ -27,32 +40,24 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut moves: ResMut<MoveData> /* mu
                         direction: _,
                         color: _,
                     } => (),
+                    GameObject::Empty => {
+                        board.insert_object(
+                            turtle_head_pos,
+                            GameObject::TurtleHead { direction, color },
+                        );
+                        board.insert_block(Block {
+                            positions: HashSet::from([turtle_head_pos, *turtle_pos]),
+                        });
+                    }
                     _ => {
-                        // writer.send(TryMoveEvent {
-                        //     block: Block {
-                        //         positions: HashSet::from([turtle_head_pos]),
-                        //     },
-                        //     direction,
-                        //     is_weak: false,
-                        //     insert_after: Some((
-                        //         GameObject::TurtleHead { direction, color },
-                        //         turtle_head_pos,
-                        //     )),
-                        // });
-                        moves.push_atempts.push(PushAttempt {
-                            block: Block {
-                                positions: HashSet::from([turtle_head_pos]),
-                            },
+                        writer.send(TryMoveEvent {
+                            block: board.get_block(turtle_head_pos),
                             direction,
                             is_weak: false,
-                            insert_after: Some((
-                                GameObject::TurtleHead { direction, color },
-                                turtle_head_pos,
-                            )),
                         });
-                        board.insert_block(Block {
-                            positions: HashSet::from([*turtle_pos, turtle_head_pos]),
-                        })
+                        board.delete_block(&Block {
+                            positions: HashSet::from([*turtle_pos]),
+                        });
                     }
                 }
             }
@@ -67,15 +72,20 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut moves: ResMut<MoveData> /* mu
                         board.delete_object(pos);
                         board.delete_block(&Block {
                             positions: HashSet::from([pos, pos.prev_position(dir)]),
-                        })
+                        });
                     }
                 }
             }
-        } else {
+            button_state[color] = true;
+        } else if !is_clicked && button_state[color] {
             let turtle_heads = board.get_all_turtle_heads();
-            for &(pos, _) in turtle_heads[color].iter() {
+            for &(pos, dir) in turtle_heads[color].iter() {
                 board.delete_object(pos);
+                board.delete_block(&Block {
+                    positions: HashSet::from([pos, pos.prev_position(dir)]),
+                });
             }
+            button_state[color] = false;
         }
         is_clicked = false;
     }

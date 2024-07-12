@@ -1,15 +1,12 @@
 use bevy::prelude::*;
 use bevy::render::texture::ImageSampler;
 use consts::*;
-use game::display::DisplayPlugin;
-use game::movement::MovementPlugin;
-use game::GamePlugin;
 use init_images::init_images;
-use menu::MenusPlugin;
+use plugin::MainPlugin;
 use resources::*;
-use state::{DisplayState, MoveState};
 use std::fs::File;
 use std::io::Read;
+
 mod board;
 mod components;
 mod consts;
@@ -17,31 +14,15 @@ mod exit;
 mod game;
 mod init_images;
 mod menu;
+mod plugin;
 mod resources;
 mod state;
+#[cfg(test)]
+mod tests;
 mod utils;
 
 fn main() {
-    App::new()
-        .insert_resource(CurrentLevel {
-            level_number: 1,
-            level_amount: 0,
-            level_map_string: "".to_string(),
-            is_in_level: false,
-        })
-        .insert_resource(CurrentSprite(0))
-        .add_state::<DisplayState>()
-        .add_state::<MoveState>()
-        .add_plugins(DefaultPlugins)
-        .add_plugins(MenusPlugin)
-        .add_plugins(GamePlugin)
-        .add_plugins(DisplayPlugin)
-        .add_plugins(MovementPlugin)
-        .add_systems(Startup, spawn_camera)
-        .add_systems(Startup, init_images)
-        .add_systems(Update, update_images)
-        .add_systems(Update, spritemap_fix)
-        .run();
+    App::new().add_plugins(MainPlugin).run();
 }
 
 fn spawn_camera(mut commands: Commands) {

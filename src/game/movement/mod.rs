@@ -8,14 +8,12 @@ use ice::handle_ice;
 use keyboard::handle_keypress;
 use warp::handle_warp;
 
-use crate::game::game_objects::{Box, Player};
-
 use self::{
     animation::GameAnimationPlugin,
     button::handle_button,
     end_move::end_move,
-    // events::{EnteredFloorEvent, TryMoveEvent},
-    resources::{AnimationTimer, MoveData},
+    events::{EnteredFloorEvent, TryMoveEvent},
+    resources::AnimationTimer,
     turtle::handle_turtle,
 };
 
@@ -27,17 +25,23 @@ mod events;
 mod ice;
 mod keyboard;
 pub mod resources;
+mod sort_positions;
 mod try_move;
 mod turtle;
 mod utils;
 mod warp;
-mod sort_positions;
 
 use crate::game::movement::try_move::try_move;
 
-use super::game_objects::Turtle;
+use super::{
+    display::{
+        background::{render_board, render_border},
+        despawn_board,
+    },
+    game_objects::{Box, Glue, Player, Turtle},
+};
 
-pub type MovableInQuery = Or<(With<Box>, With<Player>, With<Turtle>)>;
+pub type MovableInQuery = Or<(With<Box>, With<Player>, With<Turtle>, With<Glue>)>;
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
@@ -52,7 +56,13 @@ impl Plugin for MovementPlugin {
 
         app.add_systems(
             Update,
-            (try_move, handle_warp)
+            (
+                despawn_board,
+                render_board,
+                render_border,
+                try_move,
+                handle_warp,
+            )
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::Calculating))
                 .chain(),
@@ -60,19 +70,18 @@ impl Plugin for MovementPlugin {
 
         app.add_systems(
             Update,
-            (handle_button, handle_turtle, handle_ice, end_move)
+            (handle_turtle, handle_button, handle_ice, end_move)
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::AfterAnimationCalc))
                 .chain(),
         );
 
-        // app.add_event::<TryMoveEvent>();
-        // app.add_event::<EnteredFloorEvent>();
+        app.add_event::<TryMoveEvent>();
+        app.init_resource::<Events<EnteredFloorEvent>>();
         app.insert_resource(AnimationTimer(Timer::from_seconds(
             MOVE_ANIMATION_TIME,
             TimerMode::Once,
         )));
-        app.insert_resource(MoveData{ push_atempts: Vec::new(), moves: Vec::new() });
     }
 }
 

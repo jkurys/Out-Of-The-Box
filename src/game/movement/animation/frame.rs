@@ -56,45 +56,52 @@ fn modify_transform(
 }
 pub fn move_event(
     board: &Res<Board>,
-    mov: &MoveObject,
+    event: &EnteredFloorEvent,
     query: &mut Query<&mut Transform, MovableInQuery>,
     timer: &mut ResMut<AnimationTimer>,
 ) {
-    let (position, direction) = (mov.position, mov.direction);
-    let entity_opt = board.get_entities(mov.position);
+    let (position, direction) = (event.position, event.direction);
+    let entity_opt = board.get_entities(event.position);
     if let Some([higher_entities, lower_entities]) = entity_opt {
         for &higher_entity in higher_entities.iter() {
-            let higher_transform = query
-                .get_mut(higher_entity)
-                .expect("Moved entity not found");
-            let (x, y) = (
-                position.x as f32 * TILE_SIZE,
-                (position.y as f32 + 0.24) * TILE_SIZE,
-            );
-            modify_transform(higher_transform, direction, timer, x, y, mov.floor);
+            if let Ok(higher_transform) = query.get_mut(higher_entity) {
+                let (x, y) = (
+                    position.x as f32 * TILE_SIZE,
+                    (position.y as f32 + 0.24) * TILE_SIZE,
+                );
+                modify_transform(higher_transform, direction, timer, x, y, event.floor);
+            }
         }
         for &lower_entity in lower_entities.iter() {
-            let lower_transform = query.get_mut(lower_entity).expect("Moved entity not found");
-            let (x2, y2) = (
-                position.x as f32 * TILE_SIZE,
-                (position.y as f32 - 0.375) * TILE_SIZE,
-            );
-            modify_transform(lower_transform, direction, timer, x2, y2, mov.floor);
+            if let Ok(lower_transform) = query.get_mut(lower_entity) {
+                let (x2, y2) = (
+                    position.x as f32 * TILE_SIZE,
+                    (position.y as f32 - 0.375) * TILE_SIZE,
+                );
+                modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
+            }
         }
     }
 }
 
 pub fn move_animation(
     time: Res<Time>,
-    // mut moved: EventReader<EnteredFloorEvent>,
-    moves: ResMut<MoveData>,
+    mut moved: EventReader<EnteredFloorEvent>,
     mut query: Query<&mut Transform, MovableInQuery>,
     mut timer: ResMut<AnimationTimer>,
     board: Res<Board>,
-    // mut events: Local<Vec<EnteredFloorEvent>>,
+    mut events: Local<Vec<EnteredFloorEvent>>,
 ) {
     timer.0.tick(time.delta());
-    for mov in moves.moves.iter() {
-        move_event(&board, mov, &mut query, &mut timer);
+    if !moved.is_empty() {
+        events.clear();
+        for event in moved.iter() {
+            move_event(&board, event, &mut query, &mut timer);
+            events.push(*event);
+        }
+    } else {
+        for event in &events {
+            move_event(&board, event, &mut query, &mut timer);
+        }
     }
 }
