@@ -19,7 +19,7 @@ fn vec2_to_position(vec: Vec2, window_size: Vec2) -> Position {
 }
 
 fn get_position_from_mouse_click(
-    mouse: &Res<Input<MouseButton>>,
+    mouse: &Res<ButtonInput<MouseButton>>,
     windows: &Query<&Window, With<PrimaryWindow>>,
 ) -> (Position, Option<MouseButton>) {
     let window = windows.single();
@@ -45,10 +45,10 @@ fn get_position_from_mouse_click(
 pub fn handle_level_editor_click(
     windows: Query<&Window, With<PrimaryWindow>>,
     mut clickable_query: Query<(&Interaction, &GameEntity, &mut BackgroundColor)>,
-    mouse: Res<Input<MouseButton>>,
+    mouse: Res<ButtonInput<MouseButton>>,
     mut board: ResMut<Board>,
     mut entity: Local<GameEntity>,
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
 ) {
     if let (pos, Some(button)) = get_position_from_mouse_click(&mouse, &windows) {
         if button == MouseButton::Left {
@@ -86,13 +86,13 @@ pub fn handle_level_editor_click(
     }) = *entity
     {
         let mut maybe_dir = None;
-        if input.just_pressed(KeyCode::Up) {
+        if input.just_pressed(KeyCode::ArrowUp) {
             maybe_dir = Some(Direction::Up);
-        } else if input.just_pressed(KeyCode::Down) {
+        } else if input.just_pressed(KeyCode::ArrowDown) {
             maybe_dir = Some(Direction::Down);
-        } else if input.just_pressed(KeyCode::Left) {
+        } else if input.just_pressed(KeyCode::ArrowLeft) {
             maybe_dir = Some(Direction::Left);
-        } else if input.just_pressed(KeyCode::Right) {
+        } else if input.just_pressed(KeyCode::ArrowRight) {
             maybe_dir = Some(Direction::Right);
         }
         if let Some(dir) = maybe_dir {

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::{events::EnteredFloorEvent, resources::{AnimationTimer, MoveData}};
+use super::resources::{AnimationTimer, MoveData};
 use crate::{
     board::Board,
     game::game_objects::{Floor, GameObject},

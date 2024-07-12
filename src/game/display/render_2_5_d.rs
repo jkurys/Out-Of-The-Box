@@ -9,7 +9,7 @@ use crate::{
 
 pub fn render_object<T>(
     commands: &mut Commands,
-    atlas_handle: Handle<TextureAtlas>,
+    atlas_data: (Handle<TextureAtlasLayout>, Handle<Image>),
     indices: (usize, usize),
     x: i32,
     y: i32,
@@ -18,11 +18,14 @@ pub fn render_object<T>(
 where
     T: Component + Clone,
 {
+    let (atlas_handle, texture) = atlas_data;
     let (bottom_index, top_index) = indices;
-    let mut higher_image = TextureAtlasSprite::new(top_index);
-    let mut lower_image = TextureAtlasSprite::new(bottom_index);
-    higher_image.custom_size = Some(Vec2::splat(TILE_SIZE + 0.5));
-    lower_image.custom_size = Some(Vec2::splat(TILE_SIZE + 0.5));
+    let higher_atlas = TextureAtlas { index: top_index, layout: atlas_handle.clone() };
+    let lower_atlas = TextureAtlas { index: bottom_index, layout: atlas_handle.clone() };
+    let mut lower_sprite = Sprite::default();
+    let mut higher_sprite = Sprite::default();
+    higher_sprite.custom_size = Some(Vec2::splat(TILE_SIZE + 0.5));
+    lower_sprite.custom_size = Some(Vec2::splat(TILE_SIZE + 0.5));
     let (upper_x, upper_y, upper_z) = (
         x as f32 * TILE_SIZE,
         (y as f32 + 0.24) * TILE_SIZE,
@@ -35,8 +38,9 @@ where
     );
     let entity1 = commands
         .spawn(SpriteSheetBundle {
-            sprite: higher_image,
-            texture_atlas: atlas_handle.clone(),
+            sprite: higher_sprite,
+            atlas: higher_atlas,
+            texture: texture.clone(),
             transform: Transform::from_xyz(upper_x, upper_y, upper_z),
             ..default()
         })
@@ -44,8 +48,9 @@ where
         .id();
     let entity2 = commands
         .spawn(SpriteSheetBundle {
-            sprite: lower_image,
-            texture_atlas: atlas_handle,
+            sprite: lower_sprite,
+            atlas: lower_atlas,
+            texture,
             transform: Transform::from_xyz(lower_x, lower_y, lower_z),
             ..default()
         })
@@ -56,7 +61,7 @@ where
 
 pub fn render_object_with_sticker<T>(
     commands: &mut Commands,
-    atlas_handle: Handle<TextureAtlas>,
+    atlas_data: (Handle<TextureAtlasLayout>, Handle<Image>),
     indices: (usize, usize),
     sticker_index: usize,
     x: i32,
@@ -66,17 +71,19 @@ pub fn render_object_with_sticker<T>(
 where
     T: Component + Clone,
 {
+    let (atlas_handle, texture) = atlas_data.clone();
     let (bottom_index, top_index) = indices;
     let [entity1, entity2] = render_object(
         commands,
-        atlas_handle.clone(),
+        atlas_data.clone(),
         (bottom_index, top_index),
         x,
         y,
         component.clone(),
     );
-    let mut sticker_image = TextureAtlasSprite::new(sticker_index);
-    sticker_image.custom_size = Some(Vec2::splat(TILE_SIZE));
+    let atlas = TextureAtlas { index: sticker_index, layout: atlas_handle };
+    let mut sticker_sprite = Sprite::default();
+    sticker_sprite.custom_size = Some(Vec2::splat(TILE_SIZE));
     let (sticker_x, sticker_y, sticker_z) = (
         x as f32 * TILE_SIZE,
         (y as f32 + 0.24) * TILE_SIZE,
@@ -84,8 +91,9 @@ where
     );
     let entity3 = commands
         .spawn(SpriteSheetBundle {
-            sprite: sticker_image,
-            texture_atlas: atlas_handle,
+            sprite: sticker_sprite,
+            atlas,
+            texture,
             transform: Transform::from_xyz(sticker_x, sticker_y, sticker_z),
             ..default()
         })

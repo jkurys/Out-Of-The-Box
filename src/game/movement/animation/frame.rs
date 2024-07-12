@@ -8,7 +8,6 @@ use crate::{
         game_objects::Floor,
         movement::{
             consts::{INTERVAL_DISTANCE_1, SPEED_1, TIME_INTERVAL_1},
-            events::EnteredFloorEvent,
             resources::*,
             MovableInQuery,
         },
@@ -35,9 +34,9 @@ fn modify_transform(
 ) {
     let distance = if floor == Floor::Ice {
         // on ice we want to have uniform movement animation
-        timer.0.percent()
+        timer.0.fraction()
     } else {
-        animation_weight(timer.0.percent())
+        animation_weight(timer.0.fraction())
     };
     match direction {
         Direction::Down => {

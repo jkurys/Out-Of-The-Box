@@ -16,15 +16,15 @@ pub struct CurrentLevel {
 #[derive(Resource)]
 pub struct Images {
     pub goal_image: Handle<Image>,
-    pub player_images: Option<Handle<TextureAtlas>>,
-    pub box_images: Option<Handle<TextureAtlas>>,
-    pub wall_images: Option<Handle<TextureAtlas>>,
+    pub player_images: Option<(Handle<TextureAtlasLayout>, Handle<Image>)>,
+    pub box_images: Option<(Handle<TextureAtlasLayout>, Handle<Image>)>,
+    pub wall_images: Option<(Handle<TextureAtlasLayout>, Handle<Image>)>,
     pub tile_image: Handle<Image>,
     pub ice_image: Handle<Image>,
     pub warp_image: Handle<Image>,
     pub button_images: [Handle<Image>; 3],
-    pub hidden_wall_images: Option<Handle<TextureAtlas>>,
-    pub turtle_images: Option<Handle<TextureAtlas>>,
+    pub hidden_wall_images: Option<(Handle<TextureAtlasLayout>, Handle<Image>)>,
+    pub turtle_images: Option<(Handle<TextureAtlasLayout>, Handle<Image>)>,
 }
 
 impl FromWorld for Images {

@@ -14,7 +14,6 @@ use self::{
     animation::GameAnimationPlugin,
     button::handle_button,
     end_move::end_move,
-    // events::{EnteredFloorEvent, TryMoveEvent},
     resources::{AnimationTimer, MoveData},
     turtle::handle_turtle,
 };
@@ -66,8 +65,6 @@ impl Plugin for MovementPlugin {
                 .chain(),
         );
 
-        // app.add_event::<TryMoveEvent>();
-        // app.add_event::<EnteredFloorEvent>();
         app.insert_resource(AnimationTimer(Timer::from_seconds(
             MOVE_ANIMATION_TIME,
             TimerMode::Once,

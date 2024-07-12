@@ -44,7 +44,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                         font: menu_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
             spawn_button(
                 parent,

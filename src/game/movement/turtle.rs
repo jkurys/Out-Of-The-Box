@@ -74,6 +74,7 @@ pub fn handle_turtle(mut board: ResMut<Board>, mut moves: ResMut<MoveData> /* mu
         } else {
             let turtle_heads = board.get_all_turtle_heads();
             for &(pos, _) in turtle_heads[color].iter() {
+                println!("{}", pos);
                 board.delete_object(pos);
             }
         }

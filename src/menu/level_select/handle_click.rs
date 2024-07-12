@@ -33,7 +33,7 @@ pub fn handle_level_click(
         file.read_exact(&mut buf).unwrap();
     }
     let bool_buf: Vec<bool> = buf.iter().map(|&value| value != 0).collect();
-    query.for_each_mut(
+    query.iter_mut().for_each(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Pressed => match item.as_ref() {
                 LevelSelectItemType::Level(number) => {

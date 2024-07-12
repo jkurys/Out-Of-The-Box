@@ -70,7 +70,7 @@ where
 
 pub fn spawn_from_atlas<T>(
     commands: &mut Commands,
-    atlas_handle: Handle<TextureAtlas>,
+    atlas_data: (Handle<TextureAtlasLayout>, Handle<Image>),
     index: usize,
     x: i32,
     y: i32,
@@ -79,13 +79,16 @@ pub fn spawn_from_atlas<T>(
 where
     T: Component + Clone,
 {
-    let mut image = TextureAtlasSprite::new(index);
-    image.custom_size = Some(Vec2::splat(TILE_SIZE));
+    let (atlas_handle, texture) = atlas_data;
+    let atlas = TextureAtlas { index, layout: atlas_handle };
+    let mut sprite = Sprite::default();
+    sprite.custom_size = Some(Vec2::splat(TILE_SIZE));
     let (x, y, z) = (x as f32 * TILE_SIZE, y as f32 * TILE_SIZE, FLOOR_Z_INDEX);
     commands
         .spawn(SpriteSheetBundle {
-            sprite: image,
-            texture_atlas: atlas_handle,
+            sprite,
+            atlas,
+            texture,
             transform: Transform::from_xyz(x, y, z),
             ..default()
         })

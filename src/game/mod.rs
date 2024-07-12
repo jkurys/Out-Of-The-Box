@@ -1,4 +1,4 @@
-use self::resources::{BoardStates, VictoryTimer};
+use self::resources::{PlayerDirection, BoardStates, VictoryTimer};
 use crate::board::Board;
 use crate::consts::MOVE_ANIMATION_TIME;
 use crate::exit::handle_esc;
@@ -52,6 +52,7 @@ impl Plugin for GamePlugin {
 
         app.insert_resource(Board::new())
             .insert_resource(BoardStates { boards: Vec::new() });
+        app.insert_resource(PlayerDirection(game_objects::Direction::Down));
         app.insert_resource(VictoryTimer(Timer::from_seconds(
             MOVE_ANIMATION_TIME * 2.,
             TimerMode::Once,

@@ -56,7 +56,7 @@ where
                         font: menu_font,
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
         });
 }

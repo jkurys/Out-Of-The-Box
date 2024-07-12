@@ -5,9 +5,9 @@ pub const PLAYER_TEXTURES: [&str; 3] = [
     "textures/black_sprite.png",
 ];
 
-pub const TILE_TEXTURE: &str = "textures/tile.png";
+pub const TILE_TEXTURE: &str = "textures/tile2.png";
 pub const WALL_TEXTURE: &str = "textures/wall_higher.png";
-pub const WALL_ATLAS: &str = "textures/wall_atlas.png";
+pub const WALL_ATLAS: &str = "textures/wall_atlas2.png";
 pub const TURTLE_TEXTURES: [&str; 4] = [
     "textures/turtle_left.png",
     "textures/turtle_right.png",
@@ -20,11 +20,11 @@ pub const STICKER_TEXTURES: [&str; 3] = [
     "textures/turtle_green_sticker.png",
 ];
 pub const TURTLE_ATLAS: &str = "textures/turtle_atlas.png";
-pub const PLAYER_ATLAS: &str = "textures/player_atlas.png";
-pub const BOX_ATLAS: &str = "textures/box_atlas.png";
+pub const PLAYER_ATLAS: &str = "textures/player_atlas2.png";
+pub const BOX_ATLAS: &str = "textures/box_atlas2.png";
 pub const BOX_TEXTURE: &str = "textures/box2.png";
 pub const GOAL_TEXTURE: &str = "textures/goal.png";
-pub const ICE_TEXTURE: &str = "textures/ice.png";
+pub const ICE_TEXTURE: &str = "textures/ice2.png";
 pub const WARP_TEXTURE: &str = "textures/warp.png";
 pub const HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_red.png",

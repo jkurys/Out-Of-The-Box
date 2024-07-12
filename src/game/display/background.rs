@@ -14,8 +14,9 @@ use crate::game::game_objects::{
     Floor,
     Ice,
     Goal,
-    Warp
+    Warp, Direction
 };
+use crate::game::resources::PlayerDirection;
 use crate::resources::{CurrentSprite, Images};
 
 use crate::board::Board;
@@ -28,6 +29,7 @@ use super::{render_entity, spawn_from_atlas};
 pub fn render_board(
     mut commands: Commands,
     mut board: ResMut<Board>,
+    player_dir: Res<PlayerDirection>,
     images: Res<Images>,
     current_sprite: Res<CurrentSprite>,
 ) {
@@ -71,10 +73,16 @@ pub fn render_board(
                     board.insert_entities(position, [vec![entity1], vec![entity2]]);
                 }
                 GameObject::Player => {
+                    let dir_offset = 2 * match *player_dir {
+                        PlayerDirection(Direction::Up) => 2,
+                        PlayerDirection(Direction::Down) => 0,
+                        PlayerDirection(Direction::Right) => 1,
+                        PlayerDirection(Direction::Left) => 3,
+                    };
                     let [entity1, entity2] = render_object(
                         &mut commands,
                         images.player_images.clone().unwrap(),
-                        (current_sprite.0 * 2 + 1, current_sprite.0 * 2),
+                        (current_sprite.0 * 8 + 1 + dir_offset, current_sprite.0 * 8 + dir_offset),
                         x,
                         y,
                         Player,

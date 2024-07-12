@@ -3,7 +3,7 @@ use bevy::{app::AppExit, prelude::*};
 use crate::{resources::StateStack, state::DisplayState};
 
 pub fn handle_esc(
-    mut keyboard: ResMut<Input<KeyCode>>,
+    mut keyboard: ResMut<ButtonInput<KeyCode>>,
     state: Res<State<DisplayState>>,
     mut next_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,

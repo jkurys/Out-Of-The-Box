@@ -63,7 +63,7 @@ pub fn setup(
                         color: Color::WHITE,
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
             for (level_number, level_name) in file_paths.iter().enumerate() {
                 spawn_button(

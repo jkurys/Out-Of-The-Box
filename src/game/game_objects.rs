@@ -64,7 +64,7 @@ pub struct Background;
 #[derive(Component, PartialEq, Eq, Hash, Clone)]
 pub struct Box;
 
-#[derive(Component, Clone)]
+#[derive(Component, Clone, Debug, PartialEq, Eq)]
 pub struct Player;
 
 #[derive(Component)]

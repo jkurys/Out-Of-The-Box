@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::render::texture::ImageSampler;
 use consts::*;
 use game::display::DisplayPlugin;
 use game::movement::MovementPlugin;
@@ -29,10 +28,10 @@ fn main() {
             level_map_string: "".to_string(),
             is_in_level: false,
         })
+        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .insert_resource(CurrentSprite(0))
-        .add_state::<DisplayState>()
-        .add_state::<MoveState>()
-        .add_plugins(DefaultPlugins)
+        .init_state::<DisplayState>()
+        .init_state::<MoveState>()
         .add_plugins(MenusPlugin)
         .add_plugins(GamePlugin)
         .add_plugins(DisplayPlugin)
@@ -40,7 +39,6 @@ fn main() {
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, init_images)
         .add_systems(Update, update_images)
-        .add_systems(Update, spritemap_fix)
         .run();
 }
 
@@ -53,14 +51,4 @@ fn update_images(mut current_sprite: ResMut<CurrentSprite>) {
     let mut buf = [0_u8; 1];
     file.read_exact(&mut buf).unwrap();
     current_sprite.0 = buf[0] as usize;
-}
-
-fn spritemap_fix(mut ev_asset: EventReader<AssetEvent<Image>>, mut assets: ResMut<Assets<Image>>) {
-    for ev in ev_asset.iter() {
-        if let AssetEvent::Created { handle } = ev {
-            if let Some(texture) = assets.get_mut(handle) {
-                texture.sampler_descriptor = ImageSampler::nearest()
-            }
-        }
-    }
 }

@@ -7,13 +7,10 @@ use crate::{
 };
 
 use super::{
-    // events::{EnteredFloorEvent, TryMoveEvent},
     utils::{move_strong, move_weak}, resources::{MoveData, PushAttempt},
 };
 
 pub fn try_move(
-    // mut reader: EventReader<TryMoveEvent>,
-    // mut writer: EventWriter<EnteredFloorEvent>,
     mut move_data: ResMut<MoveData>,
     mut board: ResMut<Board>,
     mut board_states: ResMut<BoardStates>,

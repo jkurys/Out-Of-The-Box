@@ -25,7 +25,7 @@ pub fn handle_sprite_click(
         With<SpriteSelectItemType>,
     >,
 ) {
-    query.for_each_mut(
+    query.iter_mut().for_each(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Pressed => match item.as_ref() {
                 SpriteSelectItemType::Back => {

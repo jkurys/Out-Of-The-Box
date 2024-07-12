@@ -37,7 +37,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -48,7 +48,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -59,7 +59,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
@@ -70,7 +70,7 @@ pub fn display_level_text(
                         font: level_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
         });
 }
