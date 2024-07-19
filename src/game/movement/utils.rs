@@ -46,7 +46,8 @@ fn can_block_move(
         let (next_position, _next_map) =
             board.get_next_position_for_move(position, dir, board.get_current_map());
         let next_block = board.get_block(next_position);
-        if board.is_block_empty(&next_block) {
+        if board.is_block_empty(&next_block) 
+            || board.get_object_type(next_position) == GameObject::Empty {
             continue;
         }
         let can_move = if visited_blocks.contains(&next_block) {
@@ -143,10 +144,6 @@ fn perform_move(
         .collect();
     positions_vec.sort_by(sort_positions(direction));
     for (position, _) in positions_vec {
-        // if board.get_object_type(position) == GameObject::Empty {
-        //     board.modify_position_in_block(position, direction);
-        //     continue;
-        // }
         let map = board.get_current_map();
         board.move_object(position, direction, map);
         let next_position = board.get_next_position_for_move(position, direction, map).0;

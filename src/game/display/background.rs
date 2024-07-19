@@ -173,7 +173,7 @@ pub fn render_board(
             if block.contains_position(right_pos) {
                 let images_opt = if object == GameObject::Box && right_object == GameObject::Box {
                     images.box_glue_images.clone()
-                } else if are_both_turtles(object, right_object) {
+                } else if are_both_turtles(object, right_object) || object == GameObject::Empty {
                     None
                 } else {
                     images.glue_images.clone()
@@ -196,7 +196,7 @@ pub fn render_board(
                     && board.get_object_type(left_pos) == GameObject::Box
                 {
                     images.box_glue_images.clone()
-                } else if are_both_turtles(object, left_object) {
+                } else if are_both_turtles(object, left_object) || object == GameObject::Empty {
                     None
                 } else {
                     images.glue_images.clone()
@@ -219,7 +219,7 @@ pub fn render_board(
                     && board.get_object_type(up_pos) == GameObject::Box
                 {
                     images.box_glue_images.clone()
-                } else if are_both_turtles(object, up_object) {
+                } else if are_both_turtles(object, up_object) || object == GameObject::Empty {
                     None
                 } else {
                     images.glue_images.clone()
@@ -242,7 +242,7 @@ pub fn render_board(
                     && board.get_object_type(down_pos) == GameObject::Box
                 {
                     images.box_glue_images.clone()
-                } else if are_both_turtles(object, down_object) {
+                } else if are_both_turtles(object, down_object) || object == GameObject::Empty {
                     None
                 } else {
                     images.glue_images.clone()

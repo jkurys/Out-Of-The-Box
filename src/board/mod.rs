@@ -58,7 +58,7 @@ impl Board {
     pub fn get_block(&self, position: Position) -> Block {
         for block in self.boards[self.current].blocks.iter() {
             if block.contains_position(position)
-                && self.get_object_type(position) != GameObject::Empty
+                 // && self.get_object_type(position) != GameObject::Empty
             {
                 return block.clone();
             }
@@ -77,7 +77,7 @@ impl Board {
     }
 
     pub fn insert_block(&mut self, block: Block) {
-        if !self.is_block_empty(&block) {
+        if block.positions.len() > 1 {
             self.boards[self.current].blocks.push(block);
         }
     }
@@ -97,9 +97,7 @@ impl Board {
         self.delete_block(&block);
         block.positions.remove(&position);
         block.positions.insert(position.next_position(dir));
-        if !self.is_block_empty(&block) {
-            self.insert_block(block);
-        }
+        self.insert_block(block);
     }
 
     pub fn clear_entities(&mut self) {
@@ -283,6 +281,11 @@ impl Board {
 
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
         self.modify_position_in_block(position, dir);
+        println!("{:?}, {:?}", self.get_object_type(position), position);
+        println!("{:?}", self.boards[map].blocks);
+        if self.get_object_type(position) == GameObject::Empty {
+            return;
+        }
         let mut object_opt = self.boards[map].objects.remove(&position);
         let mut object = GameObject::Empty;
         if let Some(obj) = object_opt {
