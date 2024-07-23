@@ -2,7 +2,7 @@ use background::render_board;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowMode};
 
-use self::background::render_border;
+use self::border::render_border;
 use self::level_background::render_background;
 use self::text::{display_level_text, LevelText};
 use crate::consts::*;
@@ -14,6 +14,9 @@ use crate::utils::delete_all_components;
 use super::movement::is_in_game;
 
 pub mod background;
+pub mod glue;
+pub mod border;
+pub mod floor;
 mod level_background;
 mod render_2_5_d;
 mod text;

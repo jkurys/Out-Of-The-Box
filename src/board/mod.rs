@@ -281,8 +281,6 @@ impl Board {
 
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
         self.modify_position_in_block(position, dir);
-        println!("{:?}, {:?}", self.get_object_type(position), position);
-        println!("{:?}", self.boards[map].blocks);
         if self.get_object_type(position) == GameObject::Empty {
             return;
         }

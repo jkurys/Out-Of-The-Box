@@ -33,14 +33,15 @@ fn can_block_move(
     visited_blocks: &mut Vec<Block>,
 ) -> bool {
     visited_blocks.push(block.clone());
-    if board.is_block_empty(&block) {
-        return false;
-    }
+    // if board.is_block_empty(&block) {
+    //     return false;
+    // }
     for &position in block.positions.iter() {
         if board.get_object_type(position) == GameObject::Empty {
             continue;
         }
         if !is_moveable(board.get_object_type(position)) {
+            // eat if not only player
             return false;
         }
         let (next_position, _next_map) =
@@ -50,11 +51,8 @@ fn can_block_move(
             || board.get_object_type(next_position) == GameObject::Empty {
             continue;
         }
-        let can_move = if visited_blocks.contains(&next_block) {
-            true
-        } else {
-            can_block_move(board, next_block.clone(), dir, next_blocks, visited_blocks)
-        };
+        let can_move = visited_blocks.contains(&next_block)
+        || can_block_move(board, next_block.clone(), dir, next_blocks, visited_blocks);
         if next_block != block && !can_move {
             return false;
         }
@@ -82,8 +80,6 @@ fn can_block_move_weak(
     next_blocks: &mut Vec<Block>,
     blocks_that_must_move: &mut Vec<Block>,
 ) -> bool {
-    // TODO: pewnie brak sortowania robi czasem psucie kleju/blokow
-    // na razie moze bez kleju tak o
     for &position in block.positions.iter() {
         let can_current_block_move_somehow = is_moveable(board.get_object_type(position))
             && board.get_floor_type(position) == Floor::Ice;
