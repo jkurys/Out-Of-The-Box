@@ -44,8 +44,8 @@ pub fn init_images(
     let player_atlas = TextureAtlas::from_grid(
         player_atlas_texture,
         Vec2::splat(16.),
-        2,
-        3,
+        4,
+        4,
         Some(Vec2::splat(4.)),
         None,
     );

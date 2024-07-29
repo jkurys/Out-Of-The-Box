@@ -6,7 +6,6 @@ use bevy::prelude::*;
 
 use ice::handle_ice;
 use keyboard::handle_keypress;
-use warp::handle_warp;
 
 use self::{
     animation::GameAnimationPlugin,
@@ -15,6 +14,7 @@ use self::{
     events::{EnteredFloorEvent, TryMoveEvent},
     resources::AnimationTimer,
     turtle::handle_turtle,
+    spit::handle_spit,
 };
 
 mod animation;
@@ -29,7 +29,7 @@ mod sort_positions;
 mod try_move;
 mod turtle;
 mod utils;
-mod warp;
+mod spit;
 
 use crate::game::movement::try_move::try_move;
 
@@ -62,7 +62,6 @@ impl Plugin for MovementPlugin {
                 render_board,
                 render_border,
                 try_move,
-                handle_warp,
             )
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::Calculating))
@@ -71,7 +70,13 @@ impl Plugin for MovementPlugin {
 
         app.add_systems(
             Update,
-            (handle_turtle, handle_button, handle_ice, end_move)
+            (
+                handle_spit,
+                handle_turtle,
+                handle_button,
+                handle_ice,
+                end_move
+            )
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::AfterAnimationCalc))
                 .chain(),

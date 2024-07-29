@@ -34,10 +34,12 @@ pub fn try_move(
         block,
         direction,
         is_weak: _,
+        position,
     } in events.iter()
     {
-        let can_block_move = move_strong(&mut board, block.clone(), *direction, &mut writer);
+        let can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer);
         was_moved = was_moved || can_block_move;
+        // BUG: after pushing a box on ice undo works incorrectly
         if !was_map_saved {
             board_states.boards.push(board.clone());
             was_map_saved = true;
@@ -47,6 +49,7 @@ pub fn try_move(
         block,
         direction,
         is_weak: _,
+        position: _,
     } in ice_events.into_iter()
     {
         let can_block_move = move_weak(

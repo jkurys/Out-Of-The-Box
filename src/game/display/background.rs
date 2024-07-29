@@ -61,15 +61,33 @@ pub fn render_board(
                     board.insert_entities(position, [vec![entity1], vec![entity2]]);
                 }
                 GameObject::Player => {
-                    let [entity1, entity2] = render_object(
-                        &mut commands,
-                        images.player_images.clone().unwrap(),
-                        (current_sprite.0 * 2 + 1, current_sprite.0 * 2),
-                        x,
-                        y,
-                        Player,
-                    );
-                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
+                    let counter = board.get_eat_counter(position);
+                    if counter.is_none() {
+                        let [entity1, entity2] = render_object(
+                            &mut commands,
+                            images.player_images.clone().unwrap(),
+                            (current_sprite.0 * 2 + 1, current_sprite.0 * 2),
+                            x,
+                            y,
+                            Player,
+                        );
+                        board.insert_entities(position, [vec![entity1], vec![entity2]]);
+                    } else {
+                        let mut counter = counter.unwrap();
+                        if counter == 0 {
+                            counter = 1;
+                        }
+                        let [entity1, entity2, entity3] = render_object_with_sticker(
+                            &mut commands,
+                            images.player_images.clone().unwrap(),
+                            (current_sprite.0 * 2 + 1, current_sprite.0 * 2),
+                            16 - counter,
+                            x,
+                            y,
+                            Player,
+                        );
+                        board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
+                    }
                 }
                 GameObject::HidingWall { color } => {
                     let [entity1, entity2] = render_object(

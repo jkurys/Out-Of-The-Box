@@ -25,7 +25,7 @@ pub fn is_moveable(obj: GameObject) -> bool {
     )
 }
 
-fn can_block_move(
+pub fn can_block_move(
     board: &ResMut<Board>,
     block: Block,
     dir: Direction,
@@ -152,9 +152,22 @@ fn perform_move(
     }
 }
 
+pub fn perform_eat(
+    board: &mut ResMut<Board>,
+    block: Block,
+    next_pos: Position,
+    direction: Direction,
+    writer: &mut EventWriter<EnteredFloorEvent>,
+) {
+    board.delete_object(next_pos);
+    board.insert_eat(next_pos.next_position(direction.opposite()), direction, GameObject::Box);
+    perform_move([block].to_vec(), board, direction, writer);
+}
+
 pub fn move_strong(
     board: &mut ResMut<Board>,
     block: Block,
+    position: Position,
     direction: Direction,
     writer: &mut EventWriter<EnteredFloorEvent>,
 ) -> bool {
@@ -162,11 +175,20 @@ pub fn move_strong(
     let mut visited_blocks = Vec::new();
     if !can_block_move(
         board,
-        block,
+        block.clone(),
         direction,
         &mut next_blocks,
         &mut visited_blocks,
     ) {
+        let next_pos = position.next_position(direction);
+        if board.get_object_type(next_pos) == GameObject::Box
+            && board.get_object_type(position) == GameObject::Player
+            && board.get_eat_counter(position).is_none() {
+            // NOTE: otherwise turtles could eat objects
+            // maybe they could in the future?
+            perform_eat(board, block, next_pos, direction, writer);
+            return true;
+        }
         return false;
     }
     perform_move(next_blocks, board, direction, writer);

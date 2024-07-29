@@ -5,7 +5,7 @@ use crate::{
     game::game_objects::{Block, GameObject},
 };
 
-use super::events::TryMoveEvent;
+use super::{events::TryMoveEvent, utils::can_block_move};
 
 pub fn handle_turtle(
     mut board: ResMut<Board>,
@@ -29,7 +29,6 @@ pub fn handle_turtle(
             }
         }
         if is_clicked {
-            // BUG: nie odpala sie rzuw w poziomie 8
             // BUG: jak jest kratka odstepu miedzy rzuwiami co sie na siebie patrza to sie pojawia
             // jedna z glow
             for (turtle_pos, direction) in turtles[color].iter() {
@@ -50,11 +49,24 @@ pub fn handle_turtle(
                         });
                     }
                     _ => {
-                        writer.send(TryMoveEvent {
-                            block: board.get_block(turtle_head_pos),
-                            direction,
-                            is_weak: false,
-                        });
+                        let mut empty_vec = Vec::new();
+                        let mut empty_vec2 = Vec::new();
+                        if can_block_move(&board, board.get_block(turtle_head_pos), direction, &mut empty_vec, &mut empty_vec2) {
+                            writer.send(TryMoveEvent {
+                                block: board.get_block(turtle_head_pos),
+                                position: turtle_head_pos,
+                                direction,
+                                is_weak: false,
+                            });
+                        }
+                        else {
+                            writer.send(TryMoveEvent {
+                                block: board.get_block(*turtle_pos),
+                                position: *turtle_pos,
+                                direction: direction.opposite(),
+                                is_weak: false,
+                            });
+                        }
                         board.delete_block(&Block {
                             positions: HashSet::from([*turtle_pos]),
                         });

@@ -10,7 +10,11 @@ pub fn render_border(
     mut board: ResMut<Board>,
     images: Res<Images>
 ) {
-    let (bottom_border, top_border, left_border, right_border) = calculate_borders(&board);
+    let (mut bottom_border, mut top_border, mut left_border, mut right_border) = calculate_borders(&board);
+    bottom_border -= 1;
+    top_border += 1;
+    left_border -= 1;
+    right_border += 1;
     let map = board.get_current_map();
     //spawn horizontal border for the level and insert it to board
     for x in left_border..=right_border {

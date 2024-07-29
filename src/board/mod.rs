@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     components::GameEntity,
-    consts::{INITIAL_MAP, MAX_MAPS},
+    consts::{INITIAL_MAP, MAX_MAPS, EAT_COUNTER},
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
     menu::level_editor::resources::BoardSize,
     utils::offset_coordinate,
@@ -22,8 +22,8 @@ struct SingleBoard {
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
     map_size: BoardSize,
-    warp_positions: [Position; MAX_MAPS],
     blocks: Vec<Block>,
+    eaten_boxes: HashMap<Position, (GameObject, usize, Direction)>,
 }
 
 #[derive(Resource, Debug, Clone, Serialize, Deserialize)]
@@ -45,8 +45,8 @@ impl Board {
                     width: 0,
                     height: 0,
                 },
-                warp_positions: [Position { x: 0, y: 0 }; 10],
                 blocks: Vec::new(),
+                eaten_boxes: HashMap::new(),
             });
         }
         Board {
@@ -57,9 +57,7 @@ impl Board {
 
     pub fn get_block(&self, position: Position) -> Block {
         for block in self.boards[self.current].blocks.iter() {
-            if block.contains_position(position)
-                 // && self.get_object_type(position) != GameObject::Empty
-            {
+            if block.contains_position(position) {
                 return block.clone();
             }
         }
@@ -272,11 +270,47 @@ impl Board {
         self.boards[map].floors.insert(position, floor);
         match floor {
             Floor::Goal => self.boards[map].goals.push(position),
-            Floor::Warp(next_map) => {
-                self.boards[map].warp_positions[next_map] = position;
-            }
             _ => (),
         };
+    }
+
+    pub fn insert_eat(
+        &mut self,
+        position: Position,
+        dir: Direction,
+        object: GameObject,
+    ) {
+        let map = self.current;
+        self.boards[map].eaten_boxes.insert(position, (object, EAT_COUNTER, dir));
+    }
+
+    pub fn remove_eat(
+        &mut self,
+        position: Position,
+    ) {
+        let map = self.current;
+        self.boards[map].eaten_boxes.remove(&position);
+    }
+
+    pub fn get_eat_data(
+        &self,
+        position: Position
+    ) -> (GameObject, Direction) {
+        let map = self.current;
+        let (obj, _, dir) = self.boards[map].eaten_boxes.get(&position).unwrap();
+        (*obj, *dir)
+    }
+
+    pub fn get_eat_counter(
+        &self,
+        position: Position,
+    ) -> Option<usize> {
+        let map = self.current;
+        let opt = self.boards[map].eaten_boxes.get(&position);
+        if let Some((_, counter, _)) = opt {
+            return Some(*counter);
+        }
+        return None;
     }
 
     pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
@@ -295,6 +329,16 @@ impl Board {
                 object = obj;
             }
         }
+        let eaten_opt = self.boards[map].eaten_boxes.remove(&position);
+        if let Some(data) = eaten_opt {
+            let (obj, counter, dir2) = data;
+            let mut new_counter = counter;
+            if counter != 0 {
+                new_counter = counter - 1;
+            }
+            self.boards[map].eaten_boxes.insert(position.next_position(dir), (obj, new_counter, dir2));
+        }
+
         self.boards[map]
             .objects
             .insert(position.next_position(dir), object);
@@ -326,21 +370,13 @@ impl Board {
         self.boards[map].floors.remove(&position);
     }
 
-    pub fn get_warp_position(&self, from: usize, to: usize) -> Position {
-        self.boards[from].warp_positions[to]
-    }
-
     pub fn get_next_position_for_move(
         &self,
         position: Position,
         direction: Direction,
         map: usize,
     ) -> (Position, usize) {
-        let mut next_position = position.next_position(direction);
-        if let Floor::Warp(next_map) = self.get_floor_type(next_position) {
-            next_position = self.get_warp_position(next_map, map);
-            return (next_position, next_map);
-        }
+        let next_position = position.next_position(direction);
         (next_position, map)
     }
 

@@ -4,7 +4,7 @@ use itertools::Itertools;
 use super::events::{EnteredFloorEvent, TryMoveEvent};
 use crate::{
     board::Board,
-    game::game_objects::{Block, Direction},
+    game::game_objects::{Block, Direction, Position},
 };
 
 pub fn handle_ice(
@@ -16,16 +16,17 @@ pub fn handle_ice(
     for event in position_reader.iter() {
         positions.push((event.position, event.direction));
     }
-    let blocks: Vec<(Block, Direction)> = positions
+    let blocks: Vec<(Block, Direction, Position)> = positions
         .into_iter()
-        .map(|(p, d)| (board.get_block(p), d))
+        .map(|(p, d)| (board.get_block(p), d, p))
         .unique()
         .collect();
 
-    for (block, direction) in blocks.into_iter() {
+    for (block, direction, position) in blocks.into_iter() {
         writer.send(TryMoveEvent {
             block,
             direction,
+            position,
             is_weak: true,
         });
     }

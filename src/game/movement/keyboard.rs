@@ -2,14 +2,14 @@ use bevy::prelude::*;
 use itertools::Itertools;
 
 use crate::board::Board;
-use crate::game::game_objects::{Block, Direction};
+use crate::game::game_objects::{Block, Direction, Position};
 use crate::state::MoveState;
 
 use super::events::TryMoveEvent;
 
 pub fn handle_keypress(
     keyboard_input: ResMut<Input<KeyCode>>,
-    board: Res<Board>,
+    board: ResMut<Board>,
     mut writer: EventWriter<TryMoveEvent>,
     mut app_state: ResMut<NextState<MoveState>>,
 ) {
@@ -25,23 +25,27 @@ pub fn handle_keypress(
         return;
     };
     let mut positions = board.get_player_positions();
+    
     positions.sort_by(|&pos1, &pos2| match direction {
         Direction::Down => pos1.y.cmp(&pos2.y),
         Direction::Left => pos1.x.cmp(&pos2.x),
         Direction::Right => pos2.x.cmp(&pos1.x),
         Direction::Up => pos2.y.cmp(&pos1.y),
     });
-    let blocks: Vec<Block> = positions
+    let blocks: Vec<(Block, Position)> = positions
         .into_iter()
-        .map(|p| board.get_block(p))
+        .map(|p| (board.get_block(p), p))
         .unique()
         .collect();
-    for block in blocks {
+    
+    for (block, position) in blocks {
         writer.send(TryMoveEvent {
+            position,
             block,
             direction,
             is_weak: false,
         });
     }
+    
     app_state.set(MoveState::Calculating);
 }

@@ -74,3 +74,4 @@ pub const FLOOR_STICKER_Z_INDEX: f32 = 1.5;
 /** MISCELLANEOUS */
 pub const MAX_MAPS: usize = 10;
 pub const INITIAL_MAP: usize = 0;
+pub const EAT_COUNTER: usize = 5;
