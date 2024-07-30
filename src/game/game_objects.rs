@@ -27,6 +27,7 @@ pub enum Floor {
     Goal,
     Warp(usize),
     Button(usize),
+    Dirt,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -87,6 +88,9 @@ pub struct BoxButton;
 
 #[derive(Component, Clone)]
 pub struct Glue;
+
+#[derive(Component)]
+pub struct Dirt;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
 pub struct Position {

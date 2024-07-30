@@ -100,6 +100,11 @@ pub fn setup_level_editor_board(
             );
             spawn_small_button(
                 parent,
+                images.dirt_image.clone(),
+                GameEntity::Floor(Floor::Dirt),
+            );
+            spawn_small_button(
+                parent,
                 images.ice_image.clone(),
                 GameEntity::Floor(Floor::Ice),
             );

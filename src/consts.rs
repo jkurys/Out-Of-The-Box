@@ -20,6 +20,7 @@ pub const STICKER_TEXTURES: [&str; 3] = [
     "textures/turtle_green_sticker.png",
 ];
 pub const GLUE_ATLAS: &str = "textures/glue_atlas.png";
+pub const DIRT_TEXTURE: &str = "textures/dirt.png";
 pub const BOX_GLUE_ATLAS: &str = "textures/box_glue_atlas.png";
 pub const TURTLE_ATLAS: &str = "textures/turtle_atlas.png";
 pub const PLAYER_ATLAS: &str = "textures/player_atlas.png";

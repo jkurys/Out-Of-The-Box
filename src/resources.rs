@@ -23,6 +23,7 @@ pub struct Images {
     pub ice_image: Handle<Image>,
     pub warp_image: Handle<Image>,
     pub button_images: [Handle<Image>; 3],
+    pub dirt_image: Handle<Image>,
     pub hidden_wall_images: Option<Handle<TextureAtlas>>,
     pub turtle_images: Option<Handle<TextureAtlas>>,
     pub glue_images: Option<Handle<TextureAtlas>>,
@@ -50,6 +51,7 @@ impl FromWorld for Images {
             asset_server.load(BUTTON_TEXTURES[1]),
             asset_server.load(BUTTON_TEXTURES[2]),
         ];
+        let dirt_image = asset_server.load(DIRT_TEXTURE);
         let hidden_wall_images = None;
         let player_images = None;
         let turtle_images = None;
@@ -69,6 +71,7 @@ impl FromWorld for Images {
             turtle_images,
             glue_images,
             box_glue_images,
+            dirt_image,
         }
     }
 }

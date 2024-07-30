@@ -55,6 +55,22 @@ pub fn render_floor(
                         FLOOR_STICKER_Z_INDEX,
                     );
                 }
+                Floor::Dirt => {
+                    render_entity(
+                        Dirt,
+                        &mut commands,
+                        images.tile_image.clone(),
+                        position,
+                        FLOOR_Z_INDEX,
+                    );
+                    render_entity(
+                        Dirt,
+                        &mut commands,
+                        images.dirt_image.clone(),
+                        position,
+                        FLOOR_STICKER_Z_INDEX,
+                    );
+                }
                 Floor::Warp(_) => {
                     render_entity(
                         Warp,

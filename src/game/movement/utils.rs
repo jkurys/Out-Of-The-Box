@@ -183,7 +183,8 @@ pub fn move_strong(
         let next_pos = position.next_position(direction);
         if board.get_object_type(next_pos) == GameObject::Box
             && board.get_object_type(position) == GameObject::Player
-            && board.get_eat_counter(position).is_none() {
+            && board.get_eat_counter(position).is_none()
+            && board.get_floor_type(next_pos) != Floor::Dirt {
             // NOTE: otherwise turtles could eat objects
             // maybe they could in the future?
             perform_eat(board, block, next_pos, direction, writer);
