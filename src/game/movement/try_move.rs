@@ -4,7 +4,7 @@ use crate::{board::Board, game::resources::BoardStates, state::MoveState};
 
 use super::{
     events::{EnteredFloorEvent, TryMoveEvent},
-    utils::{move_strong, move_weak},
+    utils::{move_strong, move_weak}, resources::FireAnimation,
 };
 
 pub fn try_move(
@@ -13,6 +13,7 @@ pub fn try_move(
     mut board: ResMut<Board>,
     mut board_states: ResMut<BoardStates>,
     mut app_state: ResMut<NextState<MoveState>>,
+    mut fire_animation: ResMut<FireAnimation>,
 ) {
     let mut was_map_saved = false;
     let mut was_moved = false;
@@ -60,11 +61,11 @@ pub fn try_move(
             &mut writer,
         );
         was_moved = was_moved || can_block_move;
-        // NOTE: no insert_after_implemented here
     }
-    if was_moved {
+    if was_moved || fire_animation.0 {
         app_state.set(MoveState::Animation);
     } else {
         app_state.set(MoveState::Static);
     }
+    fire_animation.0 = false;
 }

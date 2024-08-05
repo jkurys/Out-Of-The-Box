@@ -33,9 +33,6 @@ pub fn can_block_move(
     visited_blocks: &mut Vec<Block>,
 ) -> bool {
     visited_blocks.push(block.clone());
-    // if board.is_block_empty(&block) {
-    //     return false;
-    // }
     for &position in block.positions.iter() {
         if board.get_object_type(position) == GameObject::Empty {
             continue;
@@ -130,6 +127,7 @@ fn perform_move(
     board: &mut ResMut<Board>,
     direction: Direction,
     writer: &mut EventWriter<EnteredFloorEvent>,
+    is_weak: bool,
 ) {
     let mut positions_vec: Vec<(Position, usize)> = blocks
         .iter()
@@ -141,7 +139,12 @@ fn perform_move(
     positions_vec.sort_by(sort_positions(direction));
     for (position, _) in positions_vec {
         let map = board.get_current_map();
-        board.move_object(position, direction, map);
+        if is_weak {
+            board.move_object_no_countdown(position, direction, map);
+        }
+        else {
+            board.move_object(position, direction, map);
+        }
         let next_position = board.get_next_position_for_move(position, direction, map).0;
         writer.send(EnteredFloorEvent {
             floor: board.get_floor_type(next_position),
@@ -161,7 +164,7 @@ pub fn perform_eat(
 ) {
     board.delete_object(next_pos);
     board.insert_eat(next_pos.next_position(direction.opposite()), direction, GameObject::Box);
-    perform_move([block].to_vec(), board, direction, writer);
+    perform_move([block].to_vec(), board, direction, writer, false);
 }
 
 pub fn move_strong(
@@ -192,7 +195,7 @@ pub fn move_strong(
         }
         return false;
     }
-    perform_move(next_blocks, board, direction, writer);
+    perform_move(next_blocks, board, direction, writer, false);
     return true;
 }
 
@@ -214,9 +217,9 @@ pub fn move_weak(
         &mut blocks_that_must_move,
     );
     let was_moved = can_block_move || !blocks_that_must_move.is_empty();
-    perform_move(blocks_that_must_move, board, direction, writer);
+    perform_move(blocks_that_must_move, board, direction, writer, true);
     if can_block_move {
-        perform_move(next_blocks, board, direction, writer);
+        perform_move(next_blocks, board, direction, writer, true);
     }
     return was_moved;
 }

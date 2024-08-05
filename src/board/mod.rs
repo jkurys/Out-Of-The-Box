@@ -90,6 +90,18 @@ impl Board {
             .collect();
     }
 
+    pub fn remove_from_block(&mut self, block: &mut Block, position: Position) {
+        self.delete_block(&block);
+        block.positions.remove(&position);
+        self.insert_block(block.clone());
+    }
+
+    pub fn add_to_block(&mut self, block: &mut Block, position: Position) {
+        self.delete_block(&block);
+        block.positions.insert(position);
+        self.insert_block(block.clone());
+    }
+
     pub fn modify_position_in_block(&mut self, position: Position, dir: Direction) {
         let mut block = self.get_block(position);
         self.delete_block(&block);
@@ -313,7 +325,7 @@ impl Board {
         return None;
     }
 
-    pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
+    pub fn move_object_no_countdown(&mut self, position: Position, dir: Direction, map: usize) {
         self.modify_position_in_block(position, dir);
         if self.get_object_type(position) == GameObject::Empty {
             return;
@@ -329,15 +341,6 @@ impl Board {
                 object = obj;
             }
         }
-        let eaten_opt = self.boards[map].eaten_boxes.remove(&position);
-        if let Some(data) = eaten_opt {
-            let (obj, counter, dir2) = data;
-            let mut new_counter = counter;
-            if counter != 0 {
-                new_counter = counter - 1;
-            }
-            self.boards[map].eaten_boxes.insert(position.next_position(dir), (obj, new_counter, dir2));
-        }
 
         self.boards[map]
             .objects
@@ -351,6 +354,27 @@ impl Board {
                     .entities
                     .insert(position.next_position(dir), entity)
             });
+        let eaten_opt = self.boards[map].eaten_boxes.remove(&position);
+        if let Some(data) = eaten_opt {
+            let (obj, counter, dir2) = data;
+            let new_counter = counter;
+            self.boards[map].eaten_boxes.insert(position.next_position(dir), (obj, new_counter, dir2));
+        }
+    }
+
+    pub fn move_object(&mut self, position: Position, dir: Direction, map: usize) {
+        
+        self.move_object_no_countdown(position, dir, map);
+        let eaten_opt = self.boards[map].eaten_boxes.remove(&position.next_position(dir));
+        if let Some(data) = eaten_opt {
+            let (obj, counter, dir2) = data;
+            let mut new_counter = counter;
+            if counter != 0 {
+                new_counter = counter - 1;
+            }
+            self.boards[map].eaten_boxes.insert(position.next_position(dir), (obj, new_counter, dir2));
+        }
+
     }
 
     pub fn delete_object(&mut self, position: Position) {

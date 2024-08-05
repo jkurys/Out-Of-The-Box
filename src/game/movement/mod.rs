@@ -12,7 +12,7 @@ use self::{
     button::handle_button,
     end_move::end_move,
     events::{EnteredFloorEvent, TryMoveEvent},
-    resources::AnimationTimer,
+    resources::{AnimationTimer, FireAnimation},
     turtle::handle_turtle,
     spit::handle_spit,
 };
@@ -50,7 +50,9 @@ impl Plugin for MovementPlugin {
         app.add_plugins(GameAnimationPlugin);
         app.add_systems(
             Update,
-            handle_keypress
+            (
+                handle_keypress,
+            )
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::Static)),
         );
@@ -61,6 +63,7 @@ impl Plugin for MovementPlugin {
                 despawn_board,
                 render_board,
                 render_border,
+                handle_spit,
                 try_move,
             )
                 .run_if(is_in_game)
@@ -71,7 +74,6 @@ impl Plugin for MovementPlugin {
         app.add_systems(
             Update,
             (
-                handle_spit,
                 handle_turtle,
                 handle_button,
                 handle_ice,
@@ -84,6 +86,7 @@ impl Plugin for MovementPlugin {
 
         app.add_event::<TryMoveEvent>();
         app.init_resource::<Events<EnteredFloorEvent>>();
+        app.insert_resource(FireAnimation(false));
         app.insert_resource(AnimationTimer(Timer::from_seconds(
             MOVE_ANIMATION_TIME,
             TimerMode::Once,

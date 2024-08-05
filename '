@@ -1,12 +1,10 @@
 use bevy::prelude::*;
-use bevy::utils::HashSet;
 
 use crate::board::Board;
-use crate::game::game_objects::{Position, Block};
+use crate::game::game_objects::Position;
 use crate::state::MoveState;
 
 use super::events::EnteredFloorEvent;
-use super::resources::FireAnimation;
 use super::utils::{can_block_move, move_strong};
 
 //BUG: weird stuff happens when a block player eats a block box
@@ -15,7 +13,6 @@ pub fn handle_spit(
     mut board: ResMut<Board>,
     mut writer: EventWriter<EnteredFloorEvent>,
     mut app_state: ResMut<NextState<MoveState>>,
-    mut fire_animation: ResMut<FireAnimation>,
 ) {
     let is_zeroed = |p| {
         let counter_opt = board.get_eat_counter(p);
@@ -34,7 +31,7 @@ pub fn handle_spit(
         .filter(|p| is_zeroed(*p))
         .collect();
     for position in counter_zeroed {
-        spit_out(position, &mut writer, &mut board, &mut app_state, &mut fire_animation);
+        spit_out(position, &mut writer, &mut board, &mut app_state);
     }
 }
 
@@ -43,7 +40,6 @@ pub fn spit_out(
     writer: &mut EventWriter<EnteredFloorEvent>,
     board: &mut ResMut<Board>,
     app_state: &mut ResMut<NextState<MoveState>>,
-    fire_animation: &mut ResMut<FireAnimation>,
 ) {
     let mut empty_vec = Vec::new();
     let mut empty_vec2 = Vec::new();
@@ -51,15 +47,13 @@ pub fn spit_out(
     let new_pos = position.next_position(dir);
     let can_push = can_block_move(board, board.get_block(new_pos), dir, &mut empty_vec, &mut empty_vec2)
         && can_block_move(board, board.get_block(position), dir, &mut empty_vec, &mut empty_vec2);
-    // NOTE: here it should be the eaten block
-    let can_push_backwards = can_block_move(board, Block { positions: HashSet::from([position]) }, dir.opposite(), &mut empty_vec, &mut empty_vec2);
-    // NOTE: here it should be the player block
+    let can_push_backwards = can_block_move(board, board.get_block(position), dir.opposite(), &mut empty_vec, &mut empty_vec2);
     let mut block = board.get_block(position);
     if can_push {
         board.remove_from_block(&mut block, position);
         move_strong(board, block.clone(), new_pos, dir, writer);
     }
-    else if can_push_backwards {
+    else {
         board.remove_from_block(&mut block, position);
         move_strong(board, board.get_block(position), position, dir.opposite(), writer);
     }
@@ -80,7 +74,6 @@ pub fn spit_out(
         }
         board.remove_eat(position);
         app_state.set(MoveState::Animation);
-        fire_animation.0 = true;
     }
     else if can_push_backwards {
         board.insert_object(position, obj);
@@ -89,6 +82,8 @@ pub fn spit_out(
         }
         board.remove_eat(position.next_position(dir.opposite()));
         app_state.set(MoveState::Animation);
-        fire_animation.0 = true;
+    }
+    else {
+        app_state.set(MoveState::Static);
     }
 }
