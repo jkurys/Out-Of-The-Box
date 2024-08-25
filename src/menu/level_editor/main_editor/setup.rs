@@ -5,7 +5,7 @@ use crate::{
     components::GameEntity,
     consts::{
         BOX_TEXTURE, HIDDEN_WALL_TEXTURES, MAX_MAPS, PLAYER_TEXTURES, PLUS_TEXTURE,
-        SHOWN_HIDDEN_WALL_TEXTURES, STICKER_TEXTURES, TURTLE_TEXTURES, WALL_TEXTURE,
+        SHOWN_HIDDEN_WALL_TEXTURES, STICKER_TEXTURES, TURTLE_TEXTURES, WALL_TEXTURE, BUTTON_TEXTURES,
     },
     game::game_objects::{Direction, Floor, GameObject},
     menu::level_editor::{
@@ -31,11 +31,14 @@ pub fn setup_level_editor_board(
     let turtle_image = asset_server.load(TURTLE_TEXTURES[0]);
     let wall_image = asset_server.load(WALL_TEXTURE);
     let box_image = asset_server.load(BOX_TEXTURE);
+    let water_image = asset_server.load("textures/water.png");
+    let ice_image = asset_server.load("textures/ice.png");
     let sticker_images = STICKER_TEXTURES.map(|texture| asset_server.load(texture));
     let hidden_wall_images = SHOWN_HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
     let bottom_hidden_wall_images = HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
     let player_image = asset_server.load(PLAYER_TEXTURES[current_sprite.0]);
     let plus_image = asset_server.load(PLUS_TEXTURE);
+    let button_images = [asset_server.load(BUTTON_TEXTURES[0]), asset_server.load(BUTTON_TEXTURES[1]), asset_server.load(BUTTON_TEXTURES[2])];
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::DARK_GREEN),
@@ -105,10 +108,15 @@ pub fn setup_level_editor_board(
             );
             spawn_small_button(
                 parent,
-                images.ice_image.clone(),
+                water_image,
+                GameEntity::Floor(Floor::Void),
+            );
+            spawn_small_button(
+                parent,
+                ice_image,
                 GameEntity::Floor(Floor::Ice),
             );
-            for (color, image) in images.button_images.iter().enumerate() {
+            for (color, image) in button_images.iter().enumerate() {
                 spawn_small_button(
                     parent,
                     image.clone(),
@@ -141,11 +149,11 @@ pub fn setup_level_editor_board(
                 images.tile_image.clone(),
                 GameEntity::Floor(Floor::Tile),
             );
-            spawn_small_button(
-                parent,
-                images.warp_image.clone(),
-                GameEntity::Floor(Floor::Warp(1)),
-            );
+            // spawn_small_button(
+            //     parent,
+            //     images.warp_image.clone(),
+            //     GameEntity::Floor(Floor::Warp(1)),
+            // );
         });
     commands
         .spawn(NodeBundle {

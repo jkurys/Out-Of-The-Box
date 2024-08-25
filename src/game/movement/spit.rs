@@ -10,6 +10,7 @@ use super::resources::FireAnimation;
 use super::utils::{can_block_move, move_strong};
 
 //BUG: weird stuff happens when a block player eats a block box
+//BUG: spitting disappears a turtle
 
 pub fn handle_spit(
     mut board: ResMut<Board>,

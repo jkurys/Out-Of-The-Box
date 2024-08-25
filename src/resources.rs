@@ -20,10 +20,11 @@ pub struct Images {
     pub box_images: Option<Handle<TextureAtlas>>,
     pub wall_images: Option<Handle<TextureAtlas>>,
     pub tile_image: Handle<Image>,
-    pub ice_image: Handle<Image>,
+    pub ice_images: Option<Handle<TextureAtlas>>,
     pub warp_image: Handle<Image>,
-    pub button_images: [Handle<Image>; 3],
+    pub button_images: Option<Handle<TextureAtlas>>,
     pub dirt_image: Handle<Image>,
+    pub water_images: Option<Handle<TextureAtlas>>,
     pub hidden_wall_images: Option<Handle<TextureAtlas>>,
     pub turtle_images: Option<Handle<TextureAtlas>>,
     pub glue_images: Option<Handle<TextureAtlas>>,
@@ -44,14 +45,16 @@ impl FromWorld for Images {
         let box_images = None;
         let goal_image = asset_server.load(GOAL_TEXTURE);
         let tile_image = asset_server.load(TILE_TEXTURE);
-        let ice_image = asset_server.load(ICE_TEXTURE);
+        let ice_images = None;
         let warp_image = asset_server.load(WARP_TEXTURE);
-        let button_images = [
-            asset_server.load(BUTTON_TEXTURES[0]),
-            asset_server.load(BUTTON_TEXTURES[1]),
-            asset_server.load(BUTTON_TEXTURES[2]),
-        ];
+        // let button_images = [
+        //     asset_server.load(BUTTON_TEXTURES[0]),
+        //     asset_server.load(BUTTON_TEXTURES[1]),
+        //     asset_server.load(BUTTON_TEXTURES[2]),
+        // ];
         let dirt_image = asset_server.load(DIRT_TEXTURE);
+        let water_images = None;
+        let button_images = None;
         let hidden_wall_images = None;
         let player_images = None;
         let turtle_images = None;
@@ -64,7 +67,7 @@ impl FromWorld for Images {
             wall_images,
             goal_image,
             tile_image,
-            ice_image,
+            ice_images,
             warp_image,
             button_images,
             hidden_wall_images,
@@ -72,6 +75,7 @@ impl FromWorld for Images {
             glue_images,
             box_glue_images,
             dirt_image,
+            water_images,
         }
     }
 }

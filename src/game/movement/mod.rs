@@ -14,7 +14,7 @@ use self::{
     events::{EnteredFloorEvent, TryMoveEvent},
     resources::{AnimationTimer, FireAnimation},
     turtle::handle_turtle,
-    spit::handle_spit,
+    spit::handle_spit, fall::handle_fall,
 };
 
 mod animation;
@@ -30,6 +30,7 @@ mod try_move;
 mod turtle;
 mod utils;
 mod spit;
+mod fall;
 
 use crate::game::movement::try_move::try_move;
 
@@ -74,6 +75,7 @@ impl Plugin for MovementPlugin {
         app.add_systems(
             Update,
             (
+                handle_fall,
                 handle_turtle,
                 handle_button,
                 handle_ice,

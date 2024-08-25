@@ -110,6 +110,15 @@ impl Board {
         self.insert_block(block);
     }
 
+    pub fn fall_block(&mut self, block: Block) {
+        self.delete_block(&block);
+        for position in block.positions {
+            let obj = self.get_object_type(position);
+            self.delete_object(position);
+            self.insert_floor(position, Floor::Obj(obj));
+        }
+    }
+
     pub fn clear_entities(&mut self) {
         self.boards[self.current].entities.clear();
     }
@@ -130,6 +139,16 @@ impl Board {
         let mut positions = Vec::new();
         for (&pos, &obj) in self.boards[self.current].objects.iter() {
             if obj == GameObject::Player {
+                positions.push(pos);
+            }
+        }
+        positions
+    }
+
+    pub fn get_all_positions(&self, floor_to_be_found: Floor) -> Vec<Position> {
+        let mut positions = Vec::new();
+        for (&pos, &floor) in self.boards[self.current].floors.iter() {
+            if floor_to_be_found == floor {
                 positions.push(pos);
             }
         }

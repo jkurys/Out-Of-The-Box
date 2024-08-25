@@ -3,18 +3,22 @@ use bevy::{prelude::*, utils::HashSet, window::PrimaryWindow};
 use crate::{
     board::Board,
     components::GameEntity,
-    consts::TILE_SIZE,
+    consts::*,
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
 };
 
-fn offset_coordinate(coord: f32, window_coord: f32) -> i32 {
-    ((coord - ((window_coord) / 2.)) / TILE_SIZE).round() as i32
+fn offset_coordinate_x(coord: f32, window_coord: f32) -> i32 {
+    ((coord - ((window_coord) / 2.)) / TILE_WIDTH).round() as i32
+}
+
+fn offset_coordinate_y(coord: f32, window_coord: f32) -> i32 {
+    ((coord - ((window_coord) / 2.)) / TILE_HEIGHT).round() as i32
 }
 
 fn vec2_to_position(vec: Vec2, window_size: Vec2) -> Position {
     Position {
-        x: offset_coordinate(vec.x, window_size.x),
-        y: offset_coordinate(window_size.y - vec.y, window_size.y),
+        x: offset_coordinate_x(vec.x, window_size.x),
+        y: offset_coordinate_y(window_size.y - vec.y, window_size.y),
     }
 }
 

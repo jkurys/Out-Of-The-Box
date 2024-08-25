@@ -3,6 +3,8 @@ use crate::board::Board;
 use crate::consts::INITIAL_MAP;
 use bevy::prelude::*;
 
+//BUG: sometimes restart restarts to a non strarting position
+
 pub fn handle_restart(
     mut keyboard_input: ResMut<Input<KeyCode>>,
     // mut current_map: ResMut<State<CurrentMap>>,

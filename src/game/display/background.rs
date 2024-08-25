@@ -34,102 +34,116 @@ pub fn render_board(
             match game_object {
                 GameObject::Box => {
                     let top_index = if board.get_floor_type(position) == Floor::Goal {
-                        2
+                        3
                     } else {
                         0
                     };
 
-                    let [entity1, entity2] = render_object(
+                    let [entity1, entity2, entity3] = render_object(
                         &mut commands,
                         images.box_images.clone().unwrap(),
-                        (1, top_index),
+                        (1, top_index, 4),
                         x,
                         y,
+                        1,
+                        0.,
                         Box,
                     );
-                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
+                    board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
                 }
                 GameObject::Wall => {
-                    let [entity1, entity2] = render_object(
+                    let [entity1, entity2, entity3] = render_object(
                         &mut commands,
                         images.wall_images.clone().unwrap(),
-                        (1, 0),
+                        (1, 0, 2),
                         x,
                         y,
+                        1,
+                        0.,
                         Wall,
                     );
-                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
+                    board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
                 }
                 GameObject::Player => {
                     let counter = board.get_eat_counter(position);
                     if counter.is_none() {
-                        let [entity1, entity2] = render_object(
+                        let [entity1, entity2, entity3] = render_object(
                             &mut commands,
                             images.player_images.clone().unwrap(),
-                            (current_sprite.0 * 2 + 1, current_sprite.0 * 2),
+                            (current_sprite.0 * 4 + 1, current_sprite.0 * 4, current_sprite.0 * 4 + 2),
                             x,
                             y,
+                            1,
+                            0.,
                             Player,
                         );
-                        board.insert_entities(position, [vec![entity1], vec![entity2]]);
+                        board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
                     } else {
                         let mut counter = counter.unwrap();
                         if counter == 0 {
                             counter = 1;
                         }
-                        let [entity1, entity2, entity3] = render_object_with_sticker(
+                        let [entity1, entity2, entity3, entity4] = render_object_with_sticker(
                             &mut commands,
                             images.player_images.clone().unwrap(),
-                            (current_sprite.0 * 2 + 1, current_sprite.0 * 2),
+                            (current_sprite.0 * 4 + 1, current_sprite.0 * 4, current_sprite.0 * 4 + 2),
                             16 - counter,
                             x,
                             y,
+                            1,
+                            0.,
                             Player,
                         );
-                        board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
+                        board.insert_entities(position, [vec![entity1, entity3, entity4], vec![entity2]]);
                     }
                 }
                 GameObject::HidingWall { color } => {
-                    let [entity1, entity2] = render_object(
+                    let [entity1, entity2, entity3] = render_object(
                         &mut commands,
                         images.hidden_wall_images.clone().unwrap(),
-                        (color * 3 + 1, color * 3),
+                        (color * 3 + 1, color * 3, color * 3 + 2),
                         x,
                         y,
+                        1,
+                        0.,
                         HiddenWall,
                     );
-                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
+                    board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
                 }
                 GameObject::Turtle { color, direction } => {
-                    let [entity1, entity2, entity3] = render_object_with_sticker(
+                    let [entity1, entity2, entity3, entity4] = render_object_with_sticker(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
-                        (direction.to_num() * 4 + 1, direction.to_num() * 4),
-                        4 * 4 + color,
+                        (direction.to_num() * 6 + 1, direction.to_num() * 6, direction.to_num() * 6 + 2),
+                        4 * 6 + color,
                         x,
                         y,
+                        1,
+                        0.,
                         Turtle,
                     );
-                    board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
+                    board.insert_entities(position, [vec![entity1, entity3, entity4], vec![entity2]]);
                 }
                 GameObject::TurtleHead {
                     direction,
                     color: _,
                 } => {
-                    let [entity1, entity2] = render_object(
+                    let [entity1, entity2, entity3] = render_object(
                         &mut commands,
                         images.turtle_images.clone().unwrap(),
-                        (direction.to_num() * 4 + 3, direction.to_num() * 4 + 2),
+                        (direction.to_num() * 6 + 4, direction.to_num() * 6 + 3, direction.to_num() * 6 + 5),
                         x,
                         y,
+                        1,
+                        0.,
                         Turtle,
                     );
-                    board.insert_entities(position, [vec![entity1], vec![entity2]]);
+                    board.insert_entities(position, [vec![entity1, entity3], vec![entity2]]);
                 }
                 _ => (),
             }
             render_glue(position, &mut board, &images, &mut commands);
         }
     }
-    render_floor(commands, board, images);
+    render_floor(commands, board, images, current_sprite);
 }

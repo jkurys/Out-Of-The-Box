@@ -21,9 +21,11 @@ pub fn render_border(
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
-            (1, 0),
+            (1, 0, 2),
             x,
             top_border,
+            1,
+            0.,
             Wall,
         );
         board.insert_object_to_map_unchecked(Position { x, y: top_border }, GameObject::Wall, map);
@@ -32,17 +34,21 @@ pub fn render_border(
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
-            (1, 0),
+            (1, 0, 2),
             left_border,
             y,
+            1,
+            0.,
             Wall,
         );
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
-            (1, 0),
+            (1, 0, 2),
             right_border,
             y,
+            1,
+            0.,
             Wall,
         );
         board.insert_object_to_map_unchecked(Position { x: left_border, y }, GameObject::Wall, map);
@@ -57,9 +63,11 @@ pub fn render_border(
         render_object(
             &mut commands,
             images.wall_images.clone().unwrap(),
-            (1, 0),
+            (1, 0, 2),
             x,
             bottom_border,
+            1,
+            0.,
             Wall,
         );
         board.insert_object_to_map_unchecked(

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::game::game_objects::Direction;
 use crate::{
     board::Board,
-    consts::TILE_SIZE,
+    consts::*,
     game::{
         game_objects::Floor,
         movement::{
@@ -41,16 +41,18 @@ fn modify_transform(
     };
     match direction {
         Direction::Down => {
-            transform.translation.y = starting_y - (distance - 1.) * TILE_SIZE;
+            transform.translation.y = starting_y - (distance - 1.) * TILE_HEIGHT;
+            transform.translation.x = starting_x - (distance - 1.) * TILE_WIDTH * (101./300.);
         }
         Direction::Up => {
-            transform.translation.y = starting_y + (distance - 1.) * TILE_SIZE;
+            transform.translation.y = starting_y + (distance - 1.) * TILE_HEIGHT;
+            transform.translation.x = starting_x + (distance - 1.) * TILE_WIDTH * (101./300.);
         }
         Direction::Left => {
-            transform.translation.x = starting_x - (distance - 1.) * TILE_SIZE;
+            transform.translation.x = starting_x - (distance - 1.) * TILE_WIDTH;
         }
         Direction::Right => {
-            transform.translation.x = starting_x + (distance - 1.) * TILE_SIZE;
+            transform.translation.x = starting_x + (distance - 1.) * TILE_WIDTH;
         }
     }
 }
@@ -66,8 +68,8 @@ pub fn move_event(
         for &higher_entity in higher_entities.iter() {
             if let Ok(higher_transform) = query.get_mut(higher_entity) {
                 let (x, y) = (
-                    position.x as f32 * TILE_SIZE,
-                    (position.y as f32 + 0.24) * TILE_SIZE,
+                    (position.x as f32) * TILE_WIDTH + (position.y as f32 * (101./300.) * TILE_WIDTH),
+                    (position.y as f32 + 0.7) * (TILE_HEIGHT - 3.) + ((1 - 1) as f32 * TILE_FRONT_HEIGHT), // NOTE: this 1 - 1 corresponds to z index; patch this soon
                 );
                 modify_transform(higher_transform, direction, timer, x, y, event.floor);
             }
@@ -75,8 +77,8 @@ pub fn move_event(
         for &lower_entity in lower_entities.iter() {
             if let Ok(lower_transform) = query.get_mut(lower_entity) {
                 let (x2, y2) = (
-                    position.x as f32 * TILE_SIZE,
-                    (position.y as f32 - 0.375) * TILE_SIZE,
+                    (position.x as f32) * TILE_WIDTH + (position.y as f32 * (101./300.) * TILE_WIDTH),
+                    (position.y as f32 - 0.3) * (TILE_HEIGHT - 3.) + ((1 - 1) as f32 * TILE_FRONT_HEIGHT),
                 );
                 modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
             }

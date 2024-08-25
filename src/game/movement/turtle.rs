@@ -7,6 +7,7 @@ use crate::{
 
 use super::{events::TryMoveEvent, utils::can_block_move};
 
+// BUG: double turtle in lower right on level 8 moves too far
 pub fn handle_turtle(
     mut board: ResMut<Board>,
     mut writer: EventWriter<TryMoveEvent>,

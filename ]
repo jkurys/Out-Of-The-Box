@@ -18,34 +18,18 @@ pub enum GameObject {
     TurtleHead { direction: Direction, color: usize },
 }
 
-pub fn get_obj_indices(
+pub fn get_obj_top_index(
     obj: GameObject,
     current_sprite: &Res<CurrentSprite>,
-) -> (usize, usize, usize) {
+) -> usize {
     match obj {
-        GameObject::Box => (1, 0, 4),
-        GameObject::Wall => (1, 0, 2),
-        GameObject::HidingWall { color } => (
-            color * 3 + 1,
-            color * 3,
-            color * 3 + 2
-        ),
-        GameObject::Empty => (0, 0, 0),
-        GameObject::Player => (
-            current_sprite.0 * 4 + 1,
-            current_sprite.0 * 4,
-            current_sprite.0 * 4 + 2,
-        ),
-        GameObject::Turtle { direction, .. } => (
-            direction.to_num() * 6 + 1,
-            direction.to_num() * 6,
-            direction.to_num() * 6 + 2,
-        ),
-        GameObject::TurtleHead { direction, .. } => (
-            direction.to_num() * 6 + 4,
-            direction.to_num() * 6 + 3,
-            direction.to_num() * 6 + 5,
-        ),
+        GameObject::Box => 0,
+        GameObject::Wall => 0,
+        GameObject::HidingWall { color } => color * 3,
+        GameObject::Empty => 0,
+        GameObject::Player => current_sprite.0 * 2,
+        GameObject::Turtle { direction, .. } => direction.to_num() * 4,
+        GameObject::TurtleHead { direction, .. } => direction.to_num() * 4 + 2,
     }
 }
 
@@ -56,7 +40,7 @@ pub fn get_obj_img(
     match obj {
         GameObject::Box => images.box_images.clone(),
         GameObject::Wall => images.wall_images.clone(),
-        GameObject::HidingWall { color: _ } => images.hidden_wall_images.clone(),
+        GameObject::HidingWall { color } => images.hidden_wall_images.clone(),
         GameObject::Empty => None,
         GameObject::Player => images.player_images.clone(),
         GameObject::TurtleHead { .. } => images.turtle_images.clone(),
@@ -127,7 +111,7 @@ pub struct Box;
 #[derive(Component, Clone)]
 pub struct Player;
 
-#[derive(Component, Clone)]
+#[derive(Component)]
 pub struct Ice;
 
 #[derive(Component)]
@@ -142,7 +126,7 @@ pub struct Glue;
 #[derive(Component)]
 pub struct Dirt;
 
-#[derive(Component, Clone)]
+#[derive(Component)]
 pub struct Water;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
