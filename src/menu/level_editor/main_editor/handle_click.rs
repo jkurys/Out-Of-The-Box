@@ -1,24 +1,27 @@
 use bevy::{prelude::*, utils::HashSet, window::PrimaryWindow};
+use crate::game::display::render_2_5_d::render_object;
 
+use crate::game::game_objects::Background;
 use crate::{
     board::Board,
     components::GameEntity,
     consts::*,
-    game::game_objects::{Block, Direction, Floor, GameObject, Position},
+    game::game_objects::{Block, Direction, Floor, GameObject, Position}, resources::Images,
 };
 
-fn offset_coordinate_x(coord: f32, window_coord: f32) -> i32 {
-    ((coord - ((window_coord) / 2.)) / TILE_WIDTH).round() as i32
+fn offset_coordinate_x(coord: f32, window_coord: f32, y: i32) -> i32 {
+    ((coord - ((window_coord) / 2.)) / TILE_WIDTH - (y as f32 * (101./300.))).round() as i32
 }
 
 fn offset_coordinate_y(coord: f32, window_coord: f32) -> i32 {
-    ((coord - ((window_coord) / 2.)) / TILE_HEIGHT).round() as i32
+    ((coord - ((window_coord) / 2.)) / TILE_HEIGHT).floor() as i32
 }
 
 fn vec2_to_position(vec: Vec2, window_size: Vec2) -> Position {
+    let y = offset_coordinate_y(window_size.y - vec.y, window_size.y);
     Position {
-        x: offset_coordinate_x(vec.x, window_size.x),
-        y: offset_coordinate_y(window_size.y - vec.y, window_size.y),
+        x: offset_coordinate_x(vec.x, window_size.x, y),
+        y,
     }
 }
 
@@ -54,7 +57,11 @@ pub fn handle_level_editor_click(
     mut entity: Local<GameEntity>,
     input: Res<Input<KeyCode>>,
     mut block_positions: Local<Option<HashSet<Position>>>,
+    images: Res<Images>,
+    mut commands: Commands,
 ) {
+    let (mouse_pos, _) = get_position_from_mouse_click(&mouse, &windows);
+    render_object(&mut commands, images.highlight_images.clone().unwrap(), (1, 0, 2), mouse_pos.x, mouse_pos.y, 0, 0., Background);
     if block_positions.is_some() {
         if input.just_pressed(KeyCode::C) {
             board.insert_block(Block {

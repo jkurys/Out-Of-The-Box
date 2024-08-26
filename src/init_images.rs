@@ -110,4 +110,14 @@ pub fn init_images(
         None,
     );
     images.ice_images = Some(atlases.add(ice_atlas));
+    let highlight_images_texture = asset_server.load(HIGHLIGHTS_TEXTURE);
+    let highlight_atlas = TextureAtlas::from_grid(
+        highlight_images_texture,
+        Vec2 { x: 480., y: 480. },
+        2,
+        2,
+        Some(Vec2 { x: 20., y: 20. }),
+        None,
+    );
+    images.highlight_images = Some(atlases.add(highlight_atlas));
 }

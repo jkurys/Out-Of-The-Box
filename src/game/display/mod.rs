@@ -18,7 +18,7 @@ pub mod glue;
 pub mod border;
 pub mod floor;
 mod level_background;
-mod render_2_5_d;
+pub mod render_2_5_d;
 mod text;
 
 pub struct DisplayPlugin;

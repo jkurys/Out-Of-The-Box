@@ -26,7 +26,6 @@ pub const DIRT_TEXTURE: &str = "textures/dirt.png";
 pub const WATER_TEXTURE: &str = "textures/water_big.png";
 pub const BOX_GLUE_ATLAS: &str = "textures/box_glue_atlas.png";
 pub const TURTLE_ATLAS: &str = "textures/turtle_atlas_big.png";
-// pub const PLAYER_ATLAS: &str = "textures/player_atlas.png";
 pub const PLAYER_ATLAS: &str = "textures/player_atlas_big.png";
 pub const BOX_ATLAS: &str = "textures/box_atlas_big.png";
 pub const BOX_TEXTURE: &str = "textures/box2.png";
@@ -38,6 +37,7 @@ pub const HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_blue.png",
     "textures/hidden_wall_green.png",
 ];
+pub const HIGHLIGHTS_TEXTURE: &str = "textures/highlight.png";
 pub const HIDING_WALL_ATLAS: &str = "textures/hiding_wall_atlas_big.png";
 pub const SHOWN_HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_higher.png",

@@ -15,20 +15,20 @@ pub struct CurrentLevel {
 
 #[derive(Resource)]
 pub struct Images {
-    pub goal_image: Handle<Image>,
     pub player_images: Option<Handle<TextureAtlas>>,
     pub box_images: Option<Handle<TextureAtlas>>,
     pub wall_images: Option<Handle<TextureAtlas>>,
     pub tile_image: Handle<Image>,
     pub ice_images: Option<Handle<TextureAtlas>>,
-    pub warp_image: Handle<Image>,
     pub button_images: Option<Handle<TextureAtlas>>,
-    pub dirt_image: Handle<Image>,
     pub water_images: Option<Handle<TextureAtlas>>,
     pub hidden_wall_images: Option<Handle<TextureAtlas>>,
     pub turtle_images: Option<Handle<TextureAtlas>>,
     pub glue_images: Option<Handle<TextureAtlas>>,
     pub box_glue_images: Option<Handle<TextureAtlas>>,
+    pub highlight_images: Option<Handle<TextureAtlas>>,
+    pub goal_image: Handle<Image>,
+    pub dirt_image: Handle<Image>,
 }
 
 impl FromWorld for Images {
@@ -43,16 +43,8 @@ impl FromWorld for Images {
         }
         let wall_images = None;
         let box_images = None;
-        let goal_image = asset_server.load(GOAL_TEXTURE);
         let tile_image = asset_server.load(TILE_TEXTURE);
         let ice_images = None;
-        let warp_image = asset_server.load(WARP_TEXTURE);
-        // let button_images = [
-        //     asset_server.load(BUTTON_TEXTURES[0]),
-        //     asset_server.load(BUTTON_TEXTURES[1]),
-        //     asset_server.load(BUTTON_TEXTURES[2]),
-        // ];
-        let dirt_image = asset_server.load(DIRT_TEXTURE);
         let water_images = None;
         let button_images = None;
         let hidden_wall_images = None;
@@ -60,22 +52,25 @@ impl FromWorld for Images {
         let turtle_images = None;
         let glue_images = None;
         let box_glue_images = None;
+        let highlight_images = None;
+        let goal_image = asset_server.load(GOAL_TEXTURE);
+        let dirt_image = asset_server.load(DIRT_TEXTURE);
 
         Images {
             player_images,
             box_images,
             wall_images,
-            goal_image,
             tile_image,
             ice_images,
-            warp_image,
             button_images,
             hidden_wall_images,
             turtle_images,
             glue_images,
             box_glue_images,
-            dirt_image,
             water_images,
+            highlight_images,
+            goal_image,
+            dirt_image,
         }
     }
 }

@@ -27,17 +27,17 @@ where
     side_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
     let (upper_x, upper_y, upper_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 + 0.7) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
         UPPER_HALF_OBJECT_Z_INDEX + z_index_mod + (z * 2) as f32,
     );
     let (lower_x, lower_y, lower_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 - 0.3) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        (y as f32) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
         LOWER_HALF_OBJECT_Z_INDEX + z_index_mod + (z * 2) as f32,
     );
     let (side_x, side_y, side_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 + 0.7) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
         LOWER_HALF_OBJECT_Z_INDEX + z_index_mod + (z * 2) as f32,
     );
     let entity1 = commands
@@ -129,7 +129,7 @@ where
     (
 
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 + 0.7) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
         (z_index + (z * 2) as f32),
     );
     commands
