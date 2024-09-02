@@ -1,6 +1,7 @@
 use std::{fs::File, io::Read};
 
 use bevy::prelude::*;
+// use bevy::color::palettes::css::{DARK_GREEN, GRAY, GREEN, WHITE};
 
 use crate::{
     consts::LEVEL_SAVE,
@@ -33,7 +34,7 @@ pub fn handle_level_click(
         file.read_exact(&mut buf).unwrap();
     }
     let bool_buf: Vec<bool> = buf.iter().map(|&value| value != 0).collect();
-    query.for_each_mut(
+    query.iter_mut().for_each(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Pressed => match item.as_ref() {
                 LevelSelectItemType::Level(number) => {
@@ -54,11 +55,14 @@ pub fn handle_level_click(
                 *color = match item.as_ref() {
                     LevelSelectItemType::Level(level_no) => {
                         if bool_buf[*level_no - 1] {
+                            // BackgroundColor(Color::Srgba(DARK_GREEN))
                             BackgroundColor(Color::DARK_GREEN)
                         } else {
+                            // BackgroundColor(Color::Srgba(GRAY))
                             BackgroundColor(Color::GRAY)
                         }
                     }
+                    // _ => BackgroundColor(Color::Srgba(GRAY)),
                     _ => BackgroundColor(Color::GRAY),
                 }
             }
@@ -66,11 +70,14 @@ pub fn handle_level_click(
                 *color = match item.as_ref() {
                     LevelSelectItemType::Level(level_no) => {
                         if bool_buf[*level_no - 1] {
+                            // BackgroundColor(Color::Srgba(GREEN))
                             BackgroundColor(Color::GREEN)
                         } else {
+                            // BackgroundColor(Color::Srgba(WHITE))
                             BackgroundColor(Color::WHITE)
                         }
                     }
+                    // _ => BackgroundColor(Color::Srgba(WHITE)),
                     _ => BackgroundColor(Color::WHITE),
                 }
             }

@@ -2,11 +2,11 @@ use std::cmp::Ordering;
 
 use crate::game::game_objects::{Direction, Position};
 
-type SortFn = dyn FnMut(&(Position, usize), &(Position, usize)) -> Ordering;
+type SortFn = dyn FnMut(&Position, &Position) -> Ordering;
 
 pub fn sort_positions(dir: Direction) -> Box<SortFn> {
     Box::new(
-        move |&(pos1, _): &(Position, usize), &(pos2, _): &(Position, usize)| match dir {
+        move |&pos1: &Position, &pos2: &Position| match dir {
             Direction::Down => {
                 if pos1.y != pos2.y {
                     pos1.y.cmp(&pos2.y)

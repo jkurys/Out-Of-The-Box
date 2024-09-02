@@ -20,7 +20,7 @@ pub fn try_move(
     let mut events = Vec::new();
     let mut ice_events = Vec::new();
     let mut all_blocks = Vec::new();
-    for event in reader.into_iter() {
+    for event in reader.read() {
         if event.is_weak {
             ice_events.push(event);
             all_blocks.push(event.block.clone());

@@ -3,7 +3,7 @@ use bevy::{app::AppExit, prelude::*};
 use crate::{resources::StateStack, state::DisplayState};
 
 pub fn handle_esc(
-    mut keyboard: ResMut<Input<KeyCode>>,
+    mut keyboard: ResMut<ButtonInput<KeyCode>>,
     state: Res<State<DisplayState>>,
     mut next_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
@@ -11,6 +11,7 @@ pub fn handle_esc(
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
         if state.get() == &DisplayState::MainMenu {
+            // app_exit.send(AppExit::Success);
             app_exit.send(AppExit);
             return; //just in case to avoid weird behaviour before event is parsed
         }

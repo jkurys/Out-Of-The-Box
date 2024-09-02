@@ -5,9 +5,42 @@ use crate::{
     game::GameItem,
 };
 
+pub fn get_offsets(
+    x: i32,
+    y: i32,
+    z: i32,
+    z_mod: f32,
+) -> (
+    (f32, f32, f32),
+    (f32, f32, f32),
+    (f32, f32, f32),
+) {
+    let (upper_x, upper_y, upper_z) = (
+        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
+        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        UPPER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
+    );
+    let (lower_x, lower_y, lower_z) = (
+        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
+        (y as f32) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
+    );
+    let (side_x, side_y, side_z) = (
+        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
+        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
+    );
+    (
+        (upper_x, upper_y, upper_z),
+        (lower_x, lower_y, lower_z),
+        (side_x, side_y, side_z),
+    )
+}
+
 pub fn render_object<T>(
     commands: &mut Commands,
-    atlas_handle: Handle<TextureAtlas>,
+    // atlas_handle: Handle<TextureAtlasLayout>,
+    atlas: (Handle<Image>, Handle<TextureAtlasLayout>),
     indices: (usize, usize, usize),
     x: i32,
     y: i32,
@@ -19,52 +52,60 @@ where
     T: Component + Clone,
 {
     let (bottom_index, top_index, side_index) = indices;
-    let mut higher_image = TextureAtlasSprite::new(top_index);
-    let mut lower_image = TextureAtlasSprite::new(bottom_index);
-    let mut side_image = TextureAtlasSprite::new(side_index);
-    higher_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
-    lower_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
-    side_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
-    let (upper_x, upper_y, upper_z) = (
-        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
-        UPPER_HALF_OBJECT_Z_INDEX + z_index_mod + (z * 2) as f32,
-    );
-    let (lower_x, lower_y, lower_z) = (
-        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
-        LOWER_HALF_OBJECT_Z_INDEX + z_index_mod + (z * 2) as f32,
-    );
-    let (side_x, side_y, side_z) = (
-        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
-        LOWER_HALF_OBJECT_Z_INDEX + z_index_mod + (z * 2) as f32,
-    );
+    let (texture, layout) = atlas;
+    let mut sprite = Sprite::default();
+    sprite.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8 / 3., y: TILE_HEIGHT * 4.8 / 3. });
+    // higher_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
+    // lower_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
+    // side_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
+    let (
+        (upper_x, upper_y, upper_z),
+        (lower_x, lower_y, lower_z),
+        (side_x, side_y, side_z),
+    ) = get_offsets(x, y, z, z_index_mod);
     let entity1 = commands
-        .spawn(SpriteSheetBundle {
-            sprite: higher_image,
-            texture_atlas: atlas_handle.clone(),
-            transform: Transform::from_xyz(upper_x, upper_y, upper_z),
-            ..default()
-        })
+        .spawn((
+            SpriteBundle {
+                sprite: sprite.clone(),
+                texture: texture.clone(), 
+                transform: Transform::from_xyz(upper_x, upper_y, upper_z),
+                ..default()
+            },
+            TextureAtlas {
+                layout: layout.clone(),
+                index: top_index,
+            }
+        ))
         .insert((component.clone(), GameItem))
         .id();
     let entity2 = commands
-        .spawn(SpriteSheetBundle {
-            sprite: lower_image,
-            texture_atlas: atlas_handle.clone(),
-            transform: Transform::from_xyz(lower_x, lower_y, lower_z + (0.01 * x as f32) - (0.01 * y as f32)),
-            ..default()
-        })
+        .spawn((
+            SpriteBundle {
+                sprite: sprite.clone(),
+                texture: texture.clone(),
+                transform: Transform::from_xyz(lower_x, lower_y, lower_z + (0.01 * x as f32) - (0.01 * y as f32)),
+                ..default()
+            },
+            TextureAtlas {
+                layout: layout.clone(),
+                index: bottom_index,
+            }
+        ))
         .insert((component.clone(), GameItem))
         .id();
     let entity3 = commands
-        .spawn(SpriteSheetBundle {
-            sprite: side_image,
-            texture_atlas: atlas_handle.clone(),
-            transform: Transform::from_xyz(side_x, side_y, side_z + (0.01 * x as f32) - (0.01 * y as f32)),
-            ..default()
-        })
+        .spawn((
+            SpriteBundle {
+                sprite,
+                texture,
+                transform: Transform::from_xyz(side_x, side_y, side_z + (0.01 * x as f32) - (0.01 * y as f32)),
+                ..default()
+            }, 
+            TextureAtlas {
+                layout,
+                index: side_index,
+            }
+        ))
         .insert((component.clone(), GameItem))
         .id();
 
@@ -73,7 +114,8 @@ where
 
 pub fn render_object_with_sticker<T>(
     commands: &mut Commands,
-    atlas_handle: Handle<TextureAtlas>,
+    // atlas_handle: Handle<TextureAtlas>,
+    atlas: (Handle<Image>, Handle<TextureAtlasLayout>),
     indices: (usize, usize, usize),
     sticker_index: usize,
     x: i32,
@@ -88,7 +130,7 @@ where
     let (bottom_index, top_index, side_index) = indices;
     let [entity1, entity2, entity3] = render_object(
         commands,
-        atlas_handle.clone(),
+        atlas.clone(),
         (bottom_index, top_index, side_index),
         x,
         y,
@@ -103,7 +145,7 @@ where
         x,
         y,
         z,
-        atlas_handle,
+        atlas,
         component,
         UPPER_HALF_STICKER_Z_INDEX + z_index_mod,
     );
@@ -116,15 +158,17 @@ pub fn render_sticker<T>(
     x: i32,
     y: i32,
     z: i32,
-    atlas_handle: Handle<TextureAtlas>,
+    // atlas_handle: Handle<TextureAtlas>,
+    atlas: (Handle<Image>, Handle<TextureAtlasLayout>),
     component: T,
     z_index: f32,
 ) -> Entity
 where
     T: Component + Clone,
 {
-    let mut sticker_image = TextureAtlasSprite::new(sticker_index);
-    sticker_image.custom_size = Some(Vec2 { x: TILE_WIDTH * (4.8/3.), y: TILE_HEIGHT * (4.8/3.) });
+    let (texture, layout) = atlas;
+    let mut sprite = Sprite::default();
+    sprite.custom_size = Some(Vec2 { x: TILE_WIDTH * (4.8/3.), y: TILE_HEIGHT * (4.8/3.) });
     let (sticker_x, sticker_y, sticker_z) =
     (
 
@@ -133,12 +177,19 @@ where
         (z_index + (z * 2) as f32),
     );
     commands
-        .spawn(SpriteSheetBundle {
-            sprite: sticker_image,
-            texture_atlas: atlas_handle,
-            transform: Transform::from_xyz(sticker_x, sticker_y, sticker_z),
-            ..default()
-        })
+        .spawn((
+            SpriteBundle {
+                sprite,
+                // texture_atlas: atlas_handle,
+                texture,
+                transform: Transform::from_xyz(sticker_x, sticker_y, sticker_z),
+                ..default()
+            }, 
+            TextureAtlas {
+                layout,
+                index: sticker_index,
+            }
+        ))
         .insert((component, GameItem))
         .id()
 }

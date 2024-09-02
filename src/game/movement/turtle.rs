@@ -19,13 +19,13 @@ pub fn handle_turtle(
     for (color, button_color) in buttons.clone().into_iter().enumerate() {
         if button_state[color] {
             for (turtle_pos, dir) in turtles[color].iter() {
-                if buttons[color].contains(&turtle_pos.next_position(*dir)) {
+                if buttons[color].contains(&turtle_pos.next_position(*dir).position_below()) {
                     is_clicked = true;
                 }
             }
         }
         for button_position in button_color {
-            if board.get_object_type(button_position) != GameObject::Empty {
+            if board.get_object_type(button_position.position_above()) != GameObject::Empty {
                 is_clicked = true;
             }
         }

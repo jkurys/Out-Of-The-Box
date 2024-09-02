@@ -13,7 +13,7 @@ pub fn handle_ice(
     board: Res<Board>,
 ) {
     let mut positions = Vec::new();
-    for event in position_reader.iter() {
+    for event in position_reader.read() {
         positions.push((event.position, event.direction));
     }
     let blocks: Vec<(Block, Direction, Position)> = positions

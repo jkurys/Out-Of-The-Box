@@ -52,7 +52,7 @@ pub fn get_obj_indices(
 pub fn get_obj_img(
     obj: GameObject,
     images: &Res<Images>,
-) -> Option<Handle<TextureAtlas>> {
+) -> Option<(Handle<Image>, Handle<TextureAtlasLayout>)> {
     match obj {
         GameObject::Box => images.box_images.clone(),
         GameObject::Wall => images.wall_images.clone(),
@@ -149,6 +149,7 @@ pub struct Water;
 pub struct Position {
     pub x: i32,
     pub y: i32,
+    pub z: i32,
 }
 
 impl Serialize for Position {
@@ -156,7 +157,7 @@ impl Serialize for Position {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_str(&format!("{}:{}", self.x, self.y))
+        serializer.serialize_str(&format!("{}:{}:{}", self.x, self.y, self.z))
     }
 }
 
@@ -166,7 +167,7 @@ impl<'de> Visitor<'de> for PositionVisitor {
     type Value = Position;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("a colon-separated pair of integers between 0 and 255")
+        formatter.write_str("a colon-separated triple of integers between 0 and 255")
     }
 
     fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
@@ -186,7 +187,17 @@ impl<'de> Visitor<'de> for PositionVisitor {
             }
             let y_char = y_char_opt.unwrap();
             if let Ok(y) = y_char.parse::<i32>() {
-                Ok(Position { x, y })
+                let z_char_opt = splits.next();
+                if z_char_opt.is_none() {
+                    return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
+                }
+                let z_char = z_char_opt.unwrap();
+                if let Ok(z) = z_char.parse::<i32>() {
+                    Ok(Position { x, y, z })
+                }
+                else {
+                    return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
+                }
             } else {
                 return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
             }
@@ -211,18 +222,22 @@ impl Position {
             Direction::Up => Position {
                 x: self.x,
                 y: self.y + 1,
+                z: self.z,
             },
             Direction::Down => Position {
                 x: self.x,
                 y: self.y - 1,
+                z: self.z,
             },
             Direction::Left => Position {
                 x: self.x - 1,
                 y: self.y,
+                z: self.z,
             },
             Direction::Right => Position {
                 x: self.x + 1,
                 y: self.y,
+                z: self.z,
             },
         }
     }
@@ -232,22 +247,42 @@ impl Position {
             Direction::Up => Position {
                 x: self.x,
                 y: self.y - 1,
+                z: self.z,
             },
             Direction::Down => Position {
                 x: self.x,
                 y: self.y + 1,
+                z: self.z,
             },
             Direction::Left => Position {
                 x: self.x + 1,
                 y: self.y,
+                z: self.z,
             },
             Direction::Right => Position {
                 x: self.x - 1,
                 y: self.y,
+                z: self.z,
             },
         }
     }
+        
+    pub fn position_above(&self) -> Position {
+        Position {
+            x: self.x,
+            y: self.y,
+            z: self.z + 1,
+        }
+    }
 
+    pub fn position_below(&self) -> Position {
+        Position {
+            x: self.x,
+            y: self.y,
+            z: self.z - 1
+        }
+    }
+}
 //     pub fn cmp_to_other(&self, other: &Self, dir: Direction) -> Ordering {
 //         match dir {
 //             Direction::Up => other.y.cmp(&self.y),
@@ -256,7 +291,7 @@ impl Position {
 //             Direction::Right => other.x.cmp(&self.x),
 //         }
 //     }
-}
+
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub enum Direction {

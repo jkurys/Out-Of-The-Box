@@ -35,9 +35,9 @@ fn modify_transform(
 ) {
     let distance = if floor == Floor::Ice {
         // on ice we want to have uniform movement animation
-        timer.0.percent()
+        timer.0.fraction()
     } else {
-        animation_weight(timer.0.percent())
+        animation_weight(timer.0.fraction())
     };
     match direction {
         Direction::Down => {
@@ -97,7 +97,7 @@ pub fn move_animation(
     timer.0.tick(time.delta());
     if !moved.is_empty() {
         events.clear();
-        for event in moved.iter() {
+        for event in moved.read() {
             move_event(&board, event, &mut query, &mut timer);
             events.push(*event);
         }

@@ -10,8 +10,8 @@ pub fn handle_fall(
     let void_positions = board.get_all_positions(Floor::Void);
     let blocks: Vec<Block> = void_positions
         .iter()
-        .filter(|&p| board.get_object_type(*p) != GameObject::Empty)
-        .map(|&p| board.get_block(p))
+        .filter(|&p| board.get_object_type(p.position_above()) != GameObject::Empty)
+        .map(|&p| board.get_block(p.position_above()))
         .collect();
     for block in blocks {
         fall_block(
@@ -27,7 +27,7 @@ fn fall_block(
 ) {
     let mut can_fall = true;
     for position in block.positions.iter() {
-        if board.get_floor_type(*position) != Floor::Void {
+        if board.get_floor_type(position.position_below()) != Floor::Void {
             can_fall = false;
         }
     }

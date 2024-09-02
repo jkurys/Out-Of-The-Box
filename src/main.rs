@@ -1,9 +1,10 @@
 use bevy::prelude::*;
-use bevy::render::texture::ImageSampler;
+// use bevy::render::texture::{ImageSampler, ImageSamplerDescriptor};
 use consts::*;
 use init_images::init_images;
 use plugin::MainPlugin;
 use resources::*;
+use state::{DisplayState, MoveState};
 use std::fs::File;
 use std::io::Read;
 
@@ -22,7 +23,10 @@ mod tests;
 mod utils;
 
 fn main() {
-    App::new().add_plugins(MainPlugin).run();
+    App::new()
+        .add_plugins(MainPlugin)
+        .init_state::<MoveState>()
+        .run();
 }
 
 fn spawn_camera(mut commands: Commands) {
@@ -36,12 +40,13 @@ fn update_images(mut current_sprite: ResMut<CurrentSprite>) {
     current_sprite.0 = buf[0] as usize;
 }
 
-fn spritemap_fix(mut ev_asset: EventReader<AssetEvent<Image>>, mut assets: ResMut<Assets<Image>>) {
-    for ev in ev_asset.iter() {
-        if let AssetEvent::Created { handle } = ev {
-            if let Some(texture) = assets.get_mut(handle) {
-                texture.sampler_descriptor = ImageSampler::nearest()
-            }
-        }
-    }
-}
+// fn spritemap_fix(mut ev_asset: EventReader<AssetEvent<Image>>, mut assets: ResMut<Assets<Image>>) {
+//     for ev in ev_asset.read() {
+//         NOTE: removed the sharp image for now
+//         if let AssetEvent::Added { id } = ev {
+//             if let Some(texture) = assets.get_mut(id) {
+//                 ImageSamplerDescriptor::nearest();
+//             }
+//         }
+//     }
+// }

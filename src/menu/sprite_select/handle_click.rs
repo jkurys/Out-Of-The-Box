@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use std::fs::File;
 use std::io::Write;
+// use bevy::color::palettes::css::{GRAY, WHITE};
 
 use crate::consts::PLAYER_TEXTURE_SAVE;
 use crate::state::DisplayState;
@@ -25,7 +26,7 @@ pub fn handle_sprite_click(
         With<SpriteSelectItemType>,
     >,
 ) {
-    query.for_each_mut(
+    query.iter_mut().for_each(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Pressed => match item.as_ref() {
                 SpriteSelectItemType::Back => {
@@ -39,9 +40,11 @@ pub fn handle_sprite_click(
                 }
             },
             Interaction::Hovered => {
+                // *color = BackgroundColor(Color::Srgba(GRAY));
                 *color = BackgroundColor(Color::GRAY);
             }
             Interaction::None => {
+                // *color = BackgroundColor(Color::Srgba(WHITE));
                 *color = BackgroundColor(Color::WHITE);
             }
         },

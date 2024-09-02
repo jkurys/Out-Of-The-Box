@@ -19,7 +19,8 @@ pub fn render_floor(
     let (bottom_border, top_border, left_border, right_border) = calculate_borders(&board);
     for y in bottom_border..=top_border {
         for x in left_border..=right_border {
-            let position = Position { x, y };
+            let z = 0;
+            let position = Position { x, y, z };
             let floor = board.get_floor_type(position);
             match floor {
                 Floor::Ice => {
@@ -36,7 +37,7 @@ pub fn render_floor(
                         (1, 0 ,2),
                         x,
                         y,
-                        0,
+                        z,
                         0.,
                         Ice,
                     );
@@ -55,7 +56,7 @@ pub fn render_floor(
                         (1, 0 ,2),
                         x,
                         y,
-                        0,
+                        z,
                         0.,
                         Background,
                     );
@@ -68,7 +69,7 @@ pub fn render_floor(
                         3,
                         x,
                         y,
-                        0,
+                        z,
                         0.,
                         Background,
                     );
@@ -81,7 +82,7 @@ pub fn render_floor(
                         7,
                         x,
                         y,
-                        0,
+                        z,
                         0.,
                         Background,
                     );
@@ -93,7 +94,7 @@ pub fn render_floor(
                         (1, 0 ,2),
                         x,
                         y,
-                        0,
+                        z,
                         -0.5,
                         Water,
                     );
@@ -124,7 +125,7 @@ pub fn render_floor(
                         (color * 3 + 1, color * 3, color * 3 + 2),
                         x,
                         y,
-                        0,
+                        z,
                         0.,
                         HiddenWall,
                     );
@@ -146,7 +147,7 @@ pub fn render_floor(
                         (1, 0 ,2),
                         x,
                         y,
-                        0,
+                        z,
                         0.,
                         Button,
                     );
@@ -155,7 +156,7 @@ pub fn render_floor(
                         4 + color,
                         x,
                         y,
-                        0,
+                        z,
                         images.wall_images.clone().unwrap(),
                         Button,
                         UPPER_HALF_STICKER_Z_INDEX,
@@ -200,7 +201,7 @@ pub fn render_floor(
                         indices,
                         x,
                         y,
-                        0,
+                        z,
                         0.,
                         Background
                     );

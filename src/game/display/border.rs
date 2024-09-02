@@ -15,7 +15,6 @@ pub fn render_border(
     top_border += 1;
     left_border -= 1;
     right_border += 1;
-    let map = board.get_current_map();
     //spawn horizontal border for the level and insert it to board
     for x in left_border..=right_border {
         render_object(
@@ -28,7 +27,7 @@ pub fn render_border(
             0.,
             Wall,
         );
-        board.insert_object_to_map_unchecked(Position { x, y: top_border }, GameObject::Wall, map);
+        board.insert_object_unchecked(Position { x, y: top_border, z: 1 }, GameObject::Wall);
     }
     for y in (bottom_border..=top_border).rev() {
         render_object(
@@ -51,11 +50,10 @@ pub fn render_border(
             0.,
             Wall,
         );
-        board.insert_object_to_map_unchecked(Position { x: left_border, y }, GameObject::Wall, map);
-        board.insert_object_to_map_unchecked(
-            Position { x: right_border, y },
+        board.insert_object_unchecked(Position { x: left_border, y, z: 1 }, GameObject::Wall);
+        board.insert_object_unchecked(
+            Position { x: right_border, y, z: 1 },
             GameObject::Wall,
-            map,
         );
     }
     //spawn vertical borders for the level and insert it to board
@@ -70,18 +68,19 @@ pub fn render_border(
             0.,
             Wall,
         );
-        board.insert_object_to_map_unchecked(
+        board.insert_object_unchecked(
             Position {
                 x,
                 y: bottom_border,
+                z: 1,
             },
             GameObject::Wall,
-            map,
         );
         board.insert_object(
             Position {
                 x,
                 y: bottom_border,
+                z: 1,
             },
             GameObject::Wall,
         );

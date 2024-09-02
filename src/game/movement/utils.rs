@@ -41,8 +41,7 @@ pub fn can_block_move(
             // eat if not only player
             return false;
         }
-        let (next_position, _next_map) =
-            board.get_next_position_for_move(position, dir, board.get_current_map());
+        let next_position = board.get_next_position_for_move(position, dir);
         let next_block = board.get_block(next_position);
         if board.is_block_empty(&next_block) 
             || board.get_object_type(next_position) == GameObject::Empty {
@@ -79,7 +78,7 @@ fn can_block_move_weak(
 ) -> bool {
     for &position in block.positions.iter() {
         let can_current_block_move_somehow = is_moveable(board.get_object_type(position))
-            && board.get_floor_type(position) == Floor::Ice;
+            && board.get_floor_type(position.position_below()) == Floor::Ice;
         if !can_current_block_move_somehow {
             return false;
         }
@@ -90,8 +89,7 @@ fn can_block_move_weak(
         while next_block == block {
             curr_position = next_position;
             next_position = board
-                .get_next_position_for_move(curr_position, dir, board.get_current_map())
-                .0;
+                .get_next_position_for_move(curr_position, dir);
             next_block = board.get_block(next_position);
         }
 
@@ -129,23 +127,21 @@ fn perform_move(
     writer: &mut EventWriter<EnteredFloorEvent>,
     is_weak: bool,
 ) {
-    let mut positions_vec: Vec<(Position, usize)> = blocks
+    let mut positions_vec: Vec<Position> = blocks
         .iter()
         .map(|block| block.positions.clone())
         .flatten()
-        .map(|p| (p, 0))
         .unique()
         .collect();
     positions_vec.sort_by(sort_positions(direction));
-    for (position, _) in positions_vec {
-        let map = board.get_current_map();
+    for position in positions_vec {
         if is_weak {
-            board.move_object_no_countdown(position, direction, map);
+            board.move_object_no_countdown(position, direction);
         }
         else {
-            board.move_object(position, direction, map);
+            board.move_object(position, direction);
         }
-        let next_position = board.get_next_position_for_move(position, direction, map).0;
+        let next_position = board.get_next_position_for_move(position, direction);
         writer.send(EnteredFloorEvent {
             floor: board.get_floor_type(next_position),
             position: next_position,
@@ -187,7 +183,7 @@ pub fn move_strong(
         if board.get_object_type(next_pos) == GameObject::Box
             && board.get_object_type(position) == GameObject::Player
             && board.get_eat_counter(position).is_none()
-            && board.get_floor_type(next_pos) != Floor::Dirt {
+            && board.get_floor_type(next_pos.position_below()) != Floor::Dirt {
             // NOTE: otherwise turtles could eat objects
             // maybe they could in the future?
             perform_eat(board, block, next_pos, direction, writer);

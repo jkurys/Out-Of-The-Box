@@ -13,7 +13,7 @@ pub fn save_board_to_file(
     mut state_stack: ResMut<StateStack>,
 ) {
     let mut file_name = "".to_string();
-    for ev in reader.iter() {
+    for ev in reader.read() {
         file_name = ev.0.clone();
     }
     if file_name == *"" {

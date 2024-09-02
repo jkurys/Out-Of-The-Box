@@ -65,10 +65,13 @@ pub const LEVEL_SAVE: &str = "assets/saves/level.txt";
 /** DIMENSIONS */
 pub const TILE_WIDTH: f32 = 50.;
 pub const TILE_HEIGHT: f32 = TILE_WIDTH / IMAGE_WIDTH * IMAGE_HEIGHT;
+pub const SIDE_HEIGHT: f32 = TILE_HEIGHT + TILE_FRONT_HEIGHT;
+pub const SIDE_WIDTH: f32 = IMAGE_SIDE_WIDTH * IMAGE_MULTIPLIER;
 // pub const IMAGE_SIZE: f32 = 16.;
 pub const IMAGE_WIDTH: f32 = 300.;
 pub const IMAGE_HEIGHT: f32 = 282.;
 pub const IMAGE_FRONT_HEIGHT: f32 = 200.;
+pub const IMAGE_SIDE_WIDTH: f32 = 104.;
 pub const TILE_FRONT_HEIGHT: f32 = IMAGE_FRONT_HEIGHT * IMAGE_MULTIPLIER;
 pub const IMAGE_MULTIPLIER: f32 = TILE_WIDTH / IMAGE_WIDTH;
 pub const MOVE_ANIMATION_TIME: f32 = 0.15;

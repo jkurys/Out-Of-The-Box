@@ -34,7 +34,7 @@ pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer
                         color: Color::WHITE,
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
             spawn_button(
                 parent,

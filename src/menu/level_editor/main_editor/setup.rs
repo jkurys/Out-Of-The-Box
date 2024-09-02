@@ -1,10 +1,11 @@
 use bevy::prelude::*;
+// use bevy::color::palettes::css::{BEIGE, DARK_GREEN, GREEN};
 
 use crate::{
     board::Board,
     components::GameEntity,
     consts::{
-        BOX_TEXTURE, HIDDEN_WALL_TEXTURES, MAX_MAPS, PLAYER_TEXTURES, PLUS_TEXTURE,
+        BOX_TEXTURE, HIDDEN_WALL_TEXTURES, PLAYER_TEXTURES, 
         SHOWN_HIDDEN_WALL_TEXTURES, STICKER_TEXTURES, TURTLE_TEXTURES, WALL_TEXTURE, BUTTON_TEXTURES,
     },
     game::game_objects::{Direction, Floor, GameObject},
@@ -16,7 +17,7 @@ use crate::{
     resources::{CurrentSprite, Images},
 };
 
-use super::{LevelEditorTab, LevelEditorTabPlus};
+// use super::{LevelEditorTab, LevelEditorTabPlus};
 
 pub fn set_board_size(board_size: Res<BoardSize>, mut boards: ResMut<Board>) {
     boards.set_map_size(*board_size);
@@ -37,168 +38,158 @@ pub fn setup_level_editor_board(
     let hidden_wall_images = SHOWN_HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
     let bottom_hidden_wall_images = HIDDEN_WALL_TEXTURES.map(|texture| asset_server.load(texture));
     let player_image = asset_server.load(PLAYER_TEXTURES[current_sprite.0]);
-    let plus_image = asset_server.load(PLUS_TEXTURE);
+    // let plus_image = asset_server.load(PLUS_TEXTURE);
     let button_images = [asset_server.load(BUTTON_TEXTURES[0]), asset_server.load(BUTTON_TEXTURES[1]), asset_server.load(BUTTON_TEXTURES[2])];
-    commands
-        .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::DARK_GREEN),
+    commands.spawn(NodeBundle {
+        visibility: Visibility::Hidden,
+        // background_color: BackgroundColor(Color::Srgba(BEIGE)),
+        background_color: BackgroundColor(Color::BEIGE),
+        style: Style {
+            width: Val::Percent(100.),
+            height: Val::Percent(100.),
+            ..default()
+        },
+        ..default()
+    }).insert(LevelEditorItem)
+        .with_children(|parent| {
+
+        parent.spawn(NodeBundle {
+            // background_color: BackgroundColor(Color::Srgba(BEIGE)),
+            background_color: BackgroundColor(Color::BEIGE),
             visibility: Visibility::Visible,
             style: Style {
-                width: Val::Percent(5.0),
+                width: Val::Percent(10.0),
                 height: Val::Percent(100.0),
-                flex_direction: FlexDirection::Column,
+                flex_direction: FlexDirection::Row,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,
                 align_self: AlignSelf::End,
                 ..default()
             },
             ..default()
-        })
-        .insert(LevelEditorItem)
-        .with_children(|parent| {
-            spawn_small_button(
-                parent,
-                box_image.clone(),
-                GameEntity::Object(GameObject::Box),
-            );
-            for (color, image) in hidden_wall_images.iter().enumerate() {
-                spawn_small_button(
-                    parent,
-                    image.clone(),
-                    GameEntity::Object(GameObject::HidingWall { color }),
-                );
-            }
-            spawn_small_button(
-                parent,
-                wall_image.clone(),
-                GameEntity::Object(GameObject::Wall),
-            );
-            spawn_small_button(
-                parent,
-                player_image.clone(),
-                GameEntity::Object(GameObject::Player),
-            );
-        });
-    commands
-        .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::GREEN),
-            visibility: Visibility::Visible,
-            style: Style {
-                width: Val::Percent(5.0),
-                height: Val::Percent(100.0),
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::SpaceEvenly,
-                align_self: AlignSelf::Start,
-                ..default()
-            },
-            ..default()
-        })
-        .insert(LevelEditorItem)
-        .with_children(|parent| {
-            spawn_small_button(
-                parent,
-                images.goal_image.clone(),
-                GameEntity::Floor(Floor::Goal),
-            );
-            spawn_small_button(
-                parent,
-                images.dirt_image.clone(),
-                GameEntity::Floor(Floor::Dirt),
-            );
-            spawn_small_button(
-                parent,
-                water_image,
-                GameEntity::Floor(Floor::Void),
-            );
-            spawn_small_button(
-                parent,
-                ice_image,
-                GameEntity::Floor(Floor::Ice),
-            );
-            for (color, image) in button_images.iter().enumerate() {
-                spawn_small_button(
-                    parent,
-                    image.clone(),
-                    GameEntity::Floor(Floor::Button(color)),
-                );
-            }
-            for (color, image) in bottom_hidden_wall_images.iter().enumerate() {
-                spawn_small_button(
-                    parent,
-                    image.clone(),
-                    GameEntity::Floor(Floor::HiddenWall {
-                        hidden_by_default: true,
-                        color,
-                    }),
-                );
-            }
-            for (color, image) in sticker_images.iter().enumerate() {
-                spawn_small_button_with_sticker(
-                    parent,
-                    turtle_image.clone(),
-                    GameEntity::Object(GameObject::Turtle {
-                        color,
-                        direction: Direction::Left,
-                    }),
-                    image.clone(),
-                );
-            }
-            spawn_small_button(
-                parent,
-                images.tile_image.clone(),
-                GameEntity::Floor(Floor::Tile),
-            );
-            // spawn_small_button(
-            //     parent,
-            //     images.warp_image.clone(),
-            //     GameEntity::Floor(Floor::Warp(1)),
-            // );
-        });
-    commands
-        .spawn(NodeBundle {
-            background_color: Color::BLUE.into(),
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(3.0),
-                flex_direction: FlexDirection::Row,
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::SpaceEvenly,
-                align_self: AlignSelf::Start,
-                ..default()
-            },
-            ..default()
+
         })
         .insert(LevelEditorItem)
         .with_children(|parent| {
             parent
-                .spawn(ButtonBundle {
+                .spawn(NodeBundle {
+                    // background_color: BackgroundColor(Color::Srgba(DARK_GREEN)),
+                    background_color: BackgroundColor(Color::DARK_GREEN),
+                    visibility: Visibility::Visible,
                     style: Style {
-                        width: Val::Percent(10.),
-                        height: Val::Percent(100.),
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(100.0),
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::SpaceEvenly,
+                        align_self: AlignSelf::End,
                         ..default()
                     },
                     ..default()
                 })
-                .insert(LevelEditorTab(0));
-            for i in 1..MAX_MAPS {
-                parent
-                    .spawn(ButtonBundle {
-                        visibility: Visibility::Hidden,
-                        style: Style {
-                            width: Val::Percent(10.),
-                            height: Val::Percent(100.),
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .insert(LevelEditorTab(i));
-            }
+                .insert(LevelEditorItem)
+                .with_children(|parent| {
+                    spawn_small_button(
+                        parent,
+                        box_image.clone(),
+                        GameEntity::Object(GameObject::Box),
+                    );
+                    for (color, image) in hidden_wall_images.iter().enumerate() {
+                        spawn_small_button(
+                            parent,
+                            image.clone(),
+                            GameEntity::Object(GameObject::HidingWall { color }),
+                        );
+                    }
+                    spawn_small_button(
+                        parent,
+                        wall_image.clone(),
+                        GameEntity::Object(GameObject::Wall),
+                    );
+                    spawn_small_button(
+                        parent,
+                        player_image.clone(),
+                        GameEntity::Object(GameObject::Player),
+                    );
+                });
+
             parent
-                .spawn(ImageBundle {
-                    image: plus_image.into(),
+                .spawn(NodeBundle {
+                    // background_color: BackgroundColor(Color::Srgba(GREEN)),
+                    background_color: BackgroundColor(Color::GREEN),
+                    visibility: Visibility::Visible,
+                    style: Style {
+                        width: Val::Percent(100.0),
+                        height: Val::Percent(100.0),
+                        flex_direction: FlexDirection::Column,
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::SpaceEvenly,
+                        align_self: AlignSelf::Start,
+                        ..default()
+                    },
                     ..default()
                 })
-                .insert((LevelEditorTabPlus, ButtonBundle::default()));
+                .insert(LevelEditorItem)
+                .with_children(|parent| {
+                    spawn_small_button(
+                        parent,
+                        images.goal_image.clone(),
+                        GameEntity::Floor(Floor::Goal),
+                    );
+                    spawn_small_button(
+                        parent,
+                        images.dirt_image.clone(),
+                        GameEntity::Floor(Floor::Dirt),
+                    );
+                    spawn_small_button(
+                        parent,
+                        water_image,
+                        GameEntity::Floor(Floor::Void),
+                    );
+                    spawn_small_button(
+                        parent,
+                        ice_image,
+                        GameEntity::Floor(Floor::Ice),
+                    );
+                    for (color, image) in button_images.iter().enumerate() {
+                        spawn_small_button(
+                            parent,
+                            image.clone(),
+                            GameEntity::Floor(Floor::Button(color)),
+                        );
+                    }
+                    for (color, image) in bottom_hidden_wall_images.iter().enumerate() {
+                        spawn_small_button(
+                            parent,
+                            image.clone(),
+                            GameEntity::Floor(Floor::HiddenWall {
+                                hidden_by_default: true,
+                                color,
+                            }),
+                        );
+                    }
+                    for (color, image) in sticker_images.iter().enumerate() {
+                        spawn_small_button_with_sticker(
+                            parent,
+                            turtle_image.clone(),
+                            GameEntity::Object(GameObject::Turtle {
+                                color,
+                                direction: Direction::Left,
+                            }),
+                            image.clone(),
+                        );
+                    }
+                    spawn_small_button(
+                        parent,
+                        images.tile_image.clone(),
+                        GameEntity::Floor(Floor::Tile),
+                    );
+                }
+            );
+
+
         });
+        
+
+    });
 }

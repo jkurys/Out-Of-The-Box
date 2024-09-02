@@ -56,7 +56,7 @@ pub fn render_glue(
     images: &Res<Images>,
     mut commands: &mut Commands,
 ) {
-    let Position { x, y } = position;
+    let Position { x, y, z } = position;
     let block = board.get_block(position);
     let right_pos = position.next_position(Direction::Right);
     let left_pos = position.next_position(Direction::Left);
@@ -93,7 +93,7 @@ pub fn render_glue(
                 0,
                 x,
                 y,
-                1,
+                z,
                 images,
                 Glue,
                 UPPER_HALF_STICKER_Z_INDEX,
@@ -117,7 +117,7 @@ pub fn render_glue(
                 1,
                 x,
                 y,
-                1,
+                z,
                 images,
                 Glue,
                 UPPER_HALF_STICKER_Z_INDEX,
@@ -141,7 +141,7 @@ pub fn render_glue(
                 2,
                 x,
                 y,
-                1,
+                z,
                 images,
                 Glue,
                 UPPER_HALF_STICKER_Z_INDEX,
@@ -165,7 +165,7 @@ pub fn render_glue(
                 3,
                 x,
                 y,
-                1,
+                z,
                 images,
                 Glue,
                 UPPER_HALF_STICKER_Z_INDEX,

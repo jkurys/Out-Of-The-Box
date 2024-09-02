@@ -1,4 +1,5 @@
 use bevy::{app::AppExit, prelude::*};
+// use bevy::color::palettes::css::{GRAY, WHITE};
 
 use crate::state::DisplayState;
 
@@ -12,7 +13,7 @@ pub fn handle_menu_click(
     >,
     mut app_exit: EventWriter<AppExit>,
 ) {
-    query.for_each_mut(
+    query.iter_mut().for_each(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Pressed => match item.as_ref() {
                 MenuItemType::LevelSelect => {
@@ -22,6 +23,7 @@ pub fn handle_menu_click(
                     app_state.set(DisplayState::SpriteSelect);
                 }
                 MenuItemType::Exit => {
+                    // app_exit.send(AppExit::Success);
                     app_exit.send(AppExit);
                 }
                 MenuItemType::LevelEditor => {
@@ -29,9 +31,11 @@ pub fn handle_menu_click(
                 }
             },
             Interaction::Hovered => {
+                // *color = BackgroundColor(Color::Srgba(GRAY));
                 *color = BackgroundColor(Color::GRAY);
             }
             Interaction::None => {
+                // *color = BackgroundColor(Color::Srgba(WHITE));
                 *color = BackgroundColor(Color::WHITE);
             }
         },

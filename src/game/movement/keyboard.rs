@@ -8,18 +8,18 @@ use crate::state::MoveState;
 use super::events::TryMoveEvent;
 
 pub fn handle_keypress(
-    keyboard_input: ResMut<Input<KeyCode>>,
+    keyboard_input: ResMut<ButtonInput<KeyCode>>,
     board: ResMut<Board>,
     mut writer: EventWriter<TryMoveEvent>,
     mut app_state: ResMut<NextState<MoveState>>,
 ) {
-    let direction = if keyboard_input.any_pressed([KeyCode::Up, KeyCode::W]) {
+    let direction = if keyboard_input.any_pressed([KeyCode::ArrowUp, KeyCode::KeyW]) {
         Direction::Up
-    } else if keyboard_input.any_pressed([KeyCode::Down, KeyCode::S]) {
+    } else if keyboard_input.any_pressed([KeyCode::ArrowDown, KeyCode::KeyS]) {
         Direction::Down
-    } else if keyboard_input.any_pressed([KeyCode::Left, KeyCode::A]) {
+    } else if keyboard_input.any_pressed([KeyCode::ArrowLeft, KeyCode::KeyA]) {
         Direction::Left
-    } else if keyboard_input.any_pressed([KeyCode::Right, KeyCode::D]) {
+    } else if keyboard_input.any_pressed([KeyCode::ArrowRight, KeyCode::KeyD]) {
         Direction::Right
     } else {
         return;

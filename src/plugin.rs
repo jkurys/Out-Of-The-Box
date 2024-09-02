@@ -5,7 +5,7 @@ use crate::{
     init_images,
     menu::MenusPlugin,
     resources::{CurrentLevel, CurrentSprite},
-    spawn_camera, spritemap_fix,
+    spawn_camera,
     state::{DisplayState, MoveState},
     update_images,
 };
@@ -21,8 +21,8 @@ impl Plugin for MainPlugin {
             is_in_level: false,
         })
         .insert_resource(CurrentSprite(0))
-        .add_state::<DisplayState>()
-        .add_state::<MoveState>()
+        .init_state::<DisplayState>()
+        .init_state::<MoveState>()
         .add_plugins(DefaultPlugins)
         .add_plugins(MenusPlugin)
         .add_plugins(GamePlugin)
@@ -30,7 +30,7 @@ impl Plugin for MainPlugin {
         .add_plugins(MovementPlugin)
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, init_images)
-        .add_systems(Update, update_images)
-        .add_systems(Update, spritemap_fix);
+        .add_systems(Update, update_images);
+        // .add_systems(Update, spritemap_fix);
     }
 }

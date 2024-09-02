@@ -14,7 +14,7 @@ mod save;
 mod start_input;
 mod utils;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct LevelEditorItem;
 pub struct LevelEditorPlugin;
 

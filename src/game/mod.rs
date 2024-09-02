@@ -3,10 +3,7 @@ use crate::board::Board;
 use crate::consts::MOVE_ANIMATION_TIME;
 use crate::exit::handle_esc;
 use crate::utils::delete_all_components;
-use crate::{
-    consts::INITIAL_MAP,
-    state::{DisplayState, MoveState},
-};
+use crate::state::{DisplayState, MoveState};
 use bevy::prelude::*;
 use maps::load_starting_map;
 use restart::{handle_restart, handle_undo};
@@ -59,9 +56,8 @@ impl Plugin for GamePlugin {
     }
 }
 
-fn set_game_state(mut game_state: ResMut<NextState<MoveState>>, mut board: ResMut<Board>) {
+fn set_game_state(mut game_state: ResMut<NextState<MoveState>>) {
     game_state.set(MoveState::Static);
-    board.set_current_map(INITIAL_MAP);
 }
 
 pub fn clear_board(mut board: ResMut<Board>, mut boards: ResMut<BoardStates>) {

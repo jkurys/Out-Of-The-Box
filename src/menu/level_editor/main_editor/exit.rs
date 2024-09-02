@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::state::DisplayState;
 
 pub fn handle_exit_to_save(
-    mut keyboard_input: ResMut<Input<KeyCode>>,
+    mut keyboard_input: ResMut<ButtonInput<KeyCode>>,
     mut app_state: ResMut<NextState<DisplayState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Escape) {

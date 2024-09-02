@@ -16,9 +16,10 @@ use crate::{
 use self::{
     exit::handle_exit_to_save,
     handle_click::handle_level_editor_click,
-    plus::handle_plus_click,
+    // plus::handle_plus_click,
     setup::{set_board_size, setup_level_editor_board},
-    tabs::handle_tab_click,
+    // tabs::handle_tab_click,
+    highlight::handle_highlight,
 };
 
 use super::LevelEditorItem;
@@ -38,6 +39,7 @@ pub struct LevelEditorChangable(pub Position);
 mod exit;
 mod handle_click;
 mod plus;
+mod highlight;
 mod setup;
 mod tabs;
 
@@ -61,9 +63,10 @@ impl Plugin for LevelEditorMainPlugin {
                 handle_level_editor_click,
                 despawn_board,
                 render_board,
+                handle_highlight,
                 render_border,
-                handle_plus_click,
-                handle_tab_click,
+                // handle_plus_click,
+                // handle_tab_click,
                 handle_exit_to_save,
             )
                 .chain()

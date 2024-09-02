@@ -1,3 +1,4 @@
+// use bevy::color::palettes::css::{LIMEGREEN, DARK_GREEN};
 use bevy::prelude::*;
 
 use std::fs::File;
@@ -23,7 +24,7 @@ pub fn handle_win(
 ) {
     let mut is_win = true;
     for position in board.get_all_goals().iter() {
-        if board.get_object_type(*position) != GameObject::Box {
+        if board.get_object_type(position.position_above()) != GameObject::Box {
             is_win = false;
         }
     }
@@ -66,6 +67,7 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
         .spawn(NodeBundle {
+            // background_color: BackgroundColor(Color::Srgba(LIMEGREEN)),
             background_color: BackgroundColor(Color::LIME_GREEN),
             visibility: Visibility::Visible,
             style: Style {
@@ -89,34 +91,35 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
                         font: menu_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
             parent.spawn(
                 TextBundle::from_section(
                     "Press Enter to continue",
                     TextStyle {
                         font_size: 40.0,
-                        color: Color::DARK_GREEN,
+                        // color: DARK_GREEN.into(),
+                        color: Color::DARK_GREEN.into(),
                         font: menu_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
         });
 }
 
 pub fn handle_win_click(
-    mut keyboard_input: ResMut<Input<KeyCode>>,
+    mut keyboard_input: ResMut<ButtonInput<KeyCode>>,
     mut app_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
 ) {
-    if keyboard_input.pressed(KeyCode::Return) {
+    if keyboard_input.pressed(KeyCode::Enter) {
         app_state.set(
             state_stack
                 .0
                 .pop()
                 .expect("Could not go out of victory screen"),
         );
-        keyboard_input.reset(KeyCode::Return);
+        keyboard_input.reset(KeyCode::Enter);
     }
 }

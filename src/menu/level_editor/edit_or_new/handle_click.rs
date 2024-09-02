@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-
+// use bevy::color::palettes::css::{WHITE, GRAY};
 use crate::state::DisplayState;
 
 use super::setup::ButtonType;
@@ -22,9 +22,11 @@ pub fn handle_click(
                 }
             },
             Interaction::Hovered => {
+                // *color = GRAY.into();
                 *color = Color::GRAY.into();
             }
             Interaction::None => {
+                // *color = WHITE.into();
                 *color = Color::WHITE.into();
             }
         }

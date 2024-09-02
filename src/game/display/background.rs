@@ -29,11 +29,12 @@ pub fn render_board(
     // render all objects found in board
     for y in bottom_border..=top_border {
         for x in left_border..=right_border {
-            let position = Position { x, y };
+            let z = 1;
+            let position = Position { x, y, z };
             let game_object = board.get_object_type(position);
             match game_object {
                 GameObject::Box => {
-                    let top_index = if board.get_floor_type(position) == Floor::Goal {
+                    let top_index = if board.get_floor_type(position.position_below()) == Floor::Goal {
                         3
                     } else {
                         0
@@ -45,7 +46,7 @@ pub fn render_board(
                         (1, top_index, 4),
                         x,
                         y,
-                        1,
+                        z,
                         0.,
                         Box,
                     );
@@ -58,7 +59,7 @@ pub fn render_board(
                         (1, 0, 2),
                         x,
                         y,
-                        1,
+                        z,
                         0.,
                         Wall,
                     );
@@ -73,7 +74,7 @@ pub fn render_board(
                             (current_sprite.0 * 4 + 1, current_sprite.0 * 4, current_sprite.0 * 4 + 2),
                             x,
                             y,
-                            1,
+                            z,
                             0.,
                             Player,
                         );
@@ -90,7 +91,7 @@ pub fn render_board(
                             16 - counter,
                             x,
                             y,
-                            1,
+                            z,
                             0.,
                             Player,
                         );
@@ -104,7 +105,7 @@ pub fn render_board(
                         (color * 3 + 1, color * 3, color * 3 + 2),
                         x,
                         y,
-                        1,
+                        z,
                         0.,
                         HiddenWall,
                     );
@@ -118,7 +119,7 @@ pub fn render_board(
                         4 * 6 + color,
                         x,
                         y,
-                        1,
+                        z,
                         0.,
                         Turtle,
                     );
@@ -134,7 +135,7 @@ pub fn render_board(
                         (direction.to_num() * 6 + 4, direction.to_num() * 6 + 3, direction.to_num() * 6 + 5),
                         x,
                         y,
-                        1,
+                        z,
                         0.,
                         Turtle,
                     );

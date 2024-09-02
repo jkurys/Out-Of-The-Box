@@ -40,11 +40,12 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                     "MAIN MENU",
                     TextStyle {
                         font_size: 50.0,
+                        // color: Color::srgba(0., 0., 0., 0.),
                         color: Color::rgba(0., 0., 0., 0.),
                         font: menu_font.clone(),
                     },
                 )
-                .with_text_alignment(TextAlignment::Center),
+                .with_text_justify(JustifyText::Center),
             );
             spawn_button(
                 parent,
