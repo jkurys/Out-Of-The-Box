@@ -31,7 +31,7 @@ pub const BOX_ATLAS: &str = "textures/box_atlas_big.png";
 pub const BOX_TEXTURE: &str = "textures/box2.png";
 pub const GOAL_TEXTURE: &str = "textures/goal_big.png";
 pub const ICE_TEXTURE: &str = "textures/ice_big.png";
-pub const WARP_TEXTURE: &str = "textures/warp.png";
+// pub const WARP_TEXTURE: &str = "textures/warp.png";
 pub const HIDDEN_WALL_TEXTURES: [&str; 3] = [
     "textures/hidden_wall_red.png",
     "textures/hidden_wall_blue.png",
@@ -50,8 +50,8 @@ pub const BUTTON_TEXTURES: [&str; 3] = [
     "textures/button_green.png",
 ];
 pub const BUTTON_ATLAS: &str = "textures/button_atlas_big.png";
-pub const PLUS_TEXTURE: &str = "textures/plus.png";
-pub const HOVERED_PLUS_TEXTURE: &str = "textures/hovered-plus.png";
+// pub const PLUS_TEXTURE: &str = "textures/plus.png";
+// pub const HOVERED_PLUS_TEXTURE: &str = "textures/hovered-plus.png";
 pub const BACKGROUND_TEXTURE: &str = "textures/background.png";
 /** FONTS */
 
@@ -87,6 +87,6 @@ pub const UPPER_HALF_STICKER_Z_INDEX: f32 = 3.5;
 // pub const FLOOR_STICKER_Z_INDEX: f32 = 1.5;
 
 /** MISCELLANEOUS */
-pub const MAX_MAPS: usize = 10;
-pub const INITIAL_MAP: usize = 0;
+// pub const MAX_MAPS: usize = 10;
+// pub const INITIAL_MAP: usize = 0;
 pub const EAT_COUNTER: usize = 5;

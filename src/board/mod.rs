@@ -7,6 +7,7 @@ use bevy::{
 };
 use serde::{Deserialize, Serialize};
 
+use crate::game::display::background::calculate_borders;
 use crate::{
     components::GameEntity,
     consts::EAT_COUNTER,
@@ -39,6 +40,20 @@ impl Board {
             },
             blocks: Vec::new(),
             eaten_boxes: HashMap::new(),
+        }
+    }
+
+    pub fn init_objs(&mut self) {
+        let map_size = self.map_size;
+        let bottom_border = offset_coordinate(0, map_size.height as i32);
+        let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
+        let left_border = offset_coordinate(0, map_size.width as i32);
+        let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
+        for x in left_border..=right_border {
+            for y in bottom_border..=top_border {
+                self.objects.insert(Position {x, y, z: 0}, GameObject::Wall);
+                self.floors.insert(Position {x, y, z: 0}, Floor::Tile);
+            }
         }
     }
 
@@ -123,7 +138,19 @@ impl Board {
             let obj = self.get_object_type(position);
             self.delete_object(position);
             self.insert_floor(position.position_below(), Floor::Obj(obj));
+            self.insert_object(position.position_below(), obj);
         }
+    }
+
+    pub fn get_empty_below(&self) -> Vec<Position> {
+        let mut res = Vec::new();
+        for (position, obj) in self.objects.iter() {
+            if self.get_object_type(position.position_below()) == GameObject::Empty
+                && *obj != GameObject::Wall {
+                res.push(position.position_below());
+            }
+        }
+        res
     }
 
     pub fn clear_entities(&mut self) {

@@ -4,7 +4,6 @@ use consts::*;
 use init_images::init_images;
 use plugin::MainPlugin;
 use resources::*;
-use state::{DisplayState, MoveState};
 use std::fs::File;
 use std::io::Read;
 
@@ -25,7 +24,6 @@ mod utils;
 fn main() {
     App::new()
         .add_plugins(MainPlugin)
-        .init_state::<MoveState>()
         .run();
 }
 

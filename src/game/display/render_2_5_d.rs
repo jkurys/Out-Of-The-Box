@@ -17,17 +17,17 @@ pub fn get_offsets(
 ) {
     let (upper_x, upper_y, upper_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
         UPPER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
     );
     let (lower_x, lower_y, lower_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        (y as f32) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
         LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
     );
     let (side_x, side_y, side_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
+        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
         LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
     );
     (

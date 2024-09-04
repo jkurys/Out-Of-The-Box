@@ -7,7 +7,7 @@ use crate::{
             border::render_border,
             despawn_board,
         },
-        game_objects::Position,
+        // game_objects::Position,
     },
     state::DisplayState,
     utils::delete_all_components,
@@ -23,19 +23,19 @@ use self::{
 };
 
 use super::LevelEditorItem;
+//
+// #[derive(Component)]
+// pub struct LevelEditorTabs;
+//
+// #[derive(Component)]
+// pub struct LevelEditorTab(pub usize);
+//
+// #[derive(Component)]
+// pub struct LevelEditorTabPlus;
 
-#[derive(Component)]
-pub struct LevelEditorTabs;
-
-#[derive(Component)]
-pub struct LevelEditorTab(pub usize);
-
-#[derive(Component)]
-pub struct LevelEditorTabPlus;
-
-#[derive(Component)]
-pub struct LevelEditorChangable(pub Position);
-
+// #[derive(Component)]
+// pub struct LevelEditorChangable(pub Position);
+//
 mod exit;
 mod handle_click;
 mod plus;

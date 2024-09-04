@@ -1,12 +1,12 @@
-use bevy::prelude::*;
+// use bevy::prelude::*;
 
 // use crate::consts::{HOVERED_PLUS_TEXTURE, PLUS_TEXTURE};
 
-use super::{LevelEditorTab, LevelEditorTabPlus};
+// use super::{LevelEditorTab, LevelEditorTabPlus};
 
-type PlusQueryConstraint = (With<LevelEditorTabPlus>, Without<LevelEditorTab>);
-type TabQueryConstraint = (With<LevelEditorTab>, Without<LevelEditorTabPlus>);
-
+// type PlusQueryConstraint = (With<LevelEditorTabPlus>, Without<LevelEditorTab>);
+// type TabQueryConstraint = (With<LevelEditorTab>, Without<LevelEditorTabPlus>);
+//
 // pub fn handle_plus_click(
 //     mut plus_query: Query<(&mut Style, &Interaction, &mut UiImage), PlusQueryConstraint>,
 //     mut tab_query: Query<(&mut Style, &mut Visibility), TabQueryConstraint>,

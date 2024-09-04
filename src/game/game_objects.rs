@@ -112,7 +112,7 @@ pub struct Turtle;
 #[derive(Component, Clone)]
 pub struct HiddenWall;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Goal;
 
 #[derive(Component, Clone)]
@@ -130,16 +130,13 @@ pub struct Player;
 #[derive(Component, Clone)]
 pub struct Ice;
 
-#[derive(Component)]
-pub struct Warp;
-
-#[derive(Component)]
-pub struct BoxButton;
-
+// #[derive(Component)]
+// pub struct BoxButton;
+//
 #[derive(Component, Clone)]
 pub struct Glue;
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Dirt;
 
 #[derive(Component, Clone)]
@@ -276,6 +273,9 @@ impl Position {
     }
 
     pub fn position_below(&self) -> Position {
+        if self.z == 0 {
+            return *self;
+        }
         Position {
             x: self.x,
             y: self.y,

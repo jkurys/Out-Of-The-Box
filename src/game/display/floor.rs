@@ -71,7 +71,7 @@ pub fn render_floor(
                         y,
                         z,
                         0.,
-                        Background,
+                        Goal,
                     );
                 }
                 Floor::Dirt => {
@@ -84,7 +84,7 @@ pub fn render_floor(
                         y,
                         z,
                         0.,
-                        Background,
+                        Dirt,
                     );
                 }
                 Floor::Void => {

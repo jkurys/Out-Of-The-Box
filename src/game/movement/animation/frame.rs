@@ -69,7 +69,7 @@ pub fn move_event(
             if let Ok(higher_transform) = query.get_mut(higher_entity) {
                 let (x, y) = (
                     (position.x as f32) * TILE_WIDTH + (position.y as f32 * (101./300.) * TILE_WIDTH),
-                    (position.y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((1 - 1) as f32 * TILE_FRONT_HEIGHT), // NOTE: this 1 - 1 corresponds to z index; patch this soon
+                    (position.y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((1 - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)), // NOTE: this 1 - 1 corresponds to z index; patch this soon
                 );
                 modify_transform(higher_transform, direction, timer, x, y, event.floor);
             }
@@ -78,7 +78,7 @@ pub fn move_event(
             if let Ok(lower_transform) = query.get_mut(lower_entity) {
                 let (x2, y2) = (
                     (position.x as f32) * TILE_WIDTH + (position.y as f32 * (101./300.) * TILE_WIDTH),
-                    (position.y as f32) * (TILE_HEIGHT - 3.) + ((1 - 1) as f32 * TILE_FRONT_HEIGHT),
+                    (position.y as f32) * (TILE_HEIGHT - 3.) + ((1 - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
                 );
                 modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
             }

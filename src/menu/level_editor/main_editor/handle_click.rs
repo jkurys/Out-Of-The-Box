@@ -1,5 +1,7 @@
+use bevy::sprite::MaterialMesh2dBundle;
 use bevy::{prelude::*, utils::HashSet, window::PrimaryWindow};
-use bevy::color::palettes::css::WHITE;
+use bevy::color::palettes::css::{WHITE, LIMEGREEN, RED, PURPLE};
+use crate::game::GameItem;
 use crate::game::display::background::calculate_borders;
 use crate::game::display::render_2_5_d::get_offsets;
 
@@ -8,7 +10,6 @@ use crate::{
     components::GameEntity,
     consts::*,
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
-    // resources::Images,
 };
 
 fn offset_coordinate_x(coord: f32, window_coord: f32, y: i32) -> i32 {
@@ -68,39 +69,67 @@ fn mouse_over_column(
     y: i32,
     mouse_position: Vec2,
     window: Window,
-    // meshes: &mut Res<Assets<Mesh>>,
-    // materials: &mut Res<Assets<ColorMaterial>>,
+    // meshes: &mut ResMut<Assets<Mesh>>,
+    // materials: &mut ResMut<Assets<ColorMaterial>>,
     // commands: &mut Commands,
 ) -> Option<Position> {
     zs.sort();
     zs.reverse();
     let mouse_position = Vec2 { x: mouse_position.x - window.width() / 2., y: window.height() / 2. - mouse_position.y };
     for &z in zs.iter() {
-        let (uppers, lowers, mut sides) = get_offsets(x, y, z, 0.);
-        sides = (sides.0 + TILE_WIDTH, sides.1, sides.2);
-        if is_inside_rect(mouse_position, (uppers.0, uppers.0 + TILE_WIDTH), (uppers.1, uppers.1 + TILE_HEIGHT + 3.)) {
-            // let mesh = Mesh2dHandle(meshes.add(Rectangle::new(TILE_WIDTH, TILE_HEIGHT + 3.)));
-            // commands.spawn(
-            //     MaterialMesh2dBundle {
-            //         mesh,
-            //         material: materials.add(Color::rgb(100., 100., 100.).into()),
-            //         transform: Transform::from_xyz(
-            //             uppers.0,
-            //             uppers.1,
-            //             0.
-            //         ),
-            //         ..default()
-            //     }
-            // );
+        let (mut uppers, mut lowers, mut sides) = get_offsets(x, y, z, 0.);
+        uppers = (uppers.0 - TILE_WIDTH / 2. - 5., uppers.1 - 5., uppers.2);
+        lowers = (lowers.0 - TILE_WIDTH / 2. - 13., lowers.1 + 5., lowers.2);
+        sides = (sides.0 + TILE_WIDTH / 2. - SIDE_WIDTH, sides.1 - TILE_HEIGHT, sides.2);
+        // commands.spawn(MaterialMesh2dBundle {
+        //     mesh: meshes.add(Circle::default()).into(),
+        //     transform: Transform {
+        //         translation: Vec3 {x: mouse_position.x, y: mouse_position.y, z: 220.},
+        //         scale: Vec3::splat(10.),
+        //         ..default()
+        //     },
+        //     material: materials.add(Color::from(PURPLE)),
+        //     ..default()
+        // }).insert(GameItem);
+        if is_inside_rect(mouse_position, (uppers.0, uppers.0 + TILE_WIDTH), (uppers.1, uppers.1 + TILE_HEIGHT)) {
+            // let transform = Transform {
+            //     translation: Vec3 {x: uppers.0 + TILE_WIDTH / 2., y: uppers.1 + (TILE_HEIGHT + 3.) / 2., z: 200.},
+            //     scale: Vec3 {x: TILE_WIDTH, y: TILE_HEIGHT, z: 1.},
+            //     ..default()
+            // };
+            // commands.spawn(MaterialMesh2dBundle {
+            //     mesh: meshes.add(Rectangle::default()).into(),
+            //     transform,
+            //     material: materials.add(Color::from(LIMEGREEN)),
+            //     ..default()
+            // }).insert(GameItem);
             return Some(Position { x, y, z });
-        }
-        if is_inside_rect(mouse_position, (lowers.0, lowers.0 + TILE_WIDTH), (lowers.1, lowers.1 + TILE_FRONT_HEIGHT)) {
-            println!("FRONT");
-            return Some(Position { x, y: y - 1, z });
-        }
-        if is_inside_rect(mouse_position, (sides.0, sides.0 + SIDE_WIDTH), (sides.1, sides.1 + SIDE_HEIGHT)) {
-            println!("SIDE");
-            return Some(Position { x: x + 1, y, z });
+        } else if is_inside_rect(mouse_position, (lowers.0, lowers.0 + TILE_WIDTH), (lowers.1, lowers.1 + TILE_FRONT_HEIGHT)) {
+            // let transform = Transform {
+            //     translation: Vec3 {x: lowers.0 + TILE_WIDTH / 2., y: lowers.1 + TILE_FRONT_HEIGHT / 2., z: 200.},
+            //     scale: Vec3 {x: TILE_WIDTH, y: TILE_FRONT_HEIGHT, z: 1.},
+            //     ..default()
+            // };
+            // commands.spawn(MaterialMesh2dBundle {
+            //     mesh: meshes.add(Rectangle::default()).into(),
+            //     transform,
+            //     material: materials.add(Color::from(PURPLE)),
+            //     ..default()
+            // }).insert(GameItem);
+            return Some(Position { x, y: y - 1, z: z - 1 });
+        } else if is_inside_rect(mouse_position, (sides.0, sides.0 + SIDE_WIDTH * 2.), (sides.1, sides.1 + SIDE_HEIGHT)) {
+            // let transform = Transform {
+            //     translation: Vec3 {x: sides.0 + SIDE_WIDTH, y: sides.1 + SIDE_HEIGHT / 2., z: 200.},
+            //     scale: Vec3 {x: SIDE_WIDTH * 2., y: SIDE_HEIGHT, z: 1.},
+            //     ..default()
+            // };
+            // commands.spawn(MaterialMesh2dBundle {
+            //     mesh: meshes.add(Rectangle::default()).into(),
+            //     transform,
+            //     material: materials.add(Color::from(RED)),
+            //     ..default()
+            // }).insert(GameItem);
+            return Some(Position { x: x + 1, y, z: z - 1 });
         }
     }
     None
@@ -110,15 +139,15 @@ pub fn get_frontmost_position(
     mouse: &Res<ButtonInput<MouseButton>>,
     windows: &Query<&Window, With<PrimaryWindow>>,
     board: &ResMut<Board>,
-    // meshes: &mut Res<Assets<Mesh>>,
-    // materials: &mut Res<Assets<ColorMaterial>>,
+    // meshes: &mut ResMut<Assets<Mesh>>,
+    // materials: &mut ResMut<Assets<ColorMaterial>>,
     // commands: &mut Commands,
 ) -> (Position, Option<MouseButton>) {
     let window = windows.single();
     if let Some(position) = window.cursor_position() {
         let (bot_border, top_border, left_border, right_border) = calculate_borders(board);
         for y in bot_border..=top_border {
-            for x in (left_border..=right_border).rev() {
+            for x in left_border..=right_border {
                 if let Some(pos) = mouse_over_column(
                     board.get_column(x, y),
                     x,
@@ -157,6 +186,7 @@ pub fn handle_level_editor_click(
     // mut materials: Res<Assets<ColorMaterial>>,
 ) {
     
+    let mouse_pos_opt = get_frontmost_position(&mouse, &windows, &board);
     if block_positions.is_some() {
         if input.just_pressed(KeyCode::KeyC) {
             board.insert_block(Block {
@@ -165,7 +195,8 @@ pub fn handle_level_editor_click(
             *block_positions = None;
             return;
         }
-        if let (mut pos, Some(MouseButton::Left)) = get_position_from_mouse_click(&mouse, &windows) {
+        // if let (mut pos, Some(MouseButton::Left)) = get_position_from_mouse_click(&mouse, &windows) {
+        if let (mut pos, Some(MouseButton::Left)) = mouse_pos_opt {
             pos = Position { x: pos.x, y: pos.y, z: pos.z + 1};
             let mut positions = block_positions.clone().unwrap();
             positions.insert(pos);
@@ -178,13 +209,14 @@ pub fn handle_level_editor_click(
     if input.just_pressed(KeyCode::KeyC) {
         *block_positions = Some(HashSet::new());
     }
-    if let (mut pos, Some(button)) = get_position_from_mouse_click(&mouse, &windows) {
+    // if let (mut pos, Some(button)) = get_position_from_mouse_click(&mouse, &windows) {
+    if let (mut pos, Some(button)) = mouse_pos_opt {
         if button == MouseButton::Left {
             if let GameEntity::Object(_) = *entity {
-                pos = Position { x: pos.x, y: pos.y, z: 1 };
+                pos = Position { x: pos.x, y: pos.y, z: pos.z + 1 };
             }
             if let GameEntity::Floor(Floor::Tile) = *entity {
-                pos = Position { x: pos.x, y: pos.y, z: 1 };
+                pos = Position { x: pos.x, y: pos.y, z: pos.z };
             }
             board.insert(pos, *entity);
             if let GameEntity::Object(GameObject::HidingWall { color }) = *entity {

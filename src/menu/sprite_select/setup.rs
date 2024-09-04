@@ -1,14 +1,23 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::{Mesh2dHandle, MaterialMesh2dBundle}, color::palettes::css::{LIMEGREEN, PURPLE}};
 
 use crate::{
-    consts::{MAIN_MENU_FONT, PLAYER_TEXTURES},
+    consts::{MAIN_MENU_FONT, PLAYER_TEXTURES, TILE_WIDTH, TILE_HEIGHT},
     menu::spawn_button,
 };
 
 use super::handle_click::{SpriteSelectItem, SpriteSelectItemType};
 
-pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_sprite_select(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+
     let menu_font = asset_server.load(MAIN_MENU_FONT);
+    
+
+
     commands
         .spawn(NodeBundle {
             background_color: BackgroundColor(Color::BLACK),

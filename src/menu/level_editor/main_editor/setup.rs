@@ -21,6 +21,7 @@ use crate::{
 
 pub fn set_board_size(board_size: Res<BoardSize>, mut boards: ResMut<Board>) {
     boards.set_map_size(*board_size);
+    boards.init_objs();
 }
 
 pub fn setup_level_editor_board(
