@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-// use bevy::color::palettes::css::{BEIGE, DARK_GREEN, GREEN};
+use bevy::color::palettes::css::{BEIGE, DARK_GREEN, GREEN};
 
 use crate::{
     board::Board,
@@ -42,8 +42,8 @@ pub fn setup_level_editor_board(
     let button_images = [asset_server.load(BUTTON_TEXTURES[0]), asset_server.load(BUTTON_TEXTURES[1]), asset_server.load(BUTTON_TEXTURES[2])];
     commands.spawn(NodeBundle {
         visibility: Visibility::Hidden,
-        // background_color: BackgroundColor(Color::Srgba(BEIGE)),
-        background_color: BackgroundColor(Color::BEIGE),
+        background_color: BackgroundColor(Color::Srgba(BEIGE)),
+        // background_color: BackgroundColor(Color::BEIGE),
         style: Style {
             width: Val::Percent(100.),
             height: Val::Percent(100.),
@@ -54,8 +54,8 @@ pub fn setup_level_editor_board(
         .with_children(|parent| {
 
         parent.spawn(NodeBundle {
-            // background_color: BackgroundColor(Color::Srgba(BEIGE)),
-            background_color: BackgroundColor(Color::BEIGE),
+            background_color: BackgroundColor(Color::Srgba(BEIGE)),
+            // background_color: BackgroundColor(Color::BEIGE),
             visibility: Visibility::Visible,
             style: Style {
                 width: Val::Percent(10.0),
@@ -73,8 +73,8 @@ pub fn setup_level_editor_board(
         .with_children(|parent| {
             parent
                 .spawn(NodeBundle {
-                    // background_color: BackgroundColor(Color::Srgba(DARK_GREEN)),
-                    background_color: BackgroundColor(Color::DARK_GREEN),
+                    background_color: BackgroundColor(Color::Srgba(DARK_GREEN)),
+                    // background_color: BackgroundColor(Color::DARK_GREEN),
                     visibility: Visibility::Visible,
                     style: Style {
                         width: Val::Percent(100.0),
@@ -115,8 +115,8 @@ pub fn setup_level_editor_board(
 
             parent
                 .spawn(NodeBundle {
-                    // background_color: BackgroundColor(Color::Srgba(GREEN)),
-                    background_color: BackgroundColor(Color::GREEN),
+                    background_color: BackgroundColor(Color::Srgba(GREEN)),
+                    // background_color: BackgroundColor(Color::GREEN),
                     visibility: Visibility::Visible,
                     style: Style {
                         width: Val::Percent(100.0),

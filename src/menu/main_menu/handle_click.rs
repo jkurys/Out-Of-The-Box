@@ -1,5 +1,5 @@
 use bevy::{app::AppExit, prelude::*};
-// use bevy::color::palettes::css::{GRAY, WHITE};
+use bevy::color::palettes::css::{GRAY, WHITE};
 
 use crate::state::DisplayState;
 
@@ -23,20 +23,20 @@ pub fn handle_menu_click(
                     app_state.set(DisplayState::SpriteSelect);
                 }
                 MenuItemType::Exit => {
-                    // app_exit.send(AppExit::Success);
-                    app_exit.send(AppExit);
+                    app_exit.send(AppExit::Success);
+                    // app_exit.send(AppExit);
                 }
                 MenuItemType::LevelEditor => {
                     app_state.set(DisplayState::LevelEditorSelect);
                 }
             },
             Interaction::Hovered => {
-                // *color = BackgroundColor(Color::Srgba(GRAY));
-                *color = BackgroundColor(Color::GRAY);
+                *color = BackgroundColor(Color::Srgba(GRAY));
+                // *color = BackgroundColor(Color::GRAY);
             }
             Interaction::None => {
-                // *color = BackgroundColor(Color::Srgba(WHITE));
-                *color = BackgroundColor(Color::WHITE);
+                *color = BackgroundColor(Color::Srgba(WHITE));
+                // *color = BackgroundColor(Color::WHITE);
             }
         },
     )

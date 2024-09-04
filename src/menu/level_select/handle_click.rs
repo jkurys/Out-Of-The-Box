@@ -1,7 +1,7 @@
 use std::{fs::File, io::Read};
 
 use bevy::prelude::*;
-// use bevy::color::palettes::css::{DARK_GREEN, GRAY, GREEN, WHITE};
+use bevy::color::palettes::css::{DARK_GREEN, GRAY, GREEN, WHITE};
 
 use crate::{
     consts::LEVEL_SAVE,
@@ -55,30 +55,30 @@ pub fn handle_level_click(
                 *color = match item.as_ref() {
                     LevelSelectItemType::Level(level_no) => {
                         if bool_buf[*level_no - 1] {
-                            // BackgroundColor(Color::Srgba(DARK_GREEN))
-                            BackgroundColor(Color::DARK_GREEN)
+                            BackgroundColor(Color::Srgba(DARK_GREEN))
+                            // BackgroundColor(Color::DARK_GREEN)
                         } else {
-                            // BackgroundColor(Color::Srgba(GRAY))
-                            BackgroundColor(Color::GRAY)
+                            BackgroundColor(Color::Srgba(GRAY))
+                            // BackgroundColor(Color::GRAY)
                         }
                     }
-                    // _ => BackgroundColor(Color::Srgba(GRAY)),
-                    _ => BackgroundColor(Color::GRAY),
+                    _ => BackgroundColor(Color::Srgba(GRAY)),
+                    // _ => BackgroundColor(Color::GRAY),
                 }
             }
             Interaction::None => {
                 *color = match item.as_ref() {
                     LevelSelectItemType::Level(level_no) => {
                         if bool_buf[*level_no - 1] {
-                            // BackgroundColor(Color::Srgba(GREEN))
-                            BackgroundColor(Color::GREEN)
+                            BackgroundColor(Color::Srgba(GREEN))
+                            // BackgroundColor(Color::GREEN)
                         } else {
-                            // BackgroundColor(Color::Srgba(WHITE))
-                            BackgroundColor(Color::WHITE)
+                            BackgroundColor(Color::Srgba(WHITE))
+                            // BackgroundColor(Color::WHITE)
                         }
                     }
-                    // _ => BackgroundColor(Color::Srgba(WHITE)),
-                    _ => BackgroundColor(Color::WHITE),
+                    _ => BackgroundColor(Color::Srgba(WHITE)),
+                    // _ => BackgroundColor(Color::WHITE),
                 }
             }
         },

@@ -8,10 +8,10 @@ pub fn init_images(
     asset_server: Res<AssetServer>,
 ) {
     let layout = |x, y| {TextureAtlasLayout::from_grid(
-        Vec2 { x: 480., y: 480. },
+        UVec2 { x: 480, y: 480 },
         x,
         y,
-        Some(Vec2 { x: 20., y: 20. }),
+        Some(UVec2 { x: 20, y: 20 }),
         None,
     )};
     let wall_atlas_texture = asset_server.load(WALL_ATLAS);

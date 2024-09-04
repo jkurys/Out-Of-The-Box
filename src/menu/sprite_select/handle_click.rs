@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use std::fs::File;
 use std::io::Write;
-// use bevy::color::palettes::css::{GRAY, WHITE};
+use bevy::color::palettes::css::{GRAY, WHITE};
 
 use crate::consts::PLAYER_TEXTURE_SAVE;
 use crate::state::DisplayState;
@@ -40,12 +40,12 @@ pub fn handle_sprite_click(
                 }
             },
             Interaction::Hovered => {
-                // *color = BackgroundColor(Color::Srgba(GRAY));
-                *color = BackgroundColor(Color::GRAY);
+                *color = BackgroundColor(Color::Srgba(GRAY));
+                // *color = BackgroundColor(Color::GRAY);
             }
             Interaction::None => {
-                // *color = BackgroundColor(Color::Srgba(WHITE));
-                *color = BackgroundColor(Color::WHITE);
+                *color = BackgroundColor(Color::Srgba(WHITE));
+                // *color = BackgroundColor(Color::WHITE);
             }
         },
     )

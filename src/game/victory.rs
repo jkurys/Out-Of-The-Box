@@ -1,4 +1,4 @@
-// use bevy::color::palettes::css::{LIMEGREEN, DARK_GREEN};
+use bevy::color::palettes::css::{WHITE, LIMEGREEN, DARK_GREEN};
 use bevy::prelude::*;
 
 use std::fs::File;
@@ -67,8 +67,8 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
         .spawn(NodeBundle {
-            // background_color: BackgroundColor(Color::Srgba(LIMEGREEN)),
-            background_color: BackgroundColor(Color::LIME_GREEN),
+            background_color: BackgroundColor(Color::Srgba(LIMEGREEN)),
+            // background_color: BackgroundColor(Color::LIME_GREEN),
             visibility: Visibility::Visible,
             style: Style {
                 width: Val::Percent(100.0),
@@ -87,7 +87,8 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
                     "Level completed",
                     TextStyle {
                         font_size: 50.0,
-                        color: Color::WHITE,
+                        color: WHITE.into(),
+                        // color: Color::WHITE,
                         font: menu_font.clone(),
                     },
                 )
@@ -98,8 +99,8 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
                     "Press Enter to continue",
                     TextStyle {
                         font_size: 40.0,
-                        // color: DARK_GREEN.into(),
-                        color: Color::DARK_GREEN.into(),
+                        color: DARK_GREEN.into(),
+                        // color: Color::DARK_GREEN.into(),
                         font: menu_font.clone(),
                     },
                 )

@@ -20,17 +20,25 @@ impl Plugin for MainPlugin {
             level_map_string: "".to_string(),
             is_in_level: false,
         })
-        .insert_resource(CurrentSprite(0))
-        .init_state::<DisplayState>()
-        .init_state::<MoveState>()
-        .add_plugins(DefaultPlugins)
+        .insert_resource(CurrentSprite(0));
+
+        app.add_plugins(DefaultPlugins)
         .add_plugins(MenusPlugin)
-        .add_plugins(GamePlugin)
-        .add_plugins(DisplayPlugin)
+        .add_plugins(GamePlugin);
+
+        app.add_plugins(DisplayPlugin)
         .add_plugins(MovementPlugin)
-        .add_systems(Startup, spawn_camera)
-        .add_systems(Startup, init_images)
+        .add_systems(Update, transition_to_in_menu.run_if(in_state(DisplayState::Setup)))
+        .add_systems(OnEnter(DisplayState::Setup), spawn_camera)
+        .add_systems(OnEnter(DisplayState::Setup), init_images)
         .add_systems(Update, update_images);
+        app.init_state::<DisplayState>()
+        .init_state::<MoveState>();
         // .add_systems(Update, spritemap_fix);
     }
+}
+
+
+fn transition_to_in_menu(mut app_state: ResMut<NextState<DisplayState>>) {
+    app_state.set(DisplayState::MainMenu);
 }

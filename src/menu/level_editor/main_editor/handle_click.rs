@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashSet, window::PrimaryWindow};
-// use bevy::color::palettes::css::WHITE;
+use bevy::color::palettes::css::WHITE;
 use crate::game::display::background::calculate_borders;
 use crate::game::display::render_2_5_d::get_offsets;
 
@@ -207,12 +207,12 @@ pub fn handle_level_editor_click(
                 *entity = *object_or_floor;
             }
             Interaction::Hovered => {
-                // *color = Color::srgb(0.7, 0.7, 0.7).into();
-                *color = Color::rgb(0.7, 0.7, 0.7).into();
+                *color = Color::srgb(0.7, 0.7, 0.7).into();
+                // *color = Color::rgb(0.7, 0.7, 0.7).into();
             }
             Interaction::None => {
-                // *color = WHITE.into();
-                *color = Color::WHITE.into();
+                *color = WHITE.into();
+                // *color = Color::WHITE.into();
             }
         }
     }

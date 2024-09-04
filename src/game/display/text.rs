@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-// use bevy::color::palettes::css::DARK_GRAY;
+use bevy::color::palettes::css::DARK_GRAY;
 
 use crate::{consts::LEVEL_FONT, resources::CurrentLevel};
 
@@ -15,8 +15,8 @@ pub fn display_level_text(
     let current_level = current_level.level_number;
     commands
         .spawn(NodeBundle {
-            // background_color: Color::srgba(0.5, 0.5, 0.5, 0.3).into(),
-            background_color: Color::rgba(0.5, 0.5, 0.5, 0.3).into(),
+            background_color: Color::srgba(0.5, 0.5, 0.5, 0.3).into(),
+            // background_color: Color::rgba(0.5, 0.5, 0.5, 0.3).into(),
             visibility: Visibility::Visible,
             style: Style {
                 width: Val::Percent(100.0),
@@ -35,8 +35,8 @@ pub fn display_level_text(
                     format!("Level {}", current_level),
                     TextStyle {
                         font_size: 30.0,
-                        // color: DARK_GRAY.into(),
-                        color: Color::DARK_GRAY.into(),
+                        color: DARK_GRAY.into(),
+                        // color: Color::DARK_GRAY.into(),
                         font: level_font.clone(),
                     },
                 )
@@ -47,8 +47,8 @@ pub fn display_level_text(
                     r#"Press 'R' to restart"#,
                     TextStyle {
                         font_size: 20.0,
-                        // color: DARK_GRAY.into(),
-                        color: Color::DARK_GRAY.into(),
+                        color: DARK_GRAY.into(),
+                        // color: Color::DARK_GRAY.into(),
                         font: level_font.clone(),
                     },
                 )
@@ -59,8 +59,8 @@ pub fn display_level_text(
                     r#"Press 'U' to undo"#,
                     TextStyle {
                         font_size: 20.0,
-                        // color: DARK_GRAY.into(),
-                        color: Color::DARK_GRAY.into(),
+                        color: DARK_GRAY.into(),
+                        // color: Color::DARK_GRAY.into(),
                         font: level_font.clone(),
                     },
                 )
@@ -71,8 +71,8 @@ pub fn display_level_text(
                     r#"Press 'Esc' to exit the level"#,
                     TextStyle {
                         font_size: 20.0,
-                        // color: DARK_GRAY.into(),
-                        color: Color::DARK_GRAY.into(),
+                        color: DARK_GRAY.into(),
+                        // color: Color::DARK_GRAY.into(),
                         font: level_font.clone(),
                     },
                 )
