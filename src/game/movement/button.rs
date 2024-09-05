@@ -2,7 +2,12 @@ use bevy::prelude::*;
 
 use crate::{board::Board, game::game_objects::GameObject};
 
-pub fn handle_button(mut board: ResMut<Board>) {
+use super::{events::TryMoveEvent, utils::can_block_move};
+
+pub fn handle_button(
+    mut board: ResMut<Board>,
+    mut writer: EventWriter<TryMoveEvent>,
+) {
     let buttons = board.get_all_buttons();
     let mut is_clicked = false;
     for (color, button_color) in buttons.into_iter().enumerate() {
@@ -12,10 +17,20 @@ pub fn handle_button(mut board: ResMut<Board>) {
                 is_clicked = true;
             }
         }
-        if is_clicked {
-            board.rise_hiding_wall(color);
-        } else {
-            board.hide_hiding_wall(color);
+        let positions_to_move = board.get_hidden_walls_to_move(color, is_clicked);
+            
+        for (dir, pos) in positions_to_move {
+            let mut next_blocks = Vec::new();
+            let mut visited_blocks = Vec::new();
+            if can_block_move(&board, board.get_block(pos), dir, &mut next_blocks, &mut visited_blocks) {
+                board.modify_toggle(pos);
+            }
+            writer.send(TryMoveEvent {
+                block: board.get_block(pos),
+                direction: dir,
+                is_weak: false,
+                position: pos,
+            });
         }
         is_clicked = false;
     }

@@ -8,7 +8,12 @@ use crate::{
 
 use super::{events::EnteredFloorEvent, sort_positions::sort_positions};
 
-pub fn is_moveable(obj: GameObject) -> bool {
+pub fn is_moveable(obj: GameObject, is_first: bool) -> bool {
+    if is_first {
+        if let GameObject::HidingWall { .. } = obj {
+            return true;
+        }
+    }
     matches!(
         obj,
         GameObject::Box
@@ -32,12 +37,13 @@ pub fn can_block_move(
     next_blocks: &mut Vec<Block>,
     visited_blocks: &mut Vec<Block>,
 ) -> bool {
+    let is_first = visited_blocks.is_empty();
     visited_blocks.push(block.clone());
     for &position in block.positions.iter() {
         if board.get_object_type(position) == GameObject::Empty {
             continue;
         }
-        if !is_moveable(board.get_object_type(position)) {
+        if !is_moveable(board.get_object_type(position), is_first) {
             // eat if not only player
             return false;
         }
@@ -77,7 +83,7 @@ fn can_block_move_weak(
     blocks_that_must_move: &mut Vec<Block>,
 ) -> bool {
     for &position in block.positions.iter() {
-        let can_current_block_move_somehow = is_moveable(board.get_object_type(position))
+        let can_current_block_move_somehow = is_moveable(board.get_object_type(position), false)
             && board.get_floor_type(position.position_below()) == Floor::Ice;
         if !can_current_block_move_somehow {
             return false;

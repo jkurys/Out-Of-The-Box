@@ -212,16 +212,19 @@ pub fn handle_level_editor_click(
     // if let (mut pos, Some(button)) = get_position_from_mouse_click(&mouse, &windows) {
     if let (mut pos, Some(button)) = mouse_pos_opt {
         if button == MouseButton::Left {
-            if let GameEntity::Object(_) = *entity {
+            if matches!(*entity, GameEntity::Object(GameObject::HidingWall { color: _, hidden_toggle: true, hidden_by_def: true })) {
+                pos = Position { x: pos.x, y: pos.y, z: pos.z };
+            }
+            else if let GameEntity::Object(_) = *entity {
                 pos = Position { x: pos.x, y: pos.y, z: pos.z + 1 };
             }
             if let GameEntity::Floor(Floor::Tile) = *entity {
                 pos = Position { x: pos.x, y: pos.y, z: pos.z };
             }
             board.insert(pos, *entity);
-            if let GameEntity::Object(GameObject::HidingWall { color }) = *entity {
+            if let GameEntity::Object(GameObject::HidingWall { color, hidden_toggle: false, hidden_by_def: false }) = *entity {
                 board.insert_floor(
-                    pos,
+                    pos.position_below(),
                     Floor::HiddenWall {
                         hidden_by_default: false,
                         color,
@@ -231,6 +234,8 @@ pub fn handle_level_editor_click(
         } else if button == MouseButton::Right {
             board.delete_object(pos);
             board.delete_floor(pos);
+            board.insert_floor(pos, Floor::Tile);
+            board.insert_object(pos, GameObject::Wall);
         }
     }
     for (&interaction, object_or_floor, mut color) in clickable_query.iter_mut() {
@@ -255,9 +260,9 @@ pub fn handle_level_editor_click(
     {
         let mut maybe_dir = None;
         if input.just_pressed(KeyCode::ArrowUp) {
-            maybe_dir = Some(Direction::Up);
+            maybe_dir = Some(Direction::North);
         } else if input.just_pressed(KeyCode::ArrowDown) {
-            maybe_dir = Some(Direction::Down);
+            maybe_dir = Some(Direction::South);
         } else if input.just_pressed(KeyCode::ArrowLeft) {
             maybe_dir = Some(Direction::Left);
         } else if input.just_pressed(KeyCode::ArrowRight) {

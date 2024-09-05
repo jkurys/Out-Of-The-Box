@@ -98,7 +98,7 @@ pub fn render_board(
                             board.insert_entities(position, [vec![entity1, entity3, entity4], vec![entity2]]);
                         }
                     }
-                    GameObject::HidingWall { color } => {
+                    GameObject::HidingWall { color, .. } => {
                         let [entity1, entity2, entity3] = render_object(
                             &mut commands,
                             images.hidden_wall_images.clone().unwrap(),

@@ -40,11 +40,11 @@ fn modify_transform(
         animation_weight(timer.0.fraction())
     };
     match direction {
-        Direction::Down => {
+        Direction::South => {
             transform.translation.y = starting_y - (distance - 1.) * TILE_HEIGHT;
             transform.translation.x = starting_x - (distance - 1.) * TILE_WIDTH * (101./300.);
         }
-        Direction::Up => {
+        Direction::North => {
             transform.translation.y = starting_y + (distance - 1.) * TILE_HEIGHT;
             transform.translation.x = starting_x + (distance - 1.) * TILE_WIDTH * (101./300.);
         }
@@ -53,6 +53,12 @@ fn modify_transform(
         }
         Direction::Right => {
             transform.translation.x = starting_x + (distance - 1.) * TILE_WIDTH;
+        }
+        Direction::Up => {
+            transform.translation.y = starting_y + (distance - 1.) * TILE_FRONT_HEIGHT;
+        }
+        Direction::Down => {
+            transform.translation.y = starting_y - (distance - 1.) * TILE_FRONT_HEIGHT;
         }
     }
 }
@@ -69,7 +75,7 @@ pub fn move_event(
             if let Ok(higher_transform) = query.get_mut(higher_entity) {
                 let (x, y) = (
                     (position.x as f32) * TILE_WIDTH + (position.y as f32 * (101./300.) * TILE_WIDTH),
-                    (position.y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((1 - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)), // NOTE: this 1 - 1 corresponds to z index; patch this soon
+                    (position.y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((position.z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
                 );
                 modify_transform(higher_transform, direction, timer, x, y, event.floor);
             }
@@ -78,7 +84,7 @@ pub fn move_event(
             if let Ok(lower_transform) = query.get_mut(lower_entity) {
                 let (x2, y2) = (
                     (position.x as f32) * TILE_WIDTH + (position.y as f32 * (101./300.) * TILE_WIDTH),
-                    (position.y as f32) * (TILE_HEIGHT - 3.) + ((1 - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
+                    (position.y as f32) * (TILE_HEIGHT - 3.) + ((position.z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
                 );
                 modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
             }

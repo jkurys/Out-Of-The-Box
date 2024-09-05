@@ -58,7 +58,8 @@ pub fn spit_out(
     let mut block = board.get_block(position);
     if can_push {
         board.remove_from_block(&mut block, position);
-        move_strong(board, block.clone(), new_pos, dir, writer);
+        let next_block = board.get_block(new_pos);
+        move_strong(board, next_block, new_pos, dir, writer);
     }
     else if can_push_backwards {
         board.remove_from_block(&mut block, position);

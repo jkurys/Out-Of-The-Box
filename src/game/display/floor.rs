@@ -38,7 +38,7 @@ pub fn render_floor(
                         x,
                         y,
                         z,
-                        0.,
+                        0.01,
                         Ice,
                     );
                 }
@@ -50,16 +50,16 @@ pub fn render_floor(
                     //     position,
                     //     FLOOR_Z_INDEX,
                     // );
-                    render_object(
-                        &mut commands,
-                        images.wall_images.clone().unwrap(),
-                        (1, 0 ,2),
-                        x,
-                        y,
-                        z,
-                        0.,
-                        Background,
-                    );
+                    // render_object(
+                    //     &mut commands,
+                    //     images.wall_images.clone().unwrap(),
+                    //     (1, 0 ,2),
+                    //     x,
+                    //     y,
+                    //     z,
+                    //     0.,
+                    //     Background,
+                    // );
                 }
                 Floor::Goal => {
                     render_object_with_sticker(
@@ -126,7 +126,7 @@ pub fn render_floor(
                         x,
                         y,
                         z,
-                        0.,
+                        0.01,
                         HiddenWall,
                     );
   // 

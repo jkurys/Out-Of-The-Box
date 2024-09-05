@@ -99,7 +99,7 @@ pub fn setup_level_editor_board(
                         spawn_small_button(
                             parent,
                             image.clone(),
-                            GameEntity::Object(GameObject::HidingWall { color }),
+                            GameEntity::Object(GameObject::HidingWall { color, hidden_toggle: false, hidden_by_def: false }),
                         );
                     }
                     spawn_small_button(
@@ -163,9 +163,10 @@ pub fn setup_level_editor_board(
                         spawn_small_button(
                             parent,
                             image.clone(),
-                            GameEntity::Floor(Floor::HiddenWall {
-                                hidden_by_default: true,
+                            GameEntity::Object(GameObject::HidingWall {
                                 color,
+                                hidden_toggle: true,
+                                hidden_by_def: true,
                             }),
                         );
                     }

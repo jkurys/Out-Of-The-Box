@@ -7,7 +7,7 @@ use bevy::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::game::display::background::calculate_borders;
+use crate::game::{display::background::calculate_borders, game_objects::HiddenWall};
 use crate::{
     components::GameEntity,
     consts::EAT_COUNTER,
@@ -132,21 +132,25 @@ impl Board {
         self.insert_block(block);
     }
 
-    pub fn fall_block(&mut self, block: Block) {
+    pub fn fall_block(&mut self, block: Block) -> Block {
         self.delete_block(&block);
+        let mut any_pos = None;
         for position in block.positions {
+            any_pos = Some(position.position_below());
             let obj = self.get_object_type(position);
             self.delete_object(position);
             self.insert_floor(position.position_below(), Floor::Obj(obj));
             self.insert_object(position.position_below(), obj);
         }
+        self.get_block(any_pos.unwrap())
     }
 
     pub fn get_empty_below(&self) -> Vec<Position> {
         let mut res = Vec::new();
         for (position, obj) in self.objects.iter() {
             if self.get_object_type(position.position_below()) == GameObject::Empty
-                && *obj != GameObject::Wall {
+                && *obj != GameObject::Wall
+                && !matches!(*obj, GameObject::HidingWall { hidden_toggle: false, .. }) {
                 res.push(position.position_below());
             }
         }
@@ -270,6 +274,9 @@ impl Board {
         if !self.is_position_on_board(position) {
             return;
         }
+        if let GameObject::HidingWall { hidden_by_def: false, .. } = object {
+            self.objects.remove(&position.position_below());
+        }
         self.objects.remove(&position);
         self.objects.insert(position, object);
 
@@ -309,6 +316,10 @@ impl Board {
         self.floors.insert(position, floor);
         match floor {
             Floor::Goal => self.goals.push(position),
+            Floor::Void => {
+                self.objects.remove(&position);
+                ()
+            },
             _ => (),
         };
     }
@@ -425,57 +436,87 @@ impl Board {
         self.goals.clear();
         self.blocks.clear();
     }
-
-    pub fn rise_hiding_wall(&mut self, moved_color: usize) {
-        let floors = self.floors.clone();
-        for (position, floor) in floors.iter() {
-            match *floor {
-                Floor::HiddenWall {
-                    hidden_by_default,
-                    color,
-                } if color == moved_color => {
-                    if self.get_object_type(position.position_above()) == GameObject::Empty && hidden_by_default
-                    {
-                        self
-                            .objects
-                            .insert(position.position_above(), GameObject::HidingWall { color: moved_color });
-                    } else if self.get_object_type(*position)
-                        == (GameObject::HidingWall { color: moved_color })
-                        && !hidden_by_default
-                    {
-                        self.objects.remove(position);
-                        self.floors.insert(position.position_below(), Floor::HiddenWall { hidden_by_default: false, color: moved_color });
-                    }
+    
+    pub fn get_hidden_walls_to_move(&self, moved_color: usize, clicked: bool) -> Vec<(Direction, Position)> {
+        let mut res = Vec::new();
+        for (&position, &obj) in self.objects.iter() {
+            if let GameObject::HidingWall { color, hidden_toggle: current_hid, hidden_by_def } = obj {
+                if color != moved_color
+                || (clicked && hidden_by_def != current_hid)
+                || (!clicked && hidden_by_def == current_hid) {
+                    continue;
                 }
-                _ => (),
+                if hidden_by_def ^ clicked == false {
+                    res.push((Direction::Up, position));
+                } else {
+                    res.push((Direction::Down, position));
+                }
             }
         }
+        res
     }
 
-    pub fn hide_hiding_wall(&mut self, moved_color: usize) {
-        let floors = self.floors.clone();
-        for (position, floor) in floors.iter() {
-            match *floor {
-                Floor::HiddenWall {
-                    hidden_by_default,
-                    color,
-                } if color == moved_color => {
-                    let floor = Floor::HiddenWall { hidden_by_default: false, color: moved_color };
-                    if self.get_floor_type(*position) == floor
-                        && !hidden_by_default
-                    {
-                        self
-                            .objects
-                            .insert(position.position_above(), GameObject::HidingWall { color: moved_color });
-                    } else if self.get_object_type(position.position_above())
-                        == (GameObject::HidingWall { color: moved_color })
-                        && hidden_by_default
-                    {
-                        self.objects.remove(&position.position_above());
-                    }
-                }
-                _ => (),
-            }
-        }
+    pub fn modify_toggle(&mut self, position: Position) {
+        let obj = self.get_object_type(position);
+        match obj {
+            GameObject::HidingWall { color, hidden_toggle: h, hidden_by_def } => {
+                self.delete_object(position);
+                self.insert_object(position, GameObject::HidingWall { color, hidden_toggle: !h, hidden_by_def });
+            },
+            _ => ()
+        };
     }
+
+    // pub fn rise_hiding_wall(&mut self, moved_color: usize) {
+    //     let floors = self.floors.clone();
+    //     for (position, floor) in floors.iter() {
+    //         match *floor {
+    //             Floor::HiddenWall {
+    //                 hidden_by_default,
+    //                 color,
+    //             } if color == moved_color => {
+    //                 if self.get_object_type(position.position_above()) == GameObject::Empty && hidden_by_default
+    //                 {
+    //                     self
+    //                         .objects
+    //                         .insert(position.position_above(), GameObject::HidingWall { color: moved_color });
+    //                 } else if self.get_object_type(*position)
+    //                     == (GameObject::HidingWall { color: moved_color })
+    //                     && !hidden_by_default
+    //                 {
+    //                     self.objects.remove(position);
+    //                     self.floors.insert(position.position_below(), Floor::HiddenWall { hidden_by_default: false, color: moved_color });
+    //                 }
+    //             }
+    //             _ => (),
+    //         }
+    //     }
+    // }
+    //
+    // pub fn hide_hiding_wall(&mut self, moved_color: usize) {
+    //     let floors = self.floors.clone();
+    //     for (position, floor) in floors.iter() {
+    //         match *floor {
+    //             Floor::HiddenWall {
+    //                 hidden_by_default,
+    //                 color,
+    //             } if color == moved_color => {
+    //                 let floor = Floor::HiddenWall { hidden_by_default: false, color: moved_color };
+    //                 if self.get_floor_type(*position) == floor
+    //                     && !hidden_by_default
+    //                 {
+    //                     self
+    //                         .objects
+    //                         .insert(position.position_above(), GameObject::HidingWall { color: moved_color });
+    //                 } else if self.get_object_type(position.position_above())
+    //                     == (GameObject::HidingWall { color: moved_color })
+    //                     && hidden_by_default
+    //                 {
+    //                     self.objects.remove(&position.position_above());
+    //                 }
+    //             }
+    //             _ => (),
+    //         }
+    //     }
+    // }
 }

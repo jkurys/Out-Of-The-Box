@@ -11,7 +11,7 @@ use crate::resources::{CurrentSprite, Images};
 pub enum GameObject {
     Box,
     Wall,
-    HidingWall { color: usize },
+    HidingWall { color: usize, hidden_toggle: bool, hidden_by_def: bool },
     Empty,
     Player,
     Turtle { direction: Direction, color: usize },
@@ -25,7 +25,7 @@ pub fn get_obj_indices(
     match obj {
         GameObject::Box => (1, 0, 4),
         GameObject::Wall => (1, 0, 2),
-        GameObject::HidingWall { color } => (
+        GameObject::HidingWall { color, hidden_toggle: _, hidden_by_def: _ } => (
             color * 3 + 1,
             color * 3,
             color * 3 + 2
@@ -56,7 +56,7 @@ pub fn get_obj_img(
     match obj {
         GameObject::Box => images.box_images.clone(),
         GameObject::Wall => images.wall_images.clone(),
-        GameObject::HidingWall { color: _ } => images.hidden_wall_images.clone(),
+        GameObject::HidingWall { color: _, hidden_toggle: _, hidden_by_def: _ } => images.hidden_wall_images.clone(),
         GameObject::Empty => None,
         GameObject::Player => images.player_images.clone(),
         GameObject::TurtleHead { .. } => images.turtle_images.clone(),
@@ -216,12 +216,12 @@ impl<'de> Deserialize<'de> for Position {
 impl Position {
     pub fn next_position(&self, dir: Direction) -> Position {
         match dir {
-            Direction::Up => Position {
+            Direction::North => Position {
                 x: self.x,
                 y: self.y + 1,
                 z: self.z,
             },
-            Direction::Down => Position {
+            Direction::South => Position {
                 x: self.x,
                 y: self.y - 1,
                 z: self.z,
@@ -235,18 +235,28 @@ impl Position {
                 x: self.x + 1,
                 y: self.y,
                 z: self.z,
+            },
+            Direction::Up => Position {
+                x: self.x,
+                y: self.y,
+                z: self.z + 1,
+            },
+            Direction::Down => Position {
+                x: self.x,
+                y: self.y,
+                z: self.z - 1,
             },
         }
     }
 
     pub fn prev_position(&self, dir: Direction) -> Position {
         match dir {
-            Direction::Up => Position {
+            Direction::North => Position {
                 x: self.x,
                 y: self.y - 1,
                 z: self.z,
             },
-            Direction::Down => Position {
+            Direction::South => Position {
                 x: self.x,
                 y: self.y + 1,
                 z: self.z,
@@ -260,6 +270,16 @@ impl Position {
                 x: self.x - 1,
                 y: self.y,
                 z: self.z,
+            },
+            Direction::Up => Position {
+                x: self.x,
+                y: self.y,
+                z: self.z - 1,
+            },
+            Direction::Down => Position {
+                x: self.x,
+                y: self.y,
+                z: self.z + 1,
             },
         }
     }
@@ -297,6 +317,8 @@ impl Position {
 pub enum Direction {
     Up,
     Down,
+    North,
+    South,
     Left,
     Right,
 }
@@ -306,14 +328,18 @@ impl Direction {
         match self {
             Direction::Left => 0,
             Direction::Right => 1,
-            Direction::Down => 2,
-            Direction::Up => 3,
+            Direction::South => 2,
+            Direction::North => 3,
+            Direction::Down => 4,
+            Direction::Up => 5,
         }
     }
     pub fn opposite(self) -> Direction {
         match self {
             Direction::Up => Direction::Down,
             Direction::Down => Direction::Up,
+            Direction::North => Direction::South,
+            Direction::South => Direction::North,
             Direction::Left => Direction::Right,
             Direction::Right => Direction::Left,
         }
