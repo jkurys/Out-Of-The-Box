@@ -16,7 +16,7 @@ use crate::{
     utils::offset_coordinate,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize, Resource)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Resource)]
 pub struct Board {
     entities: HashMap<Position, [Vec<Entity>; 2]>,
     objects: HashMap<Position, GameObject>,

@@ -1,6 +1,6 @@
 use crate::{
     consts::MOVE_ANIMATION_TIME,
-    state::{DisplayState, MoveState},
+    state::{DisplayState, MoveState}, board::Board,
 };
 use bevy::prelude::*;
 
@@ -46,6 +46,9 @@ use super::{
 pub type MovableInQuery = Or<(With<Box>, With<Player>, With<Turtle>, With<Glue>)>;
 pub struct MovementPlugin;
 
+#[derive(Resource, Clone)]
+pub struct BoardPreMove(Board);
+
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(GameAnimationPlugin);
@@ -89,6 +92,7 @@ impl Plugin for MovementPlugin {
         app.add_event::<TryMoveEvent>();
         app.init_resource::<Events<EnteredFloorEvent>>();
         app.insert_resource(FireAnimation(false));
+        app.insert_resource(BoardPreMove(Board::new()));
         app.insert_resource(AnimationTimer(Timer::from_seconds(
             MOVE_ANIMATION_TIME,
             TimerMode::Once,

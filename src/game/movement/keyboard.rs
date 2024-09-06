@@ -5,6 +5,7 @@ use crate::board::Board;
 use crate::game::game_objects::{Block, Direction, Position};
 use crate::state::MoveState;
 
+use super::BoardPreMove;
 use super::events::TryMoveEvent;
 
 pub fn handle_keypress(
@@ -12,6 +13,7 @@ pub fn handle_keypress(
     board: ResMut<Board>,
     mut writer: EventWriter<TryMoveEvent>,
     mut app_state: ResMut<NextState<MoveState>>,
+    mut board_pre_move: ResMut<BoardPreMove>,
 ) {
     let direction = if keyboard_input.any_pressed([KeyCode::ArrowUp, KeyCode::KeyW]) {
         Direction::North
@@ -49,5 +51,6 @@ pub fn handle_keypress(
         });
     }
     
+    board_pre_move.0 = board.clone();
     app_state.set(MoveState::Calculating);
 }

@@ -11,11 +11,11 @@ pub fn try_move(
     mut reader: EventReader<TryMoveEvent>,
     mut writer: EventWriter<EnteredFloorEvent>,
     mut board: ResMut<Board>,
-    mut board_states: ResMut<BoardStates>,
+    // mut board_states: ResMut<BoardStates>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut fire_animation: ResMut<FireAnimation>,
 ) {
-    let mut was_map_saved = false;
+    // let mut was_map_saved = false;
     let mut was_moved = false;
     let mut events = Vec::new();
     let mut ice_events = Vec::new();
@@ -40,11 +40,10 @@ pub fn try_move(
     {
         let can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer);
         was_moved = was_moved || can_block_move;
-        // BUG: after pushing a box on ice undo works incorrectly
-        if !was_map_saved {
-            board_states.boards.push(board.clone());
-            was_map_saved = true;
-        }
+        // if !was_map_saved {
+        //     board_states.boards.push(board.clone());
+        //     was_map_saved = true;
+        // }
     }
     for TryMoveEvent {
         block,
