@@ -1,4 +1,4 @@
-use std::fs::read_dir;
+use std::{fs::read_dir, cmp::Ordering};
 
 use bevy::prelude::*;
 
@@ -34,6 +34,25 @@ pub fn setup_level_select(
         file_paths.push(path_str);
         file_amount += 1;
     }
+    file_paths.sort_by(|path1, path2| {
+        let path1 = &path1[..&path1.len() - 4];
+        let path2 = &path2[..&path2.len() - 4];
+        if path1.parse::<i32>().is_ok() {
+            if path2.parse::<i32>().is_ok() {
+                let num1 = path1.parse::<i32>().unwrap();
+                let num2 = path2.parse::<i32>().unwrap();
+                return num1.cmp(&num2);
+            }
+            else {
+                return Ordering::Less;
+            }
+        } else {
+            if path2.parse::<i32>().is_ok() {
+                return Ordering::Greater;
+            }
+            return path1.cmp(&path2);
+        }
+    });
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
         .spawn(NodeBundle {

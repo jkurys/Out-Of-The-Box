@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{board::Board, game::resources::BoardStates, state::MoveState};
+use crate::{board::Board, state::MoveState};
 
 use super::{
     events::{EnteredFloorEvent, TryMoveEvent},
@@ -11,11 +11,9 @@ pub fn try_move(
     mut reader: EventReader<TryMoveEvent>,
     mut writer: EventWriter<EnteredFloorEvent>,
     mut board: ResMut<Board>,
-    // mut board_states: ResMut<BoardStates>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut fire_animation: ResMut<FireAnimation>,
 ) {
-    // let mut was_map_saved = false;
     let mut was_moved = false;
     let mut events = Vec::new();
     let mut ice_events = Vec::new();
@@ -30,7 +28,6 @@ pub fn try_move(
     }
     // TODO: trzeba zrobic zeby ruchy rzuwiowe dzialy sie po ruchu ktory nacisnal guzik + jakis priorytet
 
-    // events.sort_by(|event1, event2| event1.block.cmp_to_other(&event2.block, event1.direction));
     for TryMoveEvent {
         block,
         direction,
@@ -38,12 +35,8 @@ pub fn try_move(
         position,
     } in events.iter()
     {
-        let can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer);
+        let can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer, false);
         was_moved = was_moved || can_block_move;
-        // if !was_map_saved {
-        //     board_states.boards.push(board.clone());
-        //     was_map_saved = true;
-        // }
     }
     for TryMoveEvent {
         block,

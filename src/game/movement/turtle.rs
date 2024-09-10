@@ -52,7 +52,8 @@ pub fn handle_turtle(
                     _ => {
                         let mut empty_vec = Vec::new();
                         let mut empty_vec2 = Vec::new();
-                        if can_block_move(&board, board.get_block(turtle_head_pos), direction, &mut empty_vec, &mut empty_vec2) {
+                        let mut empty_vec3 = Vec::new();
+                        if can_block_move(&board, board.get_block(turtle_head_pos), direction, &mut empty_vec, &mut empty_vec2, &mut empty_vec3) {
                             writer.send(TryMoveEvent {
                                 block: board.get_block(turtle_head_pos),
                                 position: turtle_head_pos,

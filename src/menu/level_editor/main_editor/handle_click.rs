@@ -1,7 +1,5 @@
-use bevy::sprite::MaterialMesh2dBundle;
 use bevy::{prelude::*, utils::HashSet, window::PrimaryWindow};
-use bevy::color::palettes::css::{WHITE, LIMEGREEN, RED, PURPLE};
-use crate::game::GameItem;
+use bevy::color::palettes::css::WHITE;
 use crate::game::display::background::calculate_borders;
 use crate::game::display::render_2_5_d::get_offsets;
 
@@ -11,47 +9,6 @@ use crate::{
     consts::*,
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
 };
-
-fn offset_coordinate_x(coord: f32, window_coord: f32, y: i32) -> i32 {
-    ((coord - ((window_coord) / 2.)) / TILE_WIDTH - (y as f32 * (101./300.))).round() as i32
-}
-
-fn offset_coordinate_y(coord: f32, window_coord: f32) -> i32 {
-    ((coord - ((window_coord) / 2.)) / TILE_HEIGHT).floor() as i32
-}
-
-fn vec2_to_position(vec: Vec2, window_size: Vec2) -> Position {
-    let y = offset_coordinate_y(window_size.y - vec.y, window_size.y);
-    Position {
-        x: offset_coordinate_x(vec.x, window_size.x, y),
-        y,
-        z: 0,
-    }
-}
-
-fn get_position_from_mouse_click(
-    mouse: &Res<ButtonInput<MouseButton>>,
-    windows: &Query<&Window, With<PrimaryWindow>>,
-) -> (Position, Option<MouseButton>) {
-    let window = windows.single();
-    if let Some(position) = window.cursor_position() {
-        let pos = vec2_to_position(
-            position,
-            Vec2 {
-                x: window.width(),
-                y: window.height(),
-            },
-        );
-        if mouse.just_pressed(MouseButton::Left) {
-            return (pos, Some(MouseButton::Left));
-        }
-        if mouse.just_pressed(MouseButton::Right) {
-            return (pos, Some(MouseButton::Right));
-        }
-        return (pos, None);
-    }
-    (Position { x: 0, y: 0, z: 0 }, None)
-}
 
 fn is_inside_rect(
     mouse_pos: Vec2,
@@ -69,9 +26,6 @@ fn mouse_over_column(
     y: i32,
     mouse_position: Vec2,
     window: Window,
-    // meshes: &mut ResMut<Assets<Mesh>>,
-    // materials: &mut ResMut<Assets<ColorMaterial>>,
-    // commands: &mut Commands,
 ) -> Option<Position> {
     zs.sort();
     zs.reverse();
@@ -81,54 +35,11 @@ fn mouse_over_column(
         uppers = (uppers.0 - TILE_WIDTH / 2. - 5., uppers.1 - 5., uppers.2);
         lowers = (lowers.0 - TILE_WIDTH / 2. - 13., lowers.1 + 5., lowers.2);
         sides = (sides.0 + TILE_WIDTH / 2. - SIDE_WIDTH, sides.1 - TILE_HEIGHT, sides.2);
-        // commands.spawn(MaterialMesh2dBundle {
-        //     mesh: meshes.add(Circle::default()).into(),
-        //     transform: Transform {
-        //         translation: Vec3 {x: mouse_position.x, y: mouse_position.y, z: 220.},
-        //         scale: Vec3::splat(10.),
-        //         ..default()
-        //     },
-        //     material: materials.add(Color::from(PURPLE)),
-        //     ..default()
-        // }).insert(GameItem);
         if is_inside_rect(mouse_position, (uppers.0, uppers.0 + TILE_WIDTH), (uppers.1, uppers.1 + TILE_HEIGHT)) {
-            // let transform = Transform {
-            //     translation: Vec3 {x: uppers.0 + TILE_WIDTH / 2., y: uppers.1 + (TILE_HEIGHT + 3.) / 2., z: 200.},
-            //     scale: Vec3 {x: TILE_WIDTH, y: TILE_HEIGHT, z: 1.},
-            //     ..default()
-            // };
-            // commands.spawn(MaterialMesh2dBundle {
-            //     mesh: meshes.add(Rectangle::default()).into(),
-            //     transform,
-            //     material: materials.add(Color::from(LIMEGREEN)),
-            //     ..default()
-            // }).insert(GameItem);
             return Some(Position { x, y, z });
         } else if is_inside_rect(mouse_position, (lowers.0, lowers.0 + TILE_WIDTH), (lowers.1, lowers.1 + TILE_FRONT_HEIGHT)) {
-            // let transform = Transform {
-            //     translation: Vec3 {x: lowers.0 + TILE_WIDTH / 2., y: lowers.1 + TILE_FRONT_HEIGHT / 2., z: 200.},
-            //     scale: Vec3 {x: TILE_WIDTH, y: TILE_FRONT_HEIGHT, z: 1.},
-            //     ..default()
-            // };
-            // commands.spawn(MaterialMesh2dBundle {
-            //     mesh: meshes.add(Rectangle::default()).into(),
-            //     transform,
-            //     material: materials.add(Color::from(PURPLE)),
-            //     ..default()
-            // }).insert(GameItem);
             return Some(Position { x, y: y - 1, z: z - 1 });
         } else if is_inside_rect(mouse_position, (sides.0, sides.0 + SIDE_WIDTH * 2.), (sides.1, sides.1 + SIDE_HEIGHT)) {
-            // let transform = Transform {
-            //     translation: Vec3 {x: sides.0 + SIDE_WIDTH, y: sides.1 + SIDE_HEIGHT / 2., z: 200.},
-            //     scale: Vec3 {x: SIDE_WIDTH * 2., y: SIDE_HEIGHT, z: 1.},
-            //     ..default()
-            // };
-            // commands.spawn(MaterialMesh2dBundle {
-            //     mesh: meshes.add(Rectangle::default()).into(),
-            //     transform,
-            //     material: materials.add(Color::from(RED)),
-            //     ..default()
-            // }).insert(GameItem);
             return Some(Position { x: x + 1, y, z: z - 1 });
         }
     }
@@ -139,9 +50,6 @@ pub fn get_frontmost_position(
     mouse: &Res<ButtonInput<MouseButton>>,
     windows: &Query<&Window, With<PrimaryWindow>>,
     board: &ResMut<Board>,
-    // meshes: &mut ResMut<Assets<Mesh>>,
-    // materials: &mut ResMut<Assets<ColorMaterial>>,
-    // commands: &mut Commands,
 ) -> (Position, Option<MouseButton>) {
     let window = windows.single();
     if let Some(position) = window.cursor_position() {
@@ -154,9 +62,6 @@ pub fn get_frontmost_position(
                     y,
                     position,
                     window.clone(),
-                    // meshes,
-                    // materials,
-                    // commands
                 ) {
                     if mouse.just_pressed(MouseButton::Left) {
                         return (pos, Some(MouseButton::Left));
@@ -180,10 +85,6 @@ pub fn handle_level_editor_click(
     mut entity: Local<GameEntity>,
     input: Res<ButtonInput<KeyCode>>,
     mut block_positions: Local<Option<HashSet<Position>>>,
-    // images: Res<Images>,
-    // mut commands: Commands,
-    // mut meshes: Res<Assets<Mesh>>,
-    // mut materials: Res<Assets<ColorMaterial>>,
 ) {
     
     let mouse_pos_opt = get_frontmost_position(&mouse, &windows, &board);
@@ -195,9 +96,8 @@ pub fn handle_level_editor_click(
             *block_positions = None;
             return;
         }
-        // if let (mut pos, Some(MouseButton::Left)) = get_position_from_mouse_click(&mouse, &windows) {
         if let (mut pos, Some(MouseButton::Left)) = mouse_pos_opt {
-            pos = Position { x: pos.x, y: pos.y, z: pos.z + 1};
+            pos = Position { x: pos.x, y: pos.y, z: pos.z };
             let mut positions = block_positions.clone().unwrap();
             positions.insert(pos);
             *block_positions = Some(positions);
@@ -209,7 +109,6 @@ pub fn handle_level_editor_click(
     if input.just_pressed(KeyCode::KeyC) {
         *block_positions = Some(HashSet::new());
     }
-    // if let (mut pos, Some(button)) = get_position_from_mouse_click(&mouse, &windows) {
     if let (mut pos, Some(button)) = mouse_pos_opt {
         if button == MouseButton::Left {
             if matches!(*entity, GameEntity::Object(GameObject::HidingWall { color: _, hidden_toggle: true, hidden_by_def: true })) {
@@ -234,8 +133,10 @@ pub fn handle_level_editor_click(
         } else if button == MouseButton::Right {
             board.delete_object(pos);
             board.delete_floor(pos);
-            board.insert_floor(pos, Floor::Tile);
-            board.insert_object(pos, GameObject::Wall);
+            if pos.z == 0 {
+                board.insert_object(pos, GameObject::Wall);
+                board.insert_floor(pos, Floor::Tile);
+            }
         }
     }
     for (&interaction, object_or_floor, mut color) in clickable_query.iter_mut() {
@@ -245,11 +146,9 @@ pub fn handle_level_editor_click(
             }
             Interaction::Hovered => {
                 *color = Color::srgb(0.7, 0.7, 0.7).into();
-                // *color = Color::rgb(0.7, 0.7, 0.7).into();
             }
             Interaction::None => {
                 *color = WHITE.into();
-                // *color = Color::WHITE.into();
             }
         }
     }

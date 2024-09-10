@@ -7,7 +7,6 @@ use bevy::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::game::{display::background::calculate_borders, game_objects::HiddenWall};
 use crate::{
     components::GameEntity,
     consts::EAT_COUNTER,

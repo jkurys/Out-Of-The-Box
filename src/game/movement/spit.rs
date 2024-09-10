@@ -48,22 +48,24 @@ pub fn spit_out(
 ) {
     let mut empty_vec = Vec::new();
     let mut empty_vec2 = Vec::new();
+    let mut empty_vec3 = Vec::new();
     let (obj, dir) = board.get_eat_data(position);
     let new_pos = position.next_position(dir);
-    let can_push = can_block_move(board, board.get_block(new_pos), dir, &mut empty_vec, &mut empty_vec2)
-        && can_block_move(board, board.get_block(position), dir, &mut empty_vec, &mut empty_vec2);
+    let can_push = can_block_move(board, board.get_block(new_pos), dir, &mut empty_vec, &mut empty_vec2, &mut empty_vec3)
+        && can_block_move(board, board.get_block(position), dir, &mut empty_vec, &mut empty_vec2, &mut empty_vec3);
     // NOTE: here it should be the eaten block
-    let can_push_backwards = can_block_move(board, Block { positions: HashSet::from([position]) }, dir.opposite(), &mut empty_vec, &mut empty_vec2);
+    let can_push_backwards = can_block_move(board, Block { positions: HashSet::from([position]) }, dir.opposite(), &mut empty_vec, &mut empty_vec2, &mut empty_vec3);
     // NOTE: here it should be the player block
     let mut block = board.get_block(position);
     if can_push {
         board.remove_from_block(&mut block, position);
         let next_block = board.get_block(new_pos);
-        move_strong(board, next_block, new_pos, dir, writer);
+        move_strong(board, next_block, new_pos, dir, writer, false);
+        move_strong(board, block.clone(), block.get_last_pos(), dir, writer, true);
     }
     else if can_push_backwards {
         board.remove_from_block(&mut block, position);
-        move_strong(board, board.get_block(position), position, dir.opposite(), writer);
+        move_strong(board, board.get_block(position), position, dir.opposite(), writer, false);
     }
     if can_push {
         board.insert_object(new_pos, obj);

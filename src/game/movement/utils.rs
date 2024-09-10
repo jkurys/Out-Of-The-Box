@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 use itertools::Itertools;
 
 use crate::{
@@ -35,11 +35,19 @@ pub fn can_block_move(
     block: Block,
     dir: Direction,
     next_blocks: &mut Vec<Block>,
+    blocks_to_try_move: &mut Vec<Block>,
     visited_blocks: &mut Vec<Block>,
 ) -> bool {
     let is_first = visited_blocks.is_empty();
     visited_blocks.push(block.clone());
     for &position in block.positions.iter() {
+        if dir != Direction::Up && dir != Direction:: Down {
+            let mut next_position = position.position_above();
+            while board.get_object_type(next_position) != GameObject::Empty {
+                blocks_to_try_move.push(board.get_block(next_position));
+                next_position = next_position.position_above();
+            }
+        }
         if board.get_object_type(position) == GameObject::Empty {
             continue;
         }
@@ -54,7 +62,14 @@ pub fn can_block_move(
             continue;
         }
         let can_move = visited_blocks.contains(&next_block)
-        || can_block_move(board, next_block.clone(), dir, next_blocks, visited_blocks);
+        || can_block_move(
+            board,
+            next_block.clone(),
+            dir,
+            next_blocks,
+            blocks_to_try_move,
+            visited_blocks
+        );
         if next_block != block && !can_move {
             return false;
         }
@@ -80,9 +95,17 @@ fn can_block_move_weak(
     all_blocks: &Vec<Block>,
     dir: Direction,
     next_blocks: &mut Vec<Block>,
+    blocks_to_try_move: &mut Vec<Block>,
     blocks_that_must_move: &mut Vec<Block>,
 ) -> bool {
     for &position in block.positions.iter() {
+        if dir != Direction::Up && dir != Direction:: Down {
+            let mut next_position = position.position_above();
+            while board.get_object_type(next_position) != GameObject::Empty {
+                blocks_to_try_move.push(board.get_block(next_position));
+                next_position = next_position.position_above();
+            }
+        }
         let can_current_block_move_somehow = is_moveable(board.get_object_type(position), false)
             && board.get_floor_type(position.position_below()) == Floor::Ice;
         if !can_current_block_move_somehow {
@@ -109,6 +132,7 @@ fn can_block_move_weak(
             all_blocks,
             dir,
             next_blocks,
+            blocks_to_try_move,
             blocks_that_must_move,
         ) {
             return false;
@@ -126,7 +150,7 @@ fn can_block_move_weak(
     return true;
 }
 
-fn perform_move(
+pub fn perform_move(
     blocks: Vec<Block>,
     board: &mut ResMut<Board>,
     direction: Direction,
@@ -166,6 +190,24 @@ pub fn perform_eat(
 ) {
     board.delete_object(next_pos);
     board.insert_eat(next_pos.next_position(direction.opposite()), direction, GameObject::Box);
+    let position = next_pos.prev_position(direction);
+    let mut blocks_to_try_move = Vec::new();
+    if direction != Direction::Up {
+        let mut next_position = position.position_above();
+        while board.get_object_type(next_position) != GameObject::Empty {
+            blocks_to_try_move.push(board.get_block(next_position));
+            next_position = next_position.position_above();
+        }
+    }
+    let moved_positions = HashSet::new();
+    for block in blocks_to_try_move.iter() {
+        let moved_copy = moved_positions.clone();
+        moved_copy.intersection(&block.positions);
+        if moved_copy.is_empty() {
+            moved_positions.union(&block.positions);
+            move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false);
+        }
+    }
     perform_move([block].to_vec(), board, direction, writer, false);
 }
 
@@ -175,14 +217,17 @@ pub fn move_strong(
     position: Position,
     direction: Direction,
     writer: &mut EventWriter<EnteredFloorEvent>,
+    was_moved_already: bool,
 ) -> bool {
     let mut next_blocks = vec![block.clone()];
     let mut visited_blocks = Vec::new();
+    let mut blocks_to_try_move = Vec::new();
     if !can_block_move(
         board,
         block.clone(),
         direction,
         &mut next_blocks,
+        &mut blocks_to_try_move,
         &mut visited_blocks,
     ) {
         let next_pos = position.next_position(direction);
@@ -197,6 +242,20 @@ pub fn move_strong(
         }
         return false;
     }
+    if !was_moved_already {
+        let mut moved_positions = HashSet::new();
+        for block in blocks_to_try_move.iter() {
+            let moved_clone = moved_positions.clone();
+            let both: HashSet<&Position> = moved_clone.intersection(&block.positions).collect();
+            if both.is_empty() {
+                moved_positions = moved_positions.union(&block.positions).map(|&p| p).collect();
+                move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false);
+            }
+        }
+    }
+    // for block in blocks_to_try_move.iter() {
+    //     move_strong(board, block.clone(), block.get_last_pos(), direction, writer);
+    // }
     perform_move(next_blocks, board, direction, writer, false);
     return true;
 }
@@ -210,18 +269,23 @@ pub fn move_weak(
 ) -> bool {
     let mut next_blocks = Vec::new();
     let mut blocks_that_must_move = Vec::new();
+    let mut blocks_to_try_move = Vec::new();
     let can_block_move = can_block_move_weak(
         board,
         block.clone(),
         all_blocks,
         direction,
         &mut next_blocks,
+        &mut blocks_to_try_move,
         &mut blocks_that_must_move,
     );
     let was_moved = can_block_move || !blocks_that_must_move.is_empty();
     perform_move(blocks_that_must_move, board, direction, writer, true);
     if can_block_move {
         perform_move(next_blocks, board, direction, writer, true);
+    }
+    for block in blocks_to_try_move.iter() {
+        move_weak(board, block.clone(), all_blocks, direction, writer);
     }
     return was_moved;
 }

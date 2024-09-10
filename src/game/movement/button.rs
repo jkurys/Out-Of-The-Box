@@ -22,7 +22,8 @@ pub fn handle_button(
         for (dir, pos) in positions_to_move {
             let mut next_blocks = Vec::new();
             let mut visited_blocks = Vec::new();
-            if can_block_move(&board, board.get_block(pos), dir, &mut next_blocks, &mut visited_blocks) {
+            let mut blocks_that_try_move = Vec::new();
+            if can_block_move(&board, board.get_block(pos), dir, &mut next_blocks, &mut blocks_that_try_move, &mut visited_blocks) {
                 board.modify_toggle(pos);
             }
             writer.send(TryMoveEvent {

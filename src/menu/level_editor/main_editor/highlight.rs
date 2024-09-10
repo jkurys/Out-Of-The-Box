@@ -1,11 +1,6 @@
-use bevy::color::palettes::css::{BROWN, LIMEGREEN, PURPLE};
 use bevy::prelude::*;
-// use bevy::sprite::ColorMaterial;
 
-use bevy::sprite::{MaterialMesh2dBundle, Mesh2dHandle};
 use bevy::window::PrimaryWindow;
-use crate::consts::{TILE_WIDTH, TILE_HEIGHT};
-use crate::game::GameItem;
 use crate::game::game_objects::Background;
 use super::handle_click::get_frontmost_position;
 use crate::resources::Images;

@@ -89,6 +89,14 @@ impl Block {
     pub fn contains_position(&self, position: Position) -> bool {
         self.positions.contains(&position)
     }
+
+    pub fn get_last_pos(&self) -> Position {
+        let mut last_pos = None;
+        for pos in self.positions.iter() {
+            last_pos = Some(*pos)
+        }
+        return last_pos.unwrap();
+    }
     // pub fn cmp_to_other(&self, other: &Block, dir: Direction) -> Ordering {
     // }
 }

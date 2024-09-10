@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use crate::game::game_objects::Direction;
+use crate::game::display::render_2_5_d::get_offsets;
+use crate::game::game_objects::{Direction, Position};
 use crate::{
     board::Board,
     consts::*,
@@ -31,6 +32,7 @@ fn modify_transform(
     timer: &ResMut<AnimationTimer>,
     starting_x: f32,
     starting_y: f32,
+    z_mod: f32,
     floor: Floor,
 ) {
     let distance = if floor == Floor::Ice {
@@ -39,6 +41,7 @@ fn modify_transform(
     } else {
         animation_weight(timer.0.fraction())
     };
+    transform.translation.z += z_mod;
     match direction {
         Direction::South => {
             transform.translation.y = starting_y - (distance - 1.) * TILE_HEIGHT;
@@ -67,26 +70,37 @@ pub fn move_event(
     event: &EnteredFloorEvent,
     query: &mut Query<&mut Transform, MovableInQuery>,
     timer: &mut ResMut<AnimationTimer>,
+    is_first: bool,
 ) {
     let (position, direction) = (event.position, event.direction);
     let entity_opt = board.get_entities(event.position);
     if let Some([higher_entities, lower_entities]) = entity_opt {
         for &higher_entity in higher_entities.iter() {
             if let Ok(higher_transform) = query.get_mut(higher_entity) {
-                let (x, y) = (
-                    (position.x as f32) * TILE_WIDTH + (position.y as f32 * (101./300.) * TILE_WIDTH),
-                    (position.y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((position.z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
-                );
-                modify_transform(higher_transform, direction, timer, x, y, event.floor);
+                let ((x, y, _), _, _) = get_offsets(position.x, position.y, position.z, 0.);
+                let z_mod = if is_first {
+                    let ((_, _, z1), _, _) = get_offsets(position.x, position.y, position.z, 0.);
+                    let position = position.prev_position(direction);
+                    let ((_, _, z2), _, _) = get_offsets(position.x, position.y, position.z, 0.);
+                    z1 - z2
+                } else {
+                    0.
+                };
+                modify_transform(higher_transform, direction, timer, x, y, z_mod, event.floor);
             }
         }
         for &lower_entity in lower_entities.iter() {
             if let Ok(lower_transform) = query.get_mut(lower_entity) {
-                let (x2, y2) = (
-                    (position.x as f32) * TILE_WIDTH + (position.y as f32 * (101./300.) * TILE_WIDTH),
-                    (position.y as f32) * (TILE_HEIGHT - 3.) + ((position.z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
-                );
-                modify_transform(lower_transform, direction, timer, x2, y2, event.floor);
+                let (_, (x2, y2, _), _) = get_offsets(position.x, position.y, position.z, 0.1);
+                let z_mod = if is_first {
+                    let ((_, _, z1), _, _) = get_offsets(position.x, position.y, position.z, 0.);
+                    let position = position.prev_position(direction);
+                    let ((_, _, z2), _, _) = get_offsets(position.x, position.y, position.z, 0.);
+                    z1 - z2
+                } else {
+                    0.
+                };
+                modify_transform(lower_transform, direction, timer, x2, y2, z_mod, event.floor);
             }
         }
     }
@@ -104,12 +118,12 @@ pub fn move_animation(
     if !moved.is_empty() {
         events.clear();
         for event in moved.read() {
-            move_event(&board, event, &mut query, &mut timer);
+            move_event(&board, event, &mut query, &mut timer, true);
             events.push(*event);
         }
     } else {
         for event in &events {
-            move_event(&board, event, &mut query, &mut timer);
+            move_event(&board, event, &mut query, &mut timer, false);
         }
     }
 }

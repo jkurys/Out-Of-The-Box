@@ -39,7 +39,6 @@ pub fn get_offsets(
 
 pub fn render_object<T>(
     commands: &mut Commands,
-    // atlas_handle: Handle<TextureAtlasLayout>,
     atlas: (Handle<Image>, Handle<TextureAtlasLayout>),
     indices: (usize, usize, usize),
     x: i32,
@@ -55,9 +54,6 @@ where
     let (texture, layout) = atlas;
     let mut sprite = Sprite::default();
     sprite.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8 / 3., y: TILE_HEIGHT * 4.8 / 3. });
-    // higher_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
-    // lower_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
-    // side_image.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8/3., y: TILE_HEIGHT * 4.8/3. });
     let (
         (upper_x, upper_y, upper_z),
         (lower_x, lower_y, lower_z),
@@ -114,7 +110,6 @@ where
 
 pub fn render_object_with_sticker<T>(
     commands: &mut Commands,
-    // atlas_handle: Handle<TextureAtlas>,
     atlas: (Handle<Image>, Handle<TextureAtlasLayout>),
     indices: (usize, usize, usize),
     sticker_index: usize,
@@ -158,7 +153,6 @@ pub fn render_sticker<T>(
     x: i32,
     y: i32,
     z: i32,
-    // atlas_handle: Handle<TextureAtlas>,
     atlas: (Handle<Image>, Handle<TextureAtlasLayout>),
     component: T,
     z_index: f32,
@@ -169,18 +163,11 @@ where
     let (texture, layout) = atlas;
     let mut sprite = Sprite::default();
     sprite.custom_size = Some(Vec2 { x: TILE_WIDTH * (4.8/3.), y: TILE_HEIGHT * (4.8/3.) });
-    let (sticker_x, sticker_y, sticker_z) =
-    (
-
-        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
-        (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * TILE_FRONT_HEIGHT),
-        (z_index + (z * 2) as f32),
-    );
+    let ((sticker_x, sticker_y, sticker_z), _, _) = get_offsets(x, y, z, z_index - UPPER_HALF_OBJECT_Z_INDEX);
     commands
         .spawn((
             SpriteBundle {
                 sprite,
-                // texture_atlas: atlas_handle,
                 texture,
                 transform: Transform::from_xyz(sticker_x, sticker_y, sticker_z),
                 ..default()

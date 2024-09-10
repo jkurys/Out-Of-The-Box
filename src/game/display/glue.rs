@@ -60,8 +60,8 @@ pub fn render_glue(
     let block = board.get_block(position);
     let right_pos = position.next_position(Direction::Right);
     let left_pos = position.next_position(Direction::Left);
-    let up_pos = position.next_position(Direction::Up);
-    let down_pos = position.next_position(Direction::Down);
+    let up_pos = position.next_position(Direction::North);
+    let down_pos = position.next_position(Direction::South);
 
     // let upper_left_pos = left_pos.next_position(Direction::Up);
     // let upper_right_pos = right_pos.next_position(Direction::Up);
