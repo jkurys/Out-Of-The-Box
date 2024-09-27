@@ -98,7 +98,7 @@ pub fn render_glue(
                 Glue,
                 UPPER_HALF_STICKER_Z_INDEX,
             );
-            board.append_entities(position, [vec![glue_entity], Vec::new()]);
+            board.append_entities(position, [vec![glue_entity], Vec::new(), Vec::new()]);
         }
     }
     if block.contains_position(left_pos) {
@@ -122,7 +122,7 @@ pub fn render_glue(
                 Glue,
                 UPPER_HALF_STICKER_Z_INDEX,
             );
-            board.append_entities(position, [vec![glue_entity], Vec::new()]);
+            board.append_entities(position, [vec![glue_entity], Vec::new(), Vec::new()]);
         }
     }
     if block.contains_position(up_pos) {
@@ -146,7 +146,7 @@ pub fn render_glue(
                 Glue,
                 UPPER_HALF_STICKER_Z_INDEX,
             );
-            board.append_entities(position, [vec![glue_entity], Vec::new()]);
+            board.append_entities(position, [vec![glue_entity], Vec::new(), Vec::new()]);
         }
     }
     if block.contains_position(down_pos) {
@@ -170,7 +170,7 @@ pub fn render_glue(
                 Glue,
                 UPPER_HALF_STICKER_Z_INDEX,
             );
-            board.append_entities(position, [vec![glue_entity], Vec::new()]);
+            board.append_entities(position, [vec![glue_entity], Vec::new(), Vec::new()]);
         }
     }
     // if should_spawn_corner(

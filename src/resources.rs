@@ -29,6 +29,7 @@ pub struct Images {
     pub highlight_images: Option<(Handle<Image>, Handle<TextureAtlasLayout>)>,
     pub goal_image: Handle<Image>,
     pub dirt_image: Handle<Image>,
+    pub powerup_images: Option<(Handle<Image>, Handle<TextureAtlasLayout>)>,
 }
 
 impl FromWorld for Images {
@@ -53,6 +54,7 @@ impl FromWorld for Images {
         let glue_images = None;
         let box_glue_images = None;
         let highlight_images = None;
+        let powerup_images = None;
         let goal_image = asset_server.load(GOAL_TEXTURE);
         let dirt_image = asset_server.load(DIRT_TEXTURE);
 
@@ -71,6 +73,7 @@ impl FromWorld for Images {
             highlight_images,
             goal_image,
             dirt_image,
+            powerup_images,
         }
     }
 }

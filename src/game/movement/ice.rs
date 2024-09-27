@@ -28,6 +28,7 @@ pub fn handle_ice(
             direction,
             position,
             is_weak: true,
+            is_long: false,
         });
     }
 }

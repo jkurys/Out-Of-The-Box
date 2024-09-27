@@ -70,6 +70,24 @@ pub fn setup_level_select(
         })
         .insert(LevelSelectItem)
         .with_children(|parent| {
+            let spawn_children = |i: usize| {
+                let menu_font = menu_font.clone();
+                let file_paths = file_paths.clone();
+                move |parent: &mut ChildBuilder| {
+                    for (level_number, level_name) in file_paths.iter().enumerate() {
+                        if level_number % 3 == i {
+                            spawn_button(
+                                parent,
+                                LevelSelectItemType::Level(level_number + 1),
+                                menu_font.clone(),
+                                &level_name[..&level_name.len() - 4],
+                                Val::Percent(50.),
+                                Val::Percent(7.),
+                            );
+                        }
+                    }
+                }
+            };
             parent.spawn(
                 TextBundle::from_section(
                     "Level Select",
@@ -81,16 +99,37 @@ pub fn setup_level_select(
                 )
                 .with_text_justify(JustifyText::Center),
             );
-            for (level_number, level_name) in file_paths.iter().enumerate() {
-                spawn_button(
-                    parent,
-                    LevelSelectItemType::Level(level_number + 1),
-                    menu_font.clone(),
-                    &level_name[..&level_name.len() - 4],
-                );
-            }
+            parent.spawn(NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(80.0),
+                    flex_direction: FlexDirection::Row,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::SpaceEvenly,
+                    ..default()
+                },
+                ..default()
 
-            spawn_button(parent, LevelSelectItemType::Back, menu_font.clone(), "Back");
+            }).with_children(|parent|{
+                for i in 0..3 {
+                    parent.spawn(NodeBundle {
+                        background_color: BackgroundColor(Color::BLACK),
+                        visibility: Visibility::Visible,
+                        style: Style {
+                            width: Val::Percent(33.3),
+                            height: Val::Percent(100.0),
+                            flex_direction: FlexDirection::Column,
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::SpaceEvenly,
+                            ..default()
+                        },
+                        ..default()
+                    })
+                    .with_children(spawn_children(i));
+                }
+            });
+            
+            spawn_button(parent, LevelSelectItemType::Back, menu_font.clone(), "Back", Val::Percent(20.), Val::Percent(10.));
         });
     level_names.0 = file_paths;
     *current_level = CurrentLevel {

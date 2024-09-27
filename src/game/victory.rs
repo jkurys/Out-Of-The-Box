@@ -10,7 +10,7 @@ use crate::consts::{LEVEL_SAVE, MAIN_MENU_FONT};
 use crate::resources::{CurrentLevel, StateStack};
 use crate::state::DisplayState;
 
-use super::game_objects::GameObject;
+use super::game_objects::{GameObject, Floor};
 
 #[derive(Component)]
 pub struct VictoryItem;
@@ -26,6 +26,14 @@ pub fn handle_win(
     for position in board.get_all_goals().iter() {
         if board.get_object_type(position.position_above()) != GameObject::Box {
             is_win = false;
+        }
+    }
+    let eat = board.get_all_eat();
+    for (_, (_, floor_opt, _, _)) in eat.iter() {
+        if let Some(floor) = floor_opt {
+            if *floor == Floor::Goal {
+                is_win = false;
+            }
         }
     }
     if is_win {

@@ -71,9 +71,18 @@ pub fn setup(
                     ButtonType::Level(level_number + 1),
                     menu_font.clone(),
                     &level_name[..&level_name.len() - 4],
+                    Val::Percent(20.),
+                    Val::Percent(10.),
                 );
             }
-            spawn_button(parent, ButtonType::Back, menu_font.clone(), "back");
+            spawn_button(
+                parent,
+                ButtonType::Back,
+                menu_font.clone(),
+                "back",
+                Val::Percent(20.),
+                Val::Percent(10.),
+            );
         });
     level_names.0 = file_paths;
 }

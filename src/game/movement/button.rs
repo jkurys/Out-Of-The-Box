@@ -30,6 +30,7 @@ pub fn handle_button(
                 block: board.get_block(pos),
                 direction: dir,
                 is_weak: false,
+                is_long: false,
                 position: pos,
             });
         }

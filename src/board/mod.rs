@@ -17,13 +17,13 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Resource)]
 pub struct Board {
-    entities: HashMap<Position, [Vec<Entity>; 2]>,
+    entities: HashMap<Position, [Vec<Entity>; 3]>,
     objects: HashMap<Position, GameObject>,
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
     map_size: BoardSize,
     blocks: Vec<Block>,
-    eaten_boxes: HashMap<Position, (GameObject, usize, Direction)>,
+    eaten_boxes: HashMap<Position, (GameObject, Option<Floor>, usize, Direction)>,
 }
 
 impl Board {
@@ -131,19 +131,19 @@ impl Board {
         self.insert_block(block);
     }
 
-    pub fn fall_block(&mut self, block: Block) -> Block {
-        self.delete_block(&block);
-        let mut any_pos = None;
-        for position in block.positions {
-            any_pos = Some(position.position_below());
-            let obj = self.get_object_type(position);
-            self.delete_object(position);
-            self.insert_floor(position.position_below(), Floor::Obj(obj));
-            self.insert_object(position.position_below(), obj);
-        }
-        self.get_block(any_pos.unwrap())
-    }
-
+    // pub fn fall_block(&mut self, block: Block) -> Block {
+    //     self.delete_block(&block);
+    //     let mut any_pos = None;
+    //     for position in block.positions {
+    //         any_pos = Some(position.position_below());
+    //         let obj = self.get_object_type(position);
+    //         self.delete_object(position);
+    //         self.insert_floor(position.position_below(), Floor::Obj(obj));
+    //         self.insert_object(position.position_below(), obj);
+    //     }
+    //     self.get_block(any_pos.unwrap())
+    // }
+    //
     pub fn get_empty_below(&self) -> Vec<Position> {
         let mut res = Vec::new();
         for (position, obj) in self.objects.iter() {
@@ -171,24 +171,24 @@ impl Board {
     pub fn get_player_positions(&self) -> Vec<Position> {
         let mut positions = Vec::new();
         for (&pos, &obj) in self.objects.iter() {
-            if obj == GameObject::Player {
+            if matches!(obj, GameObject::Player { powerup: _, direction: _ } ) {
                 positions.push(pos);
             }
         }
         positions
     }
-
-    pub fn get_all_positions(&self, floor_to_be_found: Floor) -> Vec<Position> {
-        let mut positions = Vec::new();
-        for (&pos, &floor) in self.floors.iter() {
-            if floor_to_be_found == floor {
-                positions.push(pos);
-            }
-        }
-        positions
-    }
-
-    pub fn get_entities(&self, position: Position) -> Option<[Vec<Entity>; 2]> {
+    //
+    // pub fn get_all_positions(&self, floor_to_be_found: Floor) -> Vec<Position> {
+    //     let mut positions = Vec::new();
+    //     for (&pos, &floor) in self.floors.iter() {
+    //         if floor_to_be_found == floor {
+    //             positions.push(pos);
+    //         }
+    //     }
+    //     positions
+    // }
+    //
+    pub fn get_entities(&self, position: Position) -> Option<[Vec<Entity>; 3]> {
         self.entities.get(&position).cloned()
     }
 
@@ -199,11 +199,19 @@ impl Board {
             .unwrap_or(&GameObject::Empty)
     }
 
+    pub fn get_objects(&self) -> HashMap<Position, GameObject> {
+        self.objects.clone()
+    }
+
     pub fn get_floor_type(&self, position: Position) -> Floor {
         *self
             .floors
             .get(&position)
             .unwrap_or(&Floor::Tile)
+    }
+
+    pub fn get_floors(&self) -> HashMap<Position, Floor> {
+        self.floors.clone()
     }
 
     pub fn get_all_goals(&self) -> Vec<Position> {
@@ -290,21 +298,23 @@ impl Board {
         self.objects.insert(position, object);
     }
 
-    pub fn insert_entities(&mut self, position: Position, entities: [Vec<Entity>; 2]) {
+    pub fn insert_entities(&mut self, position: Position, entities: [Vec<Entity>; 3]) {
         self
             .entities
             .insert(position, entities);
     }
 
-    pub fn append_entities(&mut self, position: Position, mut entities: [Vec<Entity>; 2]) {
-        let empty_entities = &mut [Vec::new(), Vec::new()];
-        let old_entities = self
-            .entities
+    pub fn append_entities(&mut self, position: Position, mut entities: [Vec<Entity>; 3]) {
+        let empty_entities = &mut [Vec::new(), Vec::new(), Vec::new()];
+        let mut entities_clone = self.entities.clone();
+        let old_entities = entities_clone
             .get_mut(&position)
             .unwrap_or(empty_entities);
 
         old_entities[0].append(&mut entities[0]);
         old_entities[1].append(&mut entities[1]);
+        old_entities[2].append(&mut entities[2]);
+        self.entities.insert(position, old_entities.clone());
     }
 
     pub fn insert_floor(&mut self, position: Position, floor: Floor) {
@@ -328,8 +338,9 @@ impl Board {
         position: Position,
         dir: Direction,
         object: GameObject,
+        floor: Option<Floor>,
     ) {
-        self.eaten_boxes.insert(position, (object, EAT_COUNTER, dir));
+        self.eaten_boxes.insert(position, (object, floor, EAT_COUNTER, dir));
     }
 
     pub fn remove_eat(
@@ -342,9 +353,13 @@ impl Board {
     pub fn get_eat_data(
         &self,
         position: Position
-    ) -> (GameObject, Direction) {
-        let (obj, _, dir) = self.eaten_boxes.get(&position).unwrap();
-        (*obj, *dir)
+    ) -> (GameObject, Option<Floor>, Direction) {
+        let (obj, floor, _, dir) = self.eaten_boxes.get(&position).unwrap();
+        (*obj, *floor, *dir)
+    }
+
+    pub fn get_all_eat(&self) -> HashMap<Position, (GameObject, Option<Floor>, usize, Direction)> {
+        self.eaten_boxes.clone()
     }
 
     pub fn get_eat_counter(
@@ -352,7 +367,7 @@ impl Board {
         position: Position,
     ) -> Option<usize> {
         let opt = self.eaten_boxes.get(&position);
-        if let Some((_, counter, _)) = opt {
+        if let Some((_, _, counter, _)) = opt {
             return Some(*counter);
         }
         return None;
@@ -374,6 +389,23 @@ impl Board {
                 object = obj;
             }
         }
+        if let GameObject::Player { powerup, direction: _ } = object {
+            let eaten_opt = self.eaten_boxes.get(&position);
+            if dir != Direction::Up 
+                && dir != Direction::Down {
+                if eaten_opt.is_none() || eaten_opt.unwrap().2 == EAT_COUNTER {
+                    object = GameObject::Player { powerup, direction: dir };
+                }
+            }
+        }
+        let floor_opt = self.floors.remove(&position);
+        if let Some(floor) = floor_opt {
+            if floor != Floor::Void {
+                self.floors.insert(position.next_position(dir), floor);
+            } else {
+                self.floors.insert(position, floor);
+            }
+        }
 
         self
             .objects
@@ -389,9 +421,9 @@ impl Board {
             });
         let eaten_opt = self.eaten_boxes.remove(&position);
         if let Some(data) = eaten_opt {
-            let (obj, counter, dir2) = data;
+            let (obj, floor, counter, dir2) = data;
             let new_counter = counter;
-            self.eaten_boxes.insert(position.next_position(dir), (obj, new_counter, dir2));
+            self.eaten_boxes.insert(position.next_position(dir), (obj, floor, new_counter, dir2));
         }
     }
 
@@ -400,12 +432,13 @@ impl Board {
         self.move_object_no_countdown(position, dir);
         let eaten_opt = self.eaten_boxes.remove(&position.next_position(dir));
         if let Some(data) = eaten_opt {
-            let (obj, counter, dir2) = data;
+            let (obj, floor, counter, dir2) = data;
+            
             let mut new_counter = counter;
             if counter != 0 {
                 new_counter = counter - 1;
             }
-            self.eaten_boxes.insert(position.next_position(dir), (obj, new_counter, dir2));
+            self.eaten_boxes.insert(position.next_position(dir), (obj, floor, new_counter, dir2));
         }
 
     }

@@ -2,13 +2,17 @@ use bevy::prelude::*;
 
 use crate::board::Board;
 use crate::game::game_objects::{Block, Floor, GameObject, Direction, Position};
+use crate::state::MoveState;
 
 use super::events::EnteredFloorEvent;
-use super::utils::{move_strong, perform_move};
+use super::resources::DisplayButton;
+use super::utils::move_strong;
 
 pub fn handle_fall(
     mut board: ResMut<Board>,
     mut writer: EventWriter<EnteredFloorEvent>,
+    mut display_button: ResMut<DisplayButton>,
+    mut app_state: ResMut<NextState<MoveState>>,
 ) {
     // let mut void_positions = board.get_all_positions(Floor::Void);
     let mut void_positions = Vec::new();
@@ -50,7 +54,9 @@ pub fn handle_fall(
             &mut board,
             block,
             &mut writer,
+            &mut display_button,
         );
+        app_state.set(MoveState::Animation);
     }
 }
 
@@ -58,6 +64,7 @@ fn fall_block(
     board: &mut ResMut<Board>,
     block: Block,
     writer: &mut EventWriter<EnteredFloorEvent>,
+    display_button: &mut ResMut<DisplayButton>,
 ) {
     // BUG: when falling into water with box on head we reach stack overflow
     let mut can_fall = true;
@@ -71,7 +78,7 @@ fn fall_block(
     }
     if can_fall {
         // board.fall_block(block);
-        move_strong(board, block, last_position, Direction::Down, writer, false);
+        move_strong(board, block, last_position, Direction::Down, writer, false, display_button);
         // perform_move(vec![block], board, Direction::Down, writer, false);
         
     }

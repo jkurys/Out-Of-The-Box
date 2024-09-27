@@ -13,9 +13,10 @@ pub enum GameObject {
     Wall,
     HidingWall { color: usize, hidden_toggle: bool, hidden_by_def: bool },
     Empty,
-    Player,
+    Player { powerup: Option<PowerUpType>, direction: Direction },
     Turtle { direction: Direction, color: usize },
     TurtleHead { direction: Direction, color: usize },
+    PowerUp { powerup_type: PowerUpType },
 }
 
 pub fn get_obj_indices(
@@ -31,11 +32,20 @@ pub fn get_obj_indices(
             color * 3 + 2
         ),
         GameObject::Empty => (0, 0, 0),
-        GameObject::Player => (
-            current_sprite.0 * 4 + 1,
-            current_sprite.0 * 4,
-            current_sprite.0 * 4 + 2,
-        ),
+        GameObject::Player { powerup, direction: _ } => 
+            match powerup {
+                None => (
+                    current_sprite.0 * 4 + 1,
+                    current_sprite.0 * 4,
+                    current_sprite.0 * 4 + 2,
+                ),
+                Some(PowerUpType::Rocket) => (
+                    current_sprite.0 * 4 + 1,
+                    current_sprite.0 * 4,
+                    current_sprite.0 * 4 + 2,
+                ),
+            }
+        ,
         GameObject::Turtle { direction, .. } => (
             direction.to_num() * 6 + 1,
             direction.to_num() * 6,
@@ -46,6 +56,11 @@ pub fn get_obj_indices(
             direction.to_num() * 6 + 3,
             direction.to_num() * 6 + 5,
         ),
+        GameObject::PowerUp { powerup_type } => (
+            powerup_type.to_num(),
+            3,      // empty img
+            3,
+        )
     }
 }
 
@@ -58,9 +73,10 @@ pub fn get_obj_img(
         GameObject::Wall => images.wall_images.clone(),
         GameObject::HidingWall { color: _, hidden_toggle: _, hidden_by_def: _ } => images.hidden_wall_images.clone(),
         GameObject::Empty => None,
-        GameObject::Player => images.player_images.clone(),
+        GameObject::Player { .. } => images.player_images.clone(),
         GameObject::TurtleHead { .. } => images.turtle_images.clone(),
         GameObject::Turtle { .. } => images.turtle_images.clone(),
+        GameObject::PowerUp { .. } => None,
     }
 }
 
@@ -78,6 +94,21 @@ pub enum Floor {
     Dirt,
     Void,
     Obj(GameObject),
+}
+
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
+pub enum PowerUpType {
+    Rocket,
+}
+
+impl PowerUpType {
+    pub fn to_num(&self) -> usize {
+        match self {
+            Self::Rocket => {
+                0
+            },
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -110,6 +141,9 @@ impl std::hash::Hash for Block {
         positions_vec.hash(state);
     }
 }
+
+#[derive(Component, Clone)]
+pub struct PowerUp;
 
 #[derive(Component, Clone)]
 pub struct Button;

@@ -46,6 +46,8 @@ pub fn setup_sprite_select(
                 SpriteSelectItemType::Back,
                 menu_font.clone(),
                 "back",
+                Val::Percent(20.),
+                Val::Percent(10.),
             );
             parent.spawn(ImageBundle {
                 image: UiImage {
@@ -67,6 +69,8 @@ pub fn setup_sprite_select(
                 SpriteSelectItemType::Select(0),
                 menu_font.clone(),
                 "select 0",
+                Val::Percent(20.),
+                Val::Percent(10.),
             );
             parent.spawn(ImageBundle {
                 image: UiImage {
@@ -88,6 +92,8 @@ pub fn setup_sprite_select(
                 SpriteSelectItemType::Select(1),
                 menu_font.clone(),
                 "select 1",
+                Val::Percent(20.),
+                Val::Percent(10.),
             );
             parent.spawn(ImageBundle {
                 image: UiImage {
@@ -109,6 +115,8 @@ pub fn setup_sprite_select(
                 SpriteSelectItemType::Select(2),
                 menu_font.clone(),
                 "select 2",
+                Val::Percent(20.),
+                Val::Percent(10.),
             );
         });
 }

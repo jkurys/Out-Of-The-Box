@@ -59,6 +59,7 @@ pub fn handle_turtle(
                                 position: turtle_head_pos,
                                 direction,
                                 is_weak: false,
+                                is_long: false,
                             });
                         }
                         else {
@@ -67,6 +68,7 @@ pub fn handle_turtle(
                                 position: *turtle_pos,
                                 direction: direction.opposite(),
                                 is_weak: false,
+                                is_long: false,
                             });
                         }
                         board.delete_block(&Block {

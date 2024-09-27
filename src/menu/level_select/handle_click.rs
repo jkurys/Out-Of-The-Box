@@ -1,7 +1,7 @@
 use std::{fs::File, io::Read};
 
 use bevy::prelude::*;
-use bevy::color::palettes::css::{DARK_GREEN, GRAY, GREEN, WHITE};
+use bevy::color::palettes::css::{GRAY, GREEN, WHITE, LIMEGREEN};
 
 use crate::{
     consts::LEVEL_SAVE,
@@ -55,7 +55,7 @@ pub fn handle_level_click(
                 *color = match item.as_ref() {
                     LevelSelectItemType::Level(level_no) => {
                         if bool_buf[*level_no - 1] {
-                            BackgroundColor(Color::Srgba(DARK_GREEN))
+                            BackgroundColor(Color::Srgba(GREEN))
                             // BackgroundColor(Color::DARK_GREEN)
                         } else {
                             BackgroundColor(Color::Srgba(GRAY))
@@ -70,7 +70,7 @@ pub fn handle_level_click(
                 *color = match item.as_ref() {
                     LevelSelectItemType::Level(level_no) => {
                         if bool_buf[*level_no - 1] {
-                            BackgroundColor(Color::Srgba(GREEN))
+                            BackgroundColor(Color::Srgba(LIMEGREEN))
                             // BackgroundColor(Color::GREEN)
                         } else {
                             BackgroundColor(Color::Srgba(WHITE))

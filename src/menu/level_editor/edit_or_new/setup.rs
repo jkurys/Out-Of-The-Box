@@ -29,8 +29,29 @@ pub fn setup_level_editor_choose(mut commands: Commands, asset_server: Res<Asset
         })
         .insert(LevelEditorChooseElement)
         .with_children(|parent| {
-            spawn_button(parent, ButtonType::New, menu_font.clone(), "New");
-            spawn_button(parent, ButtonType::Edit, menu_font.clone(), "Edit");
-            spawn_button(parent, ButtonType::Back, menu_font.clone(), "Back");
+            spawn_button(
+                parent,
+                ButtonType::New,
+                menu_font.clone(),
+                "New",
+                Val::Percent(20.),
+                Val::Percent(5.),
+            );
+            spawn_button(
+                parent,
+                ButtonType::Edit,
+                menu_font.clone(),
+                "Edit",
+                Val::Percent(20.),
+                Val::Percent(5.),
+            );
+            spawn_button(
+                parent,
+                ButtonType::Back,
+                menu_font.clone(),
+                "Back",
+                Val::Percent(20.),
+                Val::Percent(5.),
+            );
         });
 }

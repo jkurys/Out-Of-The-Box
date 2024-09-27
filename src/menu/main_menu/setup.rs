@@ -53,19 +53,32 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 MenuItemType::LevelSelect,
                 menu_font.clone(),
                 "Level Select",
+                Val::Percent(20.),
+                Val::Percent(5.),
             );
             spawn_button(
                 parent,
                 MenuItemType::SpriteSelect,
                 menu_font.clone(),
                 "Sprite Select",
+                Val::Percent(20.),
+                Val::Percent(5.),
             );
             spawn_button(
                 parent,
                 MenuItemType::LevelEditor,
                 menu_font.clone(),
                 "Level Editor",
+                Val::Percent(20.),
+                Val::Percent(5.),
             );
-            spawn_button(parent, MenuItemType::Exit, menu_font.clone(), "Exit");
+            spawn_button(
+                parent,
+                MenuItemType::Exit,
+                menu_font.clone(),
+                "Exit",
+                Val::Percent(20.),
+                Val::Percent(5.),
+            );
         });
 }

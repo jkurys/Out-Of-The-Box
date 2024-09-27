@@ -29,15 +29,15 @@ impl Plugin for MenusPlugin {
     }
 }
 
-pub fn spawn_button<T>(parent: &mut ChildBuilder, entity: T, menu_font: Handle<Font>, value: &str)
+pub fn spawn_button<T>(parent: &mut ChildBuilder, entity: T, menu_font: Handle<Font>, value: &str, width: Val, height: Val)
 where
     T: Component,
 {
     parent
         .spawn(ButtonBundle {
             style: Style {
-                width: Val::Percent(10.0),
-                height: Val::Px(30.0),
+                width,
+                height,
                 flex_direction: FlexDirection::ColumnReverse,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,

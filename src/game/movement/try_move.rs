@@ -4,7 +4,7 @@ use crate::{board::Board, state::MoveState};
 
 use super::{
     events::{EnteredFloorEvent, TryMoveEvent},
-    utils::{move_strong, move_weak}, resources::FireAnimation,
+    utils::{move_strong, move_weak}, resources::{FireAnimation, DisplayButton},
 };
 
 pub fn try_move(
@@ -13,6 +13,7 @@ pub fn try_move(
     mut board: ResMut<Board>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut fire_animation: ResMut<FireAnimation>,
+    mut display_button: ResMut<DisplayButton>,
 ) {
     let mut was_moved = false;
     let mut events = Vec::new();
@@ -33,16 +34,30 @@ pub fn try_move(
         direction,
         is_weak: _,
         position,
+        is_long,
     } in events.iter()
     {
-        let can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer, false);
-        was_moved = was_moved || can_block_move;
+        if *is_long {
+            let mut can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer, false, &mut display_button);
+            let mut next_position = position.next_position(*direction);
+            let mut i = 0;
+            while can_block_move && i < 20 {
+                i += 1;
+                let block = board.get_block(next_position);
+                can_block_move = move_strong(&mut board, block.clone(), next_position, *direction, &mut writer, false, &mut display_button);
+                next_position = next_position.next_position(*direction);
+            }
+        } else {
+            let can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer, false, &mut display_button);
+            was_moved = was_moved || can_block_move;
+        }
     }
     for TryMoveEvent {
         block,
         direction,
         is_weak: _,
         position: _,
+        is_long: _,
     } in ice_events.into_iter()
     {
         let can_block_move = move_weak(

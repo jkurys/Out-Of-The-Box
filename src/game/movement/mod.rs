@@ -12,7 +12,7 @@ use self::{
     button::handle_button,
     end_move::end_move,
     events::{EnteredFloorEvent, TryMoveEvent},
-    resources::{AnimationTimer, FireAnimation},
+    resources::{AnimationTimer, FireAnimation, DisplayButton},
     turtle::handle_turtle,
     spit::handle_spit, fall::handle_fall,
 };
@@ -40,10 +40,10 @@ use super::{
         border::render_border,
         despawn_board,
     },
-    game_objects::{Box, Glue, Player, Turtle, HiddenWall},
+    game_objects::{Box, Glue, Player, Turtle, HiddenWall, Goal, PowerUp, Dirt},
 };
 
-pub type MovableInQuery = Or<(With<Box>, With<Player>, With<Turtle>, With<Glue>, With<HiddenWall>)>;
+pub type MovableInQuery = Or<(With<Box>, With<Player>, With<Turtle>, With<Glue>, With<HiddenWall>, With<Goal>, With<Dirt>, With<PowerUp>)>;
 pub struct MovementPlugin;
 
 #[derive(Resource, Clone)]
@@ -97,6 +97,7 @@ impl Plugin for MovementPlugin {
             MOVE_ANIMATION_TIME,
             TimerMode::Once,
         )));
+        app.insert_resource(DisplayButton(false));
     }
 }
 

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::game::display::render_2_5_d::get_offsets;
-use crate::game::game_objects::{Direction, Position};
+use crate::game::game_objects::Direction;
 use crate::{
     board::Board,
     consts::*,
@@ -74,15 +74,13 @@ pub fn move_event(
 ) {
     let (position, direction) = (event.position, event.direction);
     let entity_opt = board.get_entities(event.position);
-    if let Some([higher_entities, lower_entities]) = entity_opt {
+    if let Some([higher_entities, lower_entities, side_entities]) = entity_opt {
         for &higher_entity in higher_entities.iter() {
             if let Ok(higher_transform) = query.get_mut(higher_entity) {
                 let ((x, y, _), _, _) = get_offsets(position.x, position.y, position.z, 0.);
-                let z_mod = if is_first {
-                    let ((_, _, z1), _, _) = get_offsets(position.x, position.y, position.z, 0.);
-                    let position = position.prev_position(direction);
-                    let ((_, _, z2), _, _) = get_offsets(position.x, position.y, position.z, 0.);
-                    z1 - z2
+                let z_mod = if is_first && direction == Direction::Down {
+                    // 0.01
+                    UPPER_HALF_STICKER_Z_INDEX - UPPER_HALF_OBJECT_Z_INDEX + 1.055
                 } else {
                     0.
                 };
@@ -92,15 +90,26 @@ pub fn move_event(
         for &lower_entity in lower_entities.iter() {
             if let Ok(lower_transform) = query.get_mut(lower_entity) {
                 let (_, (x2, y2, _), _) = get_offsets(position.x, position.y, position.z, 0.1);
-                let z_mod = if is_first {
-                    let ((_, _, z1), _, _) = get_offsets(position.x, position.y, position.z, 0.);
-                    let position = position.prev_position(direction);
-                    let ((_, _, z2), _, _) = get_offsets(position.x, position.y, position.z, 0.);
-                    z1 - z2
+                let z_mod = if is_first && direction == Direction::Down {
+                    // 0.01
+                    // 0.
+                    UPPER_HALF_STICKER_Z_INDEX - UPPER_HALF_OBJECT_Z_INDEX + 0.015
                 } else {
                     0.
                 };
                 modify_transform(lower_transform, direction, timer, x2, y2, z_mod, event.floor);
+            }
+        }
+        for &side_entity in side_entities.iter() {
+            if let Ok(side_transform) = query.get_mut(side_entity) {
+                let ((x, y, _), _, _) = get_offsets(position.x, position.y, position.z, 0.);
+                let z_mod = if is_first && direction == Direction::Down {
+                    // 0.01
+                    UPPER_HALF_STICKER_Z_INDEX - UPPER_HALF_OBJECT_Z_INDEX + 0.015
+                } else {
+                    0.
+                };
+                modify_transform(side_transform, direction, timer, x, y, z_mod, event.floor);
             }
         }
     }

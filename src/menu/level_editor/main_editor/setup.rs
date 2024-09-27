@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::color::palettes::css::{BEIGE, DARK_GREEN, GREEN};
 
+use crate::game::game_objects::PowerUpType;
 use crate::{
     board::Board,
     components::GameEntity,
@@ -110,7 +111,12 @@ pub fn setup_level_editor_board(
                     spawn_small_button(
                         parent,
                         player_image.clone(),
-                        GameEntity::Object(GameObject::Player),
+                        GameEntity::Object(GameObject::Player { powerup: None, direction: Direction::South }),
+                    );
+                    spawn_small_button(
+                        parent,
+                        images.powerup_images.clone().unwrap().0,
+                        GameEntity::Object(GameObject::PowerUp { powerup_type: PowerUpType::Rocket }),
                     );
                 });
 

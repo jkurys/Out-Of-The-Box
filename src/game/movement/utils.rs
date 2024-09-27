@@ -3,10 +3,10 @@ use itertools::Itertools;
 
 use crate::{
     board::Board,
-    game::game_objects::{Block, Direction, Floor, GameObject, Position},
+    game::game_objects::{Block, Direction, Floor, GameObject, Position, PowerUpType},
 };
 
-use super::{events::EnteredFloorEvent, sort_positions::sort_positions};
+use super::{events::EnteredFloorEvent, sort_positions::sort_positions, resources::DisplayButton};
 
 pub fn is_moveable(obj: GameObject, is_first: bool) -> bool {
     if is_first {
@@ -17,7 +17,10 @@ pub fn is_moveable(obj: GameObject, is_first: bool) -> bool {
     matches!(
         obj,
         GameObject::Box
-            | GameObject::Player
+            | GameObject::Player {
+                powerup: _,
+                direction: _,
+            }
             | GameObject::Turtle {
                 direction: _,
                 color: _,
@@ -26,7 +29,8 @@ pub fn is_moveable(obj: GameObject, is_first: bool) -> bool {
                 direction: _,
                 color: _,
             }
-            | GameObject::Empty,
+            | GameObject::Empty
+            | GameObject::PowerUp { powerup_type: _ }
     )
 }
 
@@ -187,9 +191,19 @@ pub fn perform_eat(
     next_pos: Position,
     direction: Direction,
     writer: &mut EventWriter<EnteredFloorEvent>,
+    display_button: &mut ResMut<DisplayButton>,
 ) {
     board.delete_object(next_pos);
-    board.insert_eat(next_pos.next_position(direction.opposite()), direction, GameObject::Box);
+    let pos = next_pos.next_position(direction.opposite());
+    let floor = board.get_floor_type(next_pos);
+    board.delete_floor(next_pos);
+    let floor_opt;
+    if floor == Floor::Tile {
+        floor_opt = None;
+    } else {
+        floor_opt = Some(floor);
+    }
+    board.insert_eat(pos, direction, GameObject::Box, floor_opt);
     let position = next_pos.prev_position(direction);
     let mut blocks_to_try_move = Vec::new();
     if direction != Direction::Up {
@@ -205,10 +219,37 @@ pub fn perform_eat(
         moved_copy.intersection(&block.positions);
         if moved_copy.is_empty() {
             moved_positions.union(&block.positions);
-            move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false);
+            move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false, display_button);
         }
     }
     perform_move([block].to_vec(), board, direction, writer, false);
+}
+
+pub fn eat_powerup(
+    powerup: PowerUpType,
+    position: Position,
+    block: Block,
+    board: &mut ResMut<Board>,
+    direction: Direction,
+    writer: &mut EventWriter<EnteredFloorEvent>,
+    is_weak: bool,
+    display_button: &mut ResMut<DisplayButton>,
+) {
+    println!("XD");
+    let eaten = board.get_all_eat();
+    let opt = eaten.get(&position);
+    if opt.is_none() {
+        board.delete_object(position);
+        board.insert_object(position, GameObject::Player { powerup: Some(powerup), direction });
+    } else {
+        let player = board.get_object_type(position);
+        if let GameObject::Player { powerup: _, direction: new_direction } = player {
+            board.delete_object(position);
+            board.insert_object(position, GameObject::Player { powerup: Some(powerup), direction: new_direction });
+        }
+    }
+    display_button.0 = true;
+    perform_move(vec![block], board, direction, writer, is_weak);
 }
 
 pub fn move_strong(
@@ -218,10 +259,28 @@ pub fn move_strong(
     direction: Direction,
     writer: &mut EventWriter<EnteredFloorEvent>,
     was_moved_already: bool,
+    display_button: &mut ResMut<DisplayButton>,
 ) -> bool {
     let mut next_blocks = vec![block.clone()];
     let mut visited_blocks = Vec::new();
     let mut blocks_to_try_move = Vec::new();
+    let next_pos = position.next_position(direction);
+    if let GameObject::PowerUp { powerup_type } = board.get_object_type(next_pos) {
+        if matches!(board.get_object_type(position), GameObject::Player { powerup: _, direction: _ }) {
+            eat_powerup(
+                powerup_type,
+                position,
+                block,
+                board,
+                direction,
+                writer,
+                false,
+                display_button,
+            );
+            return true;
+        }
+    }
+    display_button.0 = false;
     if !can_block_move(
         board,
         block.clone(),
@@ -230,14 +289,13 @@ pub fn move_strong(
         &mut blocks_to_try_move,
         &mut visited_blocks,
     ) {
-        let next_pos = position.next_position(direction);
         if board.get_object_type(next_pos) == GameObject::Box
-            && board.get_object_type(position) == GameObject::Player
+            && matches!(board.get_object_type(position), GameObject::Player { powerup: _, direction: _ })
             && board.get_eat_counter(position).is_none()
             && board.get_floor_type(next_pos.position_below()) != Floor::Dirt {
             // NOTE: otherwise turtles could eat objects
             // maybe they could in the future?
-            perform_eat(board, block, next_pos, direction, writer);
+            perform_eat(board, block, next_pos, direction, writer, display_button);
             return true;
         }
         return false;
@@ -249,7 +307,7 @@ pub fn move_strong(
             let both: HashSet<&Position> = moved_clone.intersection(&block.positions).collect();
             if both.is_empty() {
                 moved_positions = moved_positions.union(&block.positions).map(|&p| p).collect();
-                move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false);
+                move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false, display_button);
             }
         }
     }

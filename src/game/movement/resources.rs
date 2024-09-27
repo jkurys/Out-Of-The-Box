@@ -8,3 +8,6 @@ pub struct AnimationTimer(pub Timer);
 
 #[derive(Resource)]
 pub struct FireAnimation(pub bool);
+
+#[derive(Resource)]
+pub struct DisplayButton(pub bool);

@@ -8,6 +8,7 @@ pub struct TryMoveEvent {
     pub direction: Direction,
     pub is_weak: bool,
     pub position: Position,
+    pub is_long: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Event)]

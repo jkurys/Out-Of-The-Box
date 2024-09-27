@@ -18,17 +18,20 @@ pub fn get_offsets(
     let (upper_x, upper_y, upper_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
         (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
-        UPPER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
+        UPPER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32
+         + (0.01 * x as f32) - (0.01 * y as f32) + (0.01 * z as f32),
     );
     let (lower_x, lower_y, lower_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
         (y as f32) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
-        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
+        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32
+         + (0.01 * x as f32) - (0.01 * y as f32) + (0.01 * z as f32),
     );
     let (side_x, side_y, side_z) = (
         (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
         (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
-        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32,
+        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32
+         + (0.01 * x as f32) - (0.01 * y as f32) + (0.01 * z as f32),
     );
     (
         (upper_x, upper_y, upper_z),
@@ -79,7 +82,7 @@ where
             SpriteBundle {
                 sprite: sprite.clone(),
                 texture: texture.clone(),
-                transform: Transform::from_xyz(lower_x, lower_y, lower_z + (0.01 * x as f32) - (0.01 * y as f32)),
+                transform: Transform::from_xyz(lower_x, lower_y, lower_z),
                 ..default()
             },
             TextureAtlas {
@@ -94,7 +97,7 @@ where
             SpriteBundle {
                 sprite,
                 texture,
-                transform: Transform::from_xyz(side_x, side_y, side_z + (0.01 * x as f32) - (0.01 * y as f32)),
+                transform: Transform::from_xyz(side_x, side_y, side_z),
                 ..default()
             }, 
             TextureAtlas {

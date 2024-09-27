@@ -5,8 +5,8 @@ use crate::board::Board;
 use crate::game::game_objects::{Position, Block};
 use crate::state::MoveState;
 
-use super::events::EnteredFloorEvent;
-use super::resources::FireAnimation;
+use super::events::{EnteredFloorEvent, TryMoveEvent};
+use super::resources::{FireAnimation, DisplayButton};
 use super::utils::{can_block_move, move_strong};
 
 //BUG: weird stuff happens when a block player eats a block box
@@ -17,6 +17,7 @@ pub fn handle_spit(
     mut writer: EventWriter<EnteredFloorEvent>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut fire_animation: ResMut<FireAnimation>,
+    mut display_button: ResMut<DisplayButton>,
 ) {
     let is_zeroed = |p| {
         let counter_opt = board.get_eat_counter(p);
@@ -35,7 +36,7 @@ pub fn handle_spit(
         .filter(|p| is_zeroed(*p))
         .collect();
     for position in counter_zeroed {
-        spit_out(position, &mut writer, &mut board, &mut app_state, &mut fire_animation);
+        spit_out(position, &mut writer, &mut board, &mut app_state, &mut fire_animation, &mut display_button);
     }
 }
 
@@ -45,11 +46,12 @@ pub fn spit_out(
     board: &mut ResMut<Board>,
     app_state: &mut ResMut<NextState<MoveState>>,
     fire_animation: &mut ResMut<FireAnimation>,
+    display_button: &mut ResMut<DisplayButton>,
 ) {
     let mut empty_vec = Vec::new();
     let mut empty_vec2 = Vec::new();
     let mut empty_vec3 = Vec::new();
-    let (obj, dir) = board.get_eat_data(position);
+    let (obj, floor_opt, dir) = board.get_eat_data(position);
     let new_pos = position.next_position(dir);
     let can_push = can_block_move(board, board.get_block(new_pos), dir, &mut empty_vec, &mut empty_vec2, &mut empty_vec3)
         && can_block_move(board, board.get_block(position), dir, &mut empty_vec, &mut empty_vec2, &mut empty_vec3);
@@ -60,15 +62,20 @@ pub fn spit_out(
     if can_push {
         board.remove_from_block(&mut block, position);
         let next_block = board.get_block(new_pos);
-        move_strong(board, next_block, new_pos, dir, writer, false);
-        move_strong(board, block.clone(), block.get_last_pos(), dir, writer, true);
+        move_strong(board, next_block, new_pos, dir, writer, false, display_button);
+        if !block.positions.is_empty() {
+            move_strong(board, block.clone(), block.get_last_pos(), dir, writer, true, display_button);
+        }
     }
     else if can_push_backwards {
         board.remove_from_block(&mut block, position);
-        move_strong(board, board.get_block(position), position, dir.opposite(), writer, false);
+        move_strong(board, board.get_block(position), position, dir.opposite(), writer, false, display_button);
     }
     if can_push {
         board.insert_object(new_pos, obj);
+        if let Some(floor) = floor_opt {
+            board.insert_floor(new_pos, floor);
+        }
         writer.send(EnteredFloorEvent {
             floor: board.get_floor_type(new_pos),
             position: new_pos,
@@ -88,6 +95,9 @@ pub fn spit_out(
     }
     else if can_push_backwards {
         board.insert_object(position, obj);
+        if let Some(floor) = floor_opt {
+            board.insert_floor(new_pos, floor);
+        }
         if block.positions.len() != 0 {
             board.add_to_block(&mut block, position);
         }
@@ -95,4 +105,95 @@ pub fn spit_out(
         app_state.set(MoveState::Animation);
         fire_animation.0 = true;
     }
+}
+
+pub fn spit_out_far(
+    position: Position,
+    writer2: &mut EventWriter<TryMoveEvent>,
+    writer: &mut EventWriter<EnteredFloorEvent>,
+    board: &mut ResMut<Board>,
+    app_state: &mut ResMut<NextState<MoveState>>,
+    fire_animation: &mut ResMut<FireAnimation>,
+    display_button: &mut ResMut<DisplayButton>,
+) {
+    let mut empty_vec = Vec::new();
+    let mut empty_vec2 = Vec::new();
+    let mut empty_vec3 = Vec::new();
+    let (obj, floor_opt, dir) = board.get_eat_data(position);
+    let new_pos = position.next_position(dir);
+    let can_push = can_block_move(board, board.get_block(new_pos), dir, &mut empty_vec, &mut empty_vec2, &mut empty_vec3)
+        && can_block_move(board, board.get_block(position), dir, &mut empty_vec, &mut empty_vec2, &mut empty_vec3);
+    // NOTE: here it should be the eaten block
+    let can_push_backwards = can_block_move(board, Block { positions: HashSet::from([position]) }, dir.opposite(), &mut empty_vec, &mut empty_vec2, &mut empty_vec3);
+    // NOTE: here it should be the player block
+    let mut block = board.get_block(position);
+    if can_push {
+        board.remove_from_block(&mut block, position);
+        let next_block = board.get_block(new_pos);
+        move_strong(board, next_block, new_pos, dir, writer, false, display_button);
+        if !block.positions.is_empty() {
+            move_strong(board, block.clone(), block.get_last_pos(), dir, writer, true, display_button);
+        }
+    }
+    else if can_push_backwards {
+        board.remove_from_block(&mut block, position);
+        move_strong(board, board.get_block(position), position, dir.opposite(), writer, false, display_button);
+    }
+    if can_push {
+        board.insert_object(new_pos, obj);
+        if let Some(floor) = floor_opt {
+            board.insert_floor(new_pos, floor);
+        }
+        if block.positions.len() != 0 {
+            block.positions = block.positions
+                .iter()
+                .map(|p| p.next_position(dir))
+                .collect();
+            board.add_to_block(&mut block, new_pos);
+        }
+        writer2.send(TryMoveEvent {
+            position,
+            direction: dir,
+            is_weak: false,
+            is_long: true,
+            block,
+        });
+        writer2.send(TryMoveEvent {
+            position,
+            direction: dir.opposite(),
+            is_weak: false,
+            is_long: false,
+            block: board.get_block(position)
+        });
+        board.remove_eat(position);
+        app_state.set(MoveState::Animation);
+        fire_animation.0 = true;
+    }
+    else if can_push_backwards {
+        board.insert_object(position, obj);
+        if let Some(floor) = floor_opt {
+            board.insert_floor(new_pos, floor);
+        }
+        if block.positions.len() != 0 {
+            board.add_to_block(&mut block, position);
+        }
+        writer2.send(TryMoveEvent {
+            position,
+            direction: dir,
+            is_weak: false,
+            is_long: true,
+            block,
+        });
+        writer2.send(TryMoveEvent {
+            position,
+            direction: dir.opposite(),
+            is_weak: false,
+            is_long: false,
+            block: board.get_block(position)
+        });
+        board.remove_eat(position.next_position(dir.opposite()));
+        app_state.set(MoveState::Animation);
+        fire_animation.0 = true;
+    }
+
 }
