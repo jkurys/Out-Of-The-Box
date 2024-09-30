@@ -8,7 +8,6 @@ use crate::board::Board;
 
 use super::render_2_5_d::{render_object, render_sticker};
 
-
 pub fn render_floor(
     mut commands: Commands,
     mut board: ResMut<Board>,
@@ -67,7 +66,7 @@ pub fn render_floor(
                     x,
                     y,
                     z,
-                    -0.1,
+                    -0.505,
                     Water,
                 );
             }
@@ -89,17 +88,7 @@ pub fn render_floor(
                 );
             }
             Floor::Button(color) => {
-                render_object(
-                    &mut commands,
-                    images.wall_images.clone().unwrap(),
-                    (1, 0 ,2),
-                    x,
-                    y,
-                    z,
-                    0.,
-                    Button,
-                );
-                render_sticker(
+                let entity = render_sticker(
                     &mut commands,
                     4 + color,
                     x,
@@ -109,6 +98,7 @@ pub fn render_floor(
                     Button,
                     UPPER_HALF_STICKER_Z_INDEX,
                 );
+                board.append_entities(position, [vec![entity], vec![], vec![]]);
             }
             Floor::Obj(obj) => {
                 let indices = get_obj_indices(obj, &current_sprite);

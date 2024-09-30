@@ -2,22 +2,15 @@ use bevy::prelude::*;
 
 use crate::board::Board;
 use crate::game::game_objects::{Block, Floor, GameObject, Direction, Position};
-use crate::state::MoveState;
 
-use super::events::EnteredFloorEvent;
-use super::resources::DisplayButton;
-use super::utils::move_strong;
+use super::events::TryMoveEvent;
+use super::utils::is_moveable;
 
 pub fn handle_fall(
     mut board: ResMut<Board>,
-    mut writer: EventWriter<EnteredFloorEvent>,
-    mut display_button: ResMut<DisplayButton>,
-    mut app_state: ResMut<NextState<MoveState>>,
+    mut writer: EventWriter<TryMoveEvent>,
 ) {
-    // let mut void_positions = board.get_all_positions(Floor::Void);
-    let mut void_positions = Vec::new();
-    let mut empty_positions = board.get_empty_below();
-    void_positions.append(&mut empty_positions);
+    let mut void_positions = board.get_empty_below();
     void_positions = void_positions.iter()
         .map(|&p| p.position_above())
         .collect();
@@ -49,24 +42,20 @@ pub fn handle_fall(
         }
         return lowest_z1.cmp(&lowest_z2);
     });
-    for block in blocks {
+    for block in blocks.iter() {
         fall_block(
             &mut board,
-            block,
+            block.clone(),
             &mut writer,
-            &mut display_button,
         );
-        app_state.set(MoveState::Animation);
     }
 }
 
 fn fall_block(
     board: &mut ResMut<Board>,
     block: Block,
-    writer: &mut EventWriter<EnteredFloorEvent>,
-    display_button: &mut ResMut<DisplayButton>,
+    writer: &mut EventWriter<TryMoveEvent>,
 ) {
-    // BUG: when falling into water with box on head we reach stack overflow
     let mut can_fall = true;
     let mut last_position = Position {x: 0, y: 0, z: 0};
     for position in block.positions.iter() {
@@ -76,21 +65,19 @@ fn fall_block(
             can_fall = false;
         }
     }
-    if can_fall {
-        // board.fall_block(block);
-        move_strong(board, block, last_position, Direction::Down, writer, false, display_button);
-        // perform_move(vec![block], board, Direction::Down, writer, false);
-        
+    let mut next_position = last_position.next_position(Direction::Down);
+    while is_moveable(board.get_object_type(next_position), false, Direction::Down)
+        && board.get_object_type(next_position) != GameObject::Empty {
+        last_position = last_position.next_position(Direction::Up);
+        next_position = next_position.next_position(Direction::Up);
     }
-    // let mut i = 0;
-    // while can_fall && i < 10 {
-        // block = board.fall_block(block);
-        // for position in block.positions.iter() {
-            // if board.get_floor_type(position.position_below()) != Floor::Void
-                // && board.get_object_type(position.position_below()) != GameObject::Empty {
-                // can_fall = false;
-            // }
-        // }
-        // i += 1;
-    // }
+    if can_fall {
+        writer.send(TryMoveEvent {
+            block,
+            direction: Direction::Down,
+            is_weak: false,
+            is_long: true,
+            position: last_position,
+        });
+    }
 }

@@ -278,9 +278,9 @@ impl Board {
     }
 
     pub fn insert_object(&mut self, position: Position, object: GameObject) {
-        if !self.is_position_on_board(position) {
-            return;
-        }
+        // if !self.is_position_on_board(position) {
+        //     return;
+        // }
         if let GameObject::HidingWall { hidden_by_def: false, .. } = object {
             self.objects.remove(&position.position_below());
         }
@@ -428,7 +428,9 @@ impl Board {
     }
 
     pub fn move_object(&mut self, position: Position, dir: Direction) {
-        
+        if dir == Direction::Down && position.z == 0 {
+            return;
+        }       
         self.move_object_no_countdown(position, dir);
         let eaten_opt = self.eaten_boxes.remove(&position.next_position(dir));
         if let Some(data) = eaten_opt {

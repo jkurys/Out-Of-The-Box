@@ -11,7 +11,6 @@ use crate::{
             consts::{INTERVAL_DISTANCE_1, SPEED_1, TIME_INTERVAL_1},
             events::EnteredFloorEvent,
             resources::*,
-            MovableInQuery,
         },
     },
 };
@@ -65,10 +64,42 @@ fn modify_transform(
         }
     }
 }
+
+fn get_z_mod(
+    direction: Direction,
+) -> f32 {
+    match direction {
+        Direction::Up => {
+            return -0.005;
+        }
+        Direction::Down => {
+
+            return 0.005;
+        }
+        Direction::North => {
+
+            return 0.005;
+        }
+        Direction::South => {
+
+            return -0.005;
+        }
+        Direction::Left => {
+
+            return 0.005;
+        }
+        Direction::Right => {
+
+            return -0.005;
+        }
+    }
+}
+
+
 pub fn move_event(
     board: &Res<Board>,
     event: &EnteredFloorEvent,
-    query: &mut Query<&mut Transform, MovableInQuery>,
+    query: &mut Query<&mut Transform>,
     timer: &mut ResMut<AnimationTimer>,
     is_first: bool,
 ) {
@@ -78,9 +109,8 @@ pub fn move_event(
         for &higher_entity in higher_entities.iter() {
             if let Ok(higher_transform) = query.get_mut(higher_entity) {
                 let ((x, y, _), _, _) = get_offsets(position.x, position.y, position.z, 0.);
-                let z_mod = if is_first && direction == Direction::Down {
-                    // 0.01
-                    UPPER_HALF_STICKER_Z_INDEX - UPPER_HALF_OBJECT_Z_INDEX + 1.055
+                let z_mod = if is_first {
+                    get_z_mod(direction)
                 } else {
                     0.
                 };
@@ -90,10 +120,8 @@ pub fn move_event(
         for &lower_entity in lower_entities.iter() {
             if let Ok(lower_transform) = query.get_mut(lower_entity) {
                 let (_, (x2, y2, _), _) = get_offsets(position.x, position.y, position.z, 0.1);
-                let z_mod = if is_first && direction == Direction::Down {
-                    // 0.01
-                    // 0.
-                    UPPER_HALF_STICKER_Z_INDEX - UPPER_HALF_OBJECT_Z_INDEX + 0.015
+                let z_mod = if is_first {
+                    get_z_mod(direction)
                 } else {
                     0.
                 };
@@ -103,9 +131,8 @@ pub fn move_event(
         for &side_entity in side_entities.iter() {
             if let Ok(side_transform) = query.get_mut(side_entity) {
                 let ((x, y, _), _, _) = get_offsets(position.x, position.y, position.z, 0.);
-                let z_mod = if is_first && direction == Direction::Down {
-                    // 0.01
-                    UPPER_HALF_STICKER_Z_INDEX - UPPER_HALF_OBJECT_Z_INDEX + 0.015
+                let z_mod = if is_first {
+                    get_z_mod(direction)
                 } else {
                     0.
                 };
@@ -118,7 +145,7 @@ pub fn move_event(
 pub fn move_animation(
     time: Res<Time>,
     mut moved: EventReader<EnteredFloorEvent>,
-    mut query: Query<&mut Transform, MovableInQuery>,
+    mut query: Query<&mut Transform>,
     mut timer: ResMut<AnimationTimer>,
     board: Res<Board>,
     mut events: Local<Vec<EnteredFloorEvent>>,

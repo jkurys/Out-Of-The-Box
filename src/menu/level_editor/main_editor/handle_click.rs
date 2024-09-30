@@ -121,15 +121,6 @@ pub fn handle_level_editor_click(
                 pos = Position { x: pos.x, y: pos.y, z: pos.z };
             }
             board.insert(pos, *entity);
-            if let GameEntity::Object(GameObject::HidingWall { color, hidden_toggle: false, hidden_by_def: false }) = *entity {
-                board.insert_floor(
-                    pos.position_below(),
-                    Floor::HiddenWall {
-                        hidden_by_default: false,
-                        color,
-                    },
-                );
-            }
         } else if button == MouseButton::Right {
             board.delete_object(pos);
             board.delete_floor(pos);

@@ -8,10 +8,12 @@ use crate::{
 
 use super::{events::EnteredFloorEvent, sort_positions::sort_positions, resources::DisplayButton};
 
-pub fn is_moveable(obj: GameObject, is_first: bool) -> bool {
+pub fn is_moveable(obj: GameObject, is_first: bool, direction: Direction) -> bool {
     if is_first {
         if let GameObject::HidingWall { .. } = obj {
-            return true;
+            if direction == Direction::Up || direction == Direction::Down {
+                return true;
+            }
         }
     }
     matches!(
@@ -47,7 +49,8 @@ pub fn can_block_move(
     for &position in block.positions.iter() {
         if dir != Direction::Up && dir != Direction:: Down {
             let mut next_position = position.position_above();
-            while board.get_object_type(next_position) != GameObject::Empty {
+            while board.get_object_type(next_position) != GameObject::Empty
+                && is_moveable(board.get_object_type(next_position), false, dir) {
                 blocks_to_try_move.push(board.get_block(next_position));
                 next_position = next_position.position_above();
             }
@@ -55,7 +58,7 @@ pub fn can_block_move(
         if board.get_object_type(position) == GameObject::Empty {
             continue;
         }
-        if !is_moveable(board.get_object_type(position), is_first) {
+        if !is_moveable(board.get_object_type(position), is_first, dir) {
             // eat if not only player
             return false;
         }
@@ -110,7 +113,7 @@ fn can_block_move_weak(
                 next_position = next_position.position_above();
             }
         }
-        let can_current_block_move_somehow = is_moveable(board.get_object_type(position), false)
+        let can_current_block_move_somehow = is_moveable(board.get_object_type(position), false, dir)
             && board.get_floor_type(position.position_below()) == Floor::Ice;
         if !can_current_block_move_somehow {
             return false;
@@ -235,7 +238,6 @@ pub fn eat_powerup(
     is_weak: bool,
     display_button: &mut ResMut<DisplayButton>,
 ) {
-    println!("XD");
     let eaten = board.get_all_eat();
     let opt = eaten.get(&position);
     if opt.is_none() {
@@ -261,10 +263,14 @@ pub fn move_strong(
     was_moved_already: bool,
     display_button: &mut ResMut<DisplayButton>,
 ) -> bool {
+
     let mut next_blocks = vec![block.clone()];
     let mut visited_blocks = Vec::new();
     let mut blocks_to_try_move = Vec::new();
     let next_pos = position.next_position(direction);
+    if GameObject::Empty == board.get_object_type(position) {
+        return false;
+    }
     if let GameObject::PowerUp { powerup_type } = board.get_object_type(next_pos) {
         if matches!(board.get_object_type(position), GameObject::Player { powerup: _, direction: _ }) {
             eat_powerup(
@@ -302,18 +308,20 @@ pub fn move_strong(
     }
     if !was_moved_already {
         let mut moved_positions = HashSet::new();
+        blocks_to_try_move.sort_by(|block1, block2| block1.get_last_pos().z.cmp(&block2.get_last_pos().z));
+        let mut can_move = true;
         for block in blocks_to_try_move.iter() {
+            if !can_move {
+                break;
+            }
             let moved_clone = moved_positions.clone();
             let both: HashSet<&Position> = moved_clone.intersection(&block.positions).collect();
             if both.is_empty() {
                 moved_positions = moved_positions.union(&block.positions).map(|&p| p).collect();
-                move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false, display_button);
+                can_move = move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false, display_button);
             }
         }
     }
-    // for block in blocks_to_try_move.iter() {
-    //     move_strong(board, block.clone(), block.get_last_pos(), direction, writer);
-    // }
     perform_move(next_blocks, board, direction, writer, false);
     return true;
 }

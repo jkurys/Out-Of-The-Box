@@ -40,10 +40,8 @@ use super::{
         border::render_border,
         despawn_board,
     },
-    game_objects::{Box, Glue, Player, Turtle, HiddenWall, Goal, PowerUp, Dirt},
 };
 
-pub type MovableInQuery = Or<(With<Box>, With<Player>, With<Turtle>, With<Glue>, With<HiddenWall>, With<Goal>, With<Dirt>, With<PowerUp>)>;
 pub struct MovementPlugin;
 
 #[derive(Resource, Clone)]

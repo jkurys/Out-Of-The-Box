@@ -39,6 +39,7 @@ pub fn try_move(
     {
         if *is_long {
             let mut can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer, false, &mut display_button);
+            was_moved = was_moved || can_block_move;
             let mut next_position = position.next_position(*direction);
             let mut i = 0;
             while can_block_move && i < 20 {
@@ -58,7 +59,7 @@ pub fn try_move(
         is_weak: _,
         position: _,
         is_long: _,
-    } in ice_events.into_iter()
+    } in ice_events.iter()
     {
         let can_block_move = move_weak(
             &mut board,
@@ -69,7 +70,9 @@ pub fn try_move(
         );
         was_moved = was_moved || can_block_move;
     }
-    if was_moved || fire_animation.0 {
+    if was_moved
+        || fire_animation.0 
+    {
         app_state.set(MoveState::Animation);
     } else {
         app_state.set(MoveState::Static);
