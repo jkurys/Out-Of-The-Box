@@ -10,6 +10,7 @@ use crate::resources::{CurrentSprite, Images};
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum GameObject {
     Box,
+    TeleBox,
     Wall,
     HidingWall { color: usize, hidden_toggle: bool, hidden_by_def: bool },
     Empty,
@@ -26,6 +27,7 @@ pub fn get_obj_indices(
     match obj {
         GameObject::Box => (1, 0, 4),
         GameObject::Wall => (1, 0, 2),
+        GameObject::TeleBox => (1, 0, 2),
         GameObject::HidingWall { color, hidden_toggle: _, hidden_by_def: _ } => (
             color * 3 + 1,
             color * 3,
@@ -40,6 +42,11 @@ pub fn get_obj_indices(
                     current_sprite.0 * 4 + 2,
                 ),
                 Some(PowerUpType::Rocket) => (
+                    current_sprite.0 * 4 + 1,
+                    current_sprite.0 * 4,
+                    current_sprite.0 * 4 + 2,
+                ),
+                Some(PowerUpType::Teleport) => (
                     current_sprite.0 * 4 + 1,
                     current_sprite.0 * 4,
                     current_sprite.0 * 4 + 2,
@@ -77,6 +84,7 @@ pub fn get_obj_img(
         GameObject::TurtleHead { .. } => images.turtle_images.clone(),
         GameObject::Turtle { .. } => images.turtle_images.clone(),
         GameObject::PowerUp { .. } => None,
+        GameObject::TeleBox => None,
     }
 }
 
@@ -99,6 +107,7 @@ pub enum Floor {
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum PowerUpType {
     Rocket,
+    Teleport,
 }
 
 impl PowerUpType {
@@ -106,6 +115,9 @@ impl PowerUpType {
         match self {
             Self::Rocket => {
                 0
+            },
+            Self::Teleport => {
+                1
             },
         }
     }

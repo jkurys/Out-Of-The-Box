@@ -7,10 +7,7 @@ use crate::state::MoveState;
 
 use super::events::{EnteredFloorEvent, TryMoveEvent};
 use super::resources::{FireAnimation, DisplayButton};
-use super::utils::{can_block_move, move_strong};
-
-//BUG: weird stuff happens when a block player eats a block box
-//BUG: spitting disappears a turtle
+use super::strong::{can_block_move, move_strong};
 
 pub fn handle_spit(
     mut board: ResMut<Board>,

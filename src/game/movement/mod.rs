@@ -31,15 +31,18 @@ mod turtle;
 mod utils;
 mod spit;
 mod fall;
+mod strong;
+mod weak;
+mod eat;
+mod powerup;
+mod rocket;
 
 use crate::game::movement::try_move::try_move;
 
-use super::{
-    display::{
-        background::render_board,
-        border::render_border,
-        despawn_board,
-    },
+use super::display::{
+    background::render_board,
+    border::render_border,
+    despawn_board,
 };
 
 pub struct MovementPlugin;

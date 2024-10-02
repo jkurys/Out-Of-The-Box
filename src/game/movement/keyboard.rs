@@ -8,7 +8,8 @@ use crate::state::MoveState;
 use super::BoardPreMove;
 use super::events::{TryMoveEvent, EnteredFloorEvent};
 use super::resources::{FireAnimation, DisplayButton};
-use super::spit::spit_out_far;
+use super::rocket::execute_rocket;
+use super::spit::spit_out;
 
 pub fn handle_keypress(
     keyboard_input: ResMut<ButtonInput<KeyCode>>,
@@ -30,10 +31,26 @@ pub fn handle_keypress(
         Direction::Right
     } else {
         let positions = board.get_player_positions();
+        let objects = board.get_objects();
         if keyboard_input.just_pressed(KeyCode::KeyE) {
+            for (&position, &obj) in objects.iter() {
+                if obj == GameObject::TeleBox{
+                    //in the case of multiple players, it could be cyclic;
+                    //what in case of a large player block?
+                    let player_pos = board.get_player_positions()[0];
+                    let player_obj = board.get_object_type(player_pos);
+                    board.delete_object(position);
+                    board.delete_object(position);
+                    board.insert_object(position, player_obj);
+                    board.insert_object(player_pos, obj);
+                }
+            }
             for &position in positions.iter() {
                 let player = board.get_object_type(position);
                 if matches!(player, GameObject::Player { powerup: Some(PowerUpType::Rocket), direction: _ }) {
+                    execute_rocket(&mut board, position, &mut writer, &mut writer2, &mut app_state, &mut display_button, &mut fire_animation);
+                }
+                if matches!(player, GameObject::Player { powerup: Some(PowerUpType::Teleport), direction: _ }) {
                     let GameObject::Player { powerup: _, direction } = player else {
                         panic!("Player was not player!");
                     };
@@ -44,19 +61,17 @@ pub fn handle_keypress(
                             has_box = true;
                         }
                     }
-                    board.delete_object(position);
-                    board.insert_object(position, GameObject::Player { powerup: None, direction });
                     if has_box {
-                        spit_out_far(position, &mut writer, &mut writer2, &mut board, &mut app_state, &mut fire_animation, &mut display_button);
-                        
+                        let (_obj, floor_opt, dir) = board.get_eat_data(position);
+                        board.remove_eat(position);
+                        board.insert_eat(position, dir, GameObject::TeleBox, floor_opt);
+                        spit_out(position, &mut writer2, &mut board, &mut app_state, &mut fire_animation, &mut display_button);
                     } else {
-                        writer.send(TryMoveEvent {
-                            position,
-                            block: board.get_block(position),
-                            direction,
-                            is_weak: false,
-                            is_long: true,
-                        });
+                        let position_to_land = position.next_position(direction).next_position(direction);
+                        if board.get_object_type(position_to_land) == GameObject::Empty {
+                            board.delete_object(position);
+                            board.insert_object(position_to_land, GameObject::Player { powerup: None, direction });
+                        } 
                     }
                 }
             }

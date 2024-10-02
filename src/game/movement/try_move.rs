@@ -4,7 +4,7 @@ use crate::{board::Board, state::MoveState};
 
 use super::{
     events::{EnteredFloorEvent, TryMoveEvent},
-    utils::{move_strong, move_weak}, resources::{FireAnimation, DisplayButton},
+    weak::move_weak, resources::{FireAnimation, DisplayButton}, strong::move_strong,
 };
 
 pub fn try_move(

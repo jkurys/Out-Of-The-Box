@@ -109,6 +109,19 @@ pub fn render_board(
                             );
                             board.append_entities(position, [vec![entity], vec![], vec![]]);
                         }
+                        PowerUpType::Teleport => {
+                            let entity = render_sticker(
+                                &mut commands,
+                                13,
+                                x,
+                                y,
+                                z,
+                                images.player_images.clone().unwrap(),
+                                Player,
+                                UPPER_HALF_STICKER_Z_INDEX,
+                            );
+                            board.append_entities(position, [vec![entity], vec![], vec![]]);
+                        }
                     }
                 }
             }
@@ -165,6 +178,19 @@ pub fn render_board(
                     z,
                     0.,
                     PowerUp,
+                );
+                board.insert_entities(position, [vec![entity1], vec![entity2], vec![entity3]]);
+            }
+            GameObject::TeleBox => {
+                let [entity1, entity2, entity3] = render_object(
+                    &mut commands,
+                    images.telebox_images.clone().unwrap(),
+                    (1, 0, 2),
+                    x,
+                    y,
+                    z,
+                    0.,
+                    Box,
                 );
                 board.insert_entities(position, [vec![entity1], vec![entity2], vec![entity3]]);
             }

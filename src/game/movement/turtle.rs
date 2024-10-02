@@ -5,7 +5,7 @@ use crate::{
     game::game_objects::{Block, GameObject},
 };
 
-use super::{events::TryMoveEvent, utils::can_block_move};
+use super::{events::TryMoveEvent, strong::can_block_move};
 
 // BUG: double turtle in lower right on level 8 moves too far
 pub fn handle_turtle(

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{board::Board, game::game_objects::GameObject};
 
-use super::{events::TryMoveEvent, utils::can_block_move};
+use super::{events::TryMoveEvent, strong::can_block_move};
 
 pub fn handle_button(
     mut board: ResMut<Board>,

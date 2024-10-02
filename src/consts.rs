@@ -26,6 +26,7 @@ pub const BOX_GLUE_ATLAS: &str = "textures/box_glue_atlas.png";
 pub const TURTLE_ATLAS: &str = "textures/turtle_atlas_big.png";
 pub const PLAYER_ATLAS: &str = "textures/player_atlas_big.png";
 pub const BOX_ATLAS: &str = "textures/box_atlas_big.png";
+pub const TELEBOX_TEXTURE: &str = "textures/tele_box.png";
 pub const BOX_TEXTURE: &str = "textures/box2.png";
 pub const GOAL_TEXTURE: &str = "textures/goal_big.png";
 pub const ICE_TEXTURE: &str = "textures/ice_big.png";

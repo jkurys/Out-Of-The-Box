@@ -118,6 +118,11 @@ pub fn setup_level_editor_board(
                         images.powerup_images.clone().unwrap().0,
                         GameEntity::Object(GameObject::PowerUp { powerup_type: PowerUpType::Rocket }),
                     );
+                    spawn_small_button(
+                        parent,
+                        images.powerup_images.clone().unwrap().0,
+                        GameEntity::Object(GameObject::PowerUp { powerup_type: PowerUpType::Teleport }),
+                    );
                 });
 
             parent

@@ -49,4 +49,7 @@ pub fn init_images(
 
     let powerup_images_texture = asset_server.load(POWERUP_TEXTURE);
     images.powerup_images = Some((powerup_images_texture, atlases.add(layout(2, 2))));
+
+    let telebox_images_texture = asset_server.load(TELEBOX_TEXTURE);
+    images.telebox_images = Some((telebox_images_texture, atlases.add(layout(2, 2))));
 }
