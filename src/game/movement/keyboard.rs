@@ -6,7 +6,7 @@ use crate::game::game_objects::{Block, Direction, Position, GameObject, PowerUpT
 use crate::state::MoveState;
 
 use super::BoardPreMove;
-use super::events::{TryMoveEvent, EnteredFloorEvent};
+use super::events::{TryMoveEvent, EnteredFloorEvent, TeleportEvent};
 use super::resources::{FireAnimation, DisplayButton};
 use super::rocket::execute_rocket;
 use super::spit::spit_out;
@@ -16,6 +16,7 @@ pub fn handle_keypress(
     mut board: ResMut<Board>,
     mut writer: EventWriter<TryMoveEvent>,
     mut writer2: EventWriter<EnteredFloorEvent>,
+    mut writer3: EventWriter<TeleportEvent>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut board_pre_move: ResMut<BoardPreMove>,
     mut fire_animation: ResMut<FireAnimation>,
@@ -38,11 +39,12 @@ pub fn handle_keypress(
                     //in the case of multiple players, it could be cyclic;
                     //what in case of a large player block?
                     let player_pos = board.get_player_positions()[0];
-                    let player_obj = board.get_object_type(player_pos);
-                    board.delete_object(position);
-                    board.delete_object(position);
-                    board.insert_object(position, player_obj);
-                    board.insert_object(player_pos, obj);
+                    app_state.set(MoveState::TeleportAnimation);
+                    writer3.send(TeleportEvent {
+                        position1: position,
+                        position2: player_pos,
+                    });
+                    return;
                 }
             }
             for &position in positions.iter() {

@@ -11,7 +11,7 @@ use self::{
     animation::GameAnimationPlugin,
     button::handle_button,
     end_move::end_move,
-    events::{EnteredFloorEvent, TryMoveEvent},
+    events::{EnteredFloorEvent, TryMoveEvent, TeleportEvent},
     resources::{AnimationTimer, FireAnimation, DisplayButton},
     turtle::handle_turtle,
     spit::handle_spit, fall::handle_fall,
@@ -91,6 +91,7 @@ impl Plugin for MovementPlugin {
         );
 
         app.add_event::<TryMoveEvent>();
+        app.add_event::<TeleportEvent>();
         app.init_resource::<Events<EnteredFloorEvent>>();
         app.insert_resource(FireAnimation(false));
         app.insert_resource(BoardPreMove(Board::new()));

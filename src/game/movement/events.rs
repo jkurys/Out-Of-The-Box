@@ -18,3 +18,9 @@ pub struct EnteredFloorEvent {
     pub object: GameObject,
     pub direction: Direction,
 }
+
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Event)]
+pub struct TeleportEvent {
+    pub position1: Position,
+    pub position2: Position,
+}

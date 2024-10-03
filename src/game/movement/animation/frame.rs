@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::game::display::render_2_5_d::get_offsets;
 use crate::game::game_objects::Direction;
+use crate::game::movement::events::TeleportEvent;
 use crate::{
     board::Board,
     consts::*,
@@ -160,6 +161,68 @@ pub fn move_animation(
     } else {
         for event in &events {
             move_event(&board, event, &mut query, &mut timer, false);
+        }
+    }
+}
+
+pub fn teleport_frame(
+    event: &TeleportEvent,
+    board: &mut ResMut<Board>,
+    query: &mut Query<&mut Sprite>,
+    timer: &ResMut<AnimationTimer>,
+    is_first: bool,
+) {
+    let entity_opt1 = board.get_entities(event.position1);
+    if let Some([mut entities1, mut lower_entities, mut side_entities]) = entity_opt1 {
+        entities1.append(&mut lower_entities);
+        entities1.append(&mut side_entities);
+        let entity_opt2 = board.get_entities(event.position2);
+        if let Some([mut entities2, mut lower_entities2, mut side_entities2]) = entity_opt2 {
+            entities2.append(&mut lower_entities2);
+            entities2.append(&mut side_entities2);
+            for &entity in entities1.iter() {
+                if let Ok(mut sprite) = query.get_mut(entity) {
+                    if is_first {
+                        sprite.color.set_alpha(1. - timer.0.fraction());
+                    } else {
+                        sprite.color.set_alpha(timer.0.fraction());
+                    }
+                }
+            }
+            for &entity in entities2.iter() {
+                if let Ok(mut sprite) = query.get_mut(entity) {
+                    if is_first {
+                        sprite.color.set_alpha(1. - timer.0.fraction());
+                    } else {
+                        sprite.color.set_alpha(timer.0.fraction());
+                    }
+                }
+            }
+        }
+    }
+}
+
+pub fn teleport_animation(
+    time: Res<Time>,
+    mut reader: EventReader<TeleportEvent>,
+    mut query: Query<&mut Sprite>,
+    mut timer: ResMut<AnimationTimer>,
+    mut board: ResMut<Board>,
+    mut events: Local<Vec<TeleportEvent>>,
+    mut teleport_pos: ResMut<TeleportPositions>,
+    is_first: Res<TeleportFirst>,
+) {
+    timer.0.tick(time.delta());
+    if !reader.is_empty() {
+        events.clear();
+        for event in reader.read() {
+            teleport_frame(event, &mut board, &mut query, &timer, is_first.0);
+            teleport_pos.0 = Some([event.position1, event.position2]);
+            events.push(*event);
+        }
+    } else {
+        for event in &events {
+            teleport_frame(event, &mut board, &mut query, &timer, is_first.0);
         }
     }
 }

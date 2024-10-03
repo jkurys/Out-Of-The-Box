@@ -19,6 +19,8 @@ pub enum DisplayState {
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Default, States)]
 pub enum MoveState {
     Animation,
+    TeleportAnimation,
+    ReRender,
     #[default]
     Static,
     Calculating,
