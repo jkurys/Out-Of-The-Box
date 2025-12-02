@@ -1,9 +1,9 @@
 use self::resources::{BoardStates, VictoryTimer};
-use crate::board::Board;
+use crate::board::GameData;
 use crate::consts::MOVE_ANIMATION_TIME;
 use crate::exit::handle_esc;
-use crate::utils::delete_all_components;
 use crate::state::{DisplayState, MoveState};
+use crate::utils::delete_all_components;
 use bevy::prelude::*;
 use maps::load_starting_map;
 use restart::{handle_restart, handle_undo};
@@ -47,7 +47,7 @@ impl Plugin for GamePlugin {
                 delete_all_components::<VictoryItem>,
             );
 
-        app.insert_resource(Board::new())
+        app.insert_resource(GameData::new())
             .insert_resource(BoardStates { boards: Vec::new() });
         app.insert_resource(VictoryTimer(Timer::from_seconds(
             MOVE_ANIMATION_TIME * 2.,
@@ -60,7 +60,7 @@ fn set_game_state(mut game_state: ResMut<NextState<MoveState>>) {
     game_state.set(MoveState::Static);
 }
 
-pub fn clear_board(mut board: ResMut<Board>, mut boards: ResMut<BoardStates>) {
-    board.clear();
+pub fn clear_board(mut game_data: ResMut<GameData>, mut boards: ResMut<BoardStates>) {
+    game_data.board.clear();
     boards.boards.clear();
 }

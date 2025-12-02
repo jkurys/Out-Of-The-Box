@@ -1,23 +1,19 @@
-use bevy::{prelude::*, utils::HashSet, window::PrimaryWindow};
-use bevy::color::palettes::css::WHITE;
 use crate::game::display::background::calculate_borders;
 use crate::game::display::render_2_5_d::get_offsets;
+use crate::game::game_objects::SmallSet;
+use bevy::color::palettes::css::WHITE;
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
-    board::Board,
+    board::{Board, GameData},
     components::GameEntity,
     consts::*,
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
 };
 
-fn is_inside_rect(
-    mouse_pos: Vec2,
-    xs: (f32, f32),
-    ys: (f32, f32),
-) -> bool {
+fn is_inside_rect(mouse_pos: Vec2, xs: (f32, f32), ys: (f32, f32)) -> bool {
     let Vec2 { x, y } = mouse_pos;
-    return x > xs.0 && x < xs.1
-        && y > ys.0 && y < ys.1;
+    return x > xs.0 && x < xs.1 && y > ys.0 && y < ys.1;
 }
 
 fn mouse_over_column(
@@ -29,18 +25,45 @@ fn mouse_over_column(
 ) -> Option<Position> {
     zs.sort();
     zs.reverse();
-    let mouse_position = Vec2 { x: mouse_position.x - window.width() / 2., y: window.height() / 2. - mouse_position.y };
+    let mouse_position = Vec2 {
+        x: mouse_position.x - window.width() / 2.,
+        y: window.height() / 2. - mouse_position.y,
+    };
     for &z in zs.iter() {
         let (mut uppers, mut lowers, mut sides) = get_offsets(x, y, z, 0.);
         uppers = (uppers.0 - TILE_WIDTH / 2. - 5., uppers.1 - 5., uppers.2);
         lowers = (lowers.0 - TILE_WIDTH / 2. - 13., lowers.1 + 5., lowers.2);
-        sides = (sides.0 + TILE_WIDTH / 2. - SIDE_WIDTH, sides.1 - TILE_HEIGHT, sides.2);
-        if is_inside_rect(mouse_position, (uppers.0, uppers.0 + TILE_WIDTH), (uppers.1, uppers.1 + TILE_HEIGHT)) {
+        sides = (
+            sides.0 + TILE_WIDTH / 2. - SIDE_WIDTH,
+            sides.1 - TILE_HEIGHT,
+            sides.2,
+        );
+        if is_inside_rect(
+            mouse_position,
+            (uppers.0, uppers.0 + TILE_WIDTH),
+            (uppers.1, uppers.1 + TILE_HEIGHT),
+        ) {
             return Some(Position { x, y, z });
-        } else if is_inside_rect(mouse_position, (lowers.0, lowers.0 + TILE_WIDTH), (lowers.1, lowers.1 + TILE_FRONT_HEIGHT)) {
-            return Some(Position { x, y: y - 1, z: z - 1 });
-        } else if is_inside_rect(mouse_position, (sides.0, sides.0 + SIDE_WIDTH * 2.), (sides.1, sides.1 + SIDE_HEIGHT)) {
-            return Some(Position { x: x + 1, y, z: z - 1 });
+        } else if is_inside_rect(
+            mouse_position,
+            (lowers.0, lowers.0 + TILE_WIDTH),
+            (lowers.1, lowers.1 + TILE_FRONT_HEIGHT),
+        ) {
+            return Some(Position {
+                x,
+                y: y - 1,
+                z: z - 1,
+            });
+        } else if is_inside_rect(
+            mouse_position,
+            (sides.0, sides.0 + SIDE_WIDTH * 2.),
+            (sides.1, sides.1 + SIDE_HEIGHT),
+        ) {
+            return Some(Position {
+                x: x + 1,
+                y,
+                z: z - 1,
+            });
         }
     }
     None
@@ -49,20 +72,16 @@ fn mouse_over_column(
 pub fn get_frontmost_position(
     mouse: &Res<ButtonInput<MouseButton>>,
     windows: &Query<&Window, With<PrimaryWindow>>,
-    board: &ResMut<Board>,
+    board: &Board,
 ) -> (Position, Option<MouseButton>) {
     let window = windows.single();
     if let Some(position) = window.cursor_position() {
         let (bot_border, top_border, left_border, right_border) = calculate_borders(board);
-        for y in bot_border..=top_border {
-            for x in left_border..=right_border {
-                if let Some(pos) = mouse_over_column(
-                    board.get_column(x, y),
-                    x,
-                    y,
-                    position,
-                    window.clone(),
-                ) {
+        for y in (bot_border - 1)..=(top_border + 1) {
+            for x in (left_border - 1)..=(right_border + 1) {
+                if let Some(pos) =
+                    mouse_over_column(board.get_column(x, y), x, y, position, window.clone())
+                {
                     if mouse.just_pressed(MouseButton::Left) {
                         return (pos, Some(MouseButton::Left));
                     }
@@ -81,24 +100,32 @@ pub fn handle_level_editor_click(
     windows: Query<&Window, With<PrimaryWindow>>,
     mut clickable_query: Query<(&Interaction, &GameEntity, &mut BackgroundColor)>,
     mouse: Res<ButtonInput<MouseButton>>,
-    mut board: ResMut<Board>,
+    mut game_data: ResMut<GameData>,
     mut entity: Local<GameEntity>,
     input: Res<ButtonInput<KeyCode>>,
-    mut block_positions: Local<Option<HashSet<Position>>>,
+    mut block_positions: Local<Option<SmallSet<Position, MAX_BLOCK_SIZE>>>,
 ) {
-    
+    let GameData {
+        board,
+        entity_storage,
+    } = &mut *game_data;
     let mouse_pos_opt = get_frontmost_position(&mouse, &windows, &board);
     if block_positions.is_some() {
         if input.just_pressed(KeyCode::KeyC) {
             board.insert_block(Block {
-                positions: block_positions.clone().unwrap(),
+                positions: block_positions.expect("Block positions should be Some after checking"),
             });
             *block_positions = None;
             return;
         }
         if let (mut pos, Some(MouseButton::Left)) = mouse_pos_opt {
-            pos = Position { x: pos.x, y: pos.y, z: pos.z };
-            let mut positions = block_positions.clone().unwrap();
+            pos = Position {
+                x: pos.x,
+                y: pos.y,
+                z: pos.z,
+            };
+            let mut positions =
+                block_positions.expect("Block positions should be Some after checking");
             positions.insert(pos);
             *block_positions = Some(positions);
         }
@@ -107,22 +134,40 @@ pub fn handle_level_editor_click(
     }
 
     if input.just_pressed(KeyCode::KeyC) {
-        *block_positions = Some(HashSet::new());
+        *block_positions = Some(SmallSet::new());
     }
     if let (mut pos, Some(button)) = mouse_pos_opt {
         if button == MouseButton::Left {
-            if matches!(*entity, GameEntity::Object(GameObject::HidingWall { color: _, hidden_toggle: true, hidden_by_def: true })) {
-                pos = Position { x: pos.x, y: pos.y, z: pos.z };
-            }
-            else if let GameEntity::Object(_) = *entity {
-                pos = Position { x: pos.x, y: pos.y, z: pos.z + 1 };
+            if matches!(
+                *entity,
+                GameEntity::Object(GameObject::HidingWall {
+                    color: _,
+                    hidden_toggle: true,
+                    hidden_by_def: true
+                })
+            ) {
+                pos = Position {
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z,
+                };
+            } else if let GameEntity::Object(_) = *entity {
+                pos = Position {
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z + 1,
+                };
             }
             if let GameEntity::Floor(Floor::Tile) = *entity {
-                pos = Position { x: pos.x, y: pos.y, z: pos.z };
+                pos = Position {
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z,
+                };
             }
             board.insert(pos, *entity);
         } else if button == MouseButton::Right {
-            board.delete_object(pos);
+            board.delete_object(pos, entity_storage);
             board.delete_floor(pos);
             if pos.z == 0 {
                 board.insert_object(pos, GameObject::Wall);

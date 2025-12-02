@@ -1,77 +1,23 @@
-use crate::game::game_objects::*;
+use crate::board::GameData;
 use crate::game::display::background::calculate_borders;
-use crate::board::Board;
-use crate::resources::Images;
-use super::render_2_5_d::render_object;
+use crate::game::game_objects::*;
 use bevy::prelude::*;
 
-pub fn render_border(
-    mut commands: Commands,
-    mut board: ResMut<Board>,
-    images: Res<Images>
-) {
-    let (mut bottom_border, mut top_border, mut left_border, mut right_border) = calculate_borders(&board);
+pub fn insert_border(mut game_data: ResMut<GameData>) {
+    let board = &mut game_data.board;
+    let (mut bottom_border, mut top_border, mut left_border, mut right_border) =
+        calculate_borders(&board);
+    // calculate borders gives the last coordinates on board, borders need to be outside
     bottom_border -= 1;
     top_border += 1;
     left_border -= 1;
     right_border += 1;
-    //spawn horizontal border for the level and insert it to board
-    for x in left_border..=right_border {
-        render_object(
-            &mut commands,
-            images.wall_images.clone().unwrap(),
-            (1, 0, 2),
-            x,
-            top_border,
-            1,
-            0.,
-            Wall,
-        );
-        board.insert_object_unchecked(Position { x, y: top_border, z: 1 }, GameObject::Wall);
-    }
-    for y in (bottom_border..=top_border).rev() {
-        render_object(
-            &mut commands,
-            images.wall_images.clone().unwrap(),
-            (1, 0, 2),
-            left_border,
-            y,
-            1,
-            0.,
-            Wall,
-        );
-        render_object(
-            &mut commands,
-            images.wall_images.clone().unwrap(),
-            (1, 0, 2),
-            right_border,
-            y,
-            1,
-            0.,
-            Wall,
-        );
-        board.insert_object_unchecked(Position { x: left_border, y, z: 1 }, GameObject::Wall);
-        board.insert_object_unchecked(
-            Position { x: right_border, y, z: 1 },
-            GameObject::Wall,
-        );
-    }
-    //spawn vertical borders for the level and insert it to board
-    for x in left_border..=right_border {
-        render_object(
-            &mut commands,
-            images.wall_images.clone().unwrap(),
-            (1, 0, 2),
-            x,
-            bottom_border,
-            1,
-            0.,
-            Wall,
-        );
-        board.insert_object_unchecked(
+    // here we adjust left and right borders to avoid overlapping corners
+    for x in (left_border + 1)..=(right_border - 1) {
+        board.insert_object(
             Position {
                 x,
-                y: bottom_border,
+                y: top_border,
                 z: 1,
             },
             GameObject::Wall,
@@ -80,6 +26,24 @@ pub fn render_border(
             Position {
                 x,
                 y: bottom_border,
+                z: 1,
+            },
+            GameObject::Wall,
+        );
+    }
+    for y in bottom_border..=top_border {
+        board.insert_object(
+            Position {
+                x: left_border,
+                y,
+                z: 1,
+            },
+            GameObject::Wall,
+        );
+        board.insert_object(
+            Position {
+                x: right_border,
+                y,
                 z: 1,
             },
             GameObject::Wall,

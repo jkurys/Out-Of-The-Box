@@ -1,13 +1,10 @@
 use bevy::prelude::*;
 
 use crate::{
-    game::{
-        display::{
-            background::render_board,
-            border::render_border,
-            despawn_board,
-        },
-        // game_objects::Position,
+    game::display::{
+        background::render_board,
+        border::insert_border,
+        despawn_board,
     },
     state::DisplayState,
     utils::delete_all_components,
@@ -16,26 +13,11 @@ use crate::{
 use self::{
     exit::handle_exit_to_save,
     handle_click::handle_level_editor_click,
-    // plus::handle_plus_click,
     setup::{set_board_size, setup_level_editor_board},
-    // tabs::handle_tab_click,
     highlight::handle_highlight,
 };
 
 use super::LevelEditorItem;
-//
-// #[derive(Component)]
-// pub struct LevelEditorTabs;
-//
-// #[derive(Component)]
-// pub struct LevelEditorTab(pub usize);
-//
-// #[derive(Component)]
-// pub struct LevelEditorTabPlus;
-
-// #[derive(Component)]
-// pub struct LevelEditorChangable(pub Position);
-//
 mod exit;
 mod handle_click;
 mod plus;
@@ -53,7 +35,7 @@ impl Plugin for LevelEditorMainPlugin {
                 set_board_size,
                 setup_level_editor_board,
                 render_board,
-                render_border,
+                insert_border,
             )
                 .chain(),
         )
@@ -64,9 +46,6 @@ impl Plugin for LevelEditorMainPlugin {
                 despawn_board,
                 render_board,
                 handle_highlight,
-                render_border,
-                // handle_plus_click,
-                // handle_tab_click,
                 handle_exit_to_save,
             )
                 .chain()

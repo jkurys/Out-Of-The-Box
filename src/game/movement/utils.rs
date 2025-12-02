@@ -1,13 +1,15 @@
 use bevy::prelude::*;
-use itertools::Itertools;
 
-use crate::{
-    board::Board,
-    game::game_objects::{Block, Direction, GameObject, Position},
-};
+use crate::board::GameData;
+use crate::game::game_objects::{Block, Direction, GameObject, Position};
 
 use super::{events::EnteredFloorEvent, sort_positions::sort_positions};
 
+/*
+ * Returns whether the given object is moveable in the given direction.
+ * is_first is needed, since HidingWalls can only be moved
+ * by pressing a button, which makes them the object initiating the move.
+ */
 pub fn is_moveable(obj: GameObject, is_first: bool, direction: Direction) -> bool {
     if is_first {
         if let GameObject::HidingWall { .. } = obj {
@@ -19,10 +21,7 @@ pub fn is_moveable(obj: GameObject, is_first: bool, direction: Direction) -> boo
     matches!(
         obj,
         GameObject::Box
-            | GameObject::Player {
-                powerup: _,
-                direction: _,
-            }
+            | GameObject::Player { direction: _ }
             | GameObject::Turtle {
                 direction: _,
                 color: _,
@@ -32,7 +31,6 @@ pub fn is_moveable(obj: GameObject, is_first: bool, direction: Direction) -> boo
                 color: _,
             }
             | GameObject::Empty
-            | GameObject::PowerUp { powerup_type: _ }
             | GameObject::TeleBox,
     )
 }
@@ -48,23 +46,21 @@ pub fn is_position_in_blocks(blocks: &Vec<Block>, position: Position) -> bool {
 
 pub fn perform_move(
     blocks: Vec<Block>,
-    board: &mut ResMut<Board>,
+    game_data: &mut ResMut<GameData>,
     direction: Direction,
     writer: &mut EventWriter<EnteredFloorEvent>,
     is_weak: bool,
 ) {
+    let board = &mut game_data.board;
     let mut positions_vec: Vec<Position> = blocks
         .iter()
-        .map(|block| block.positions.clone())
-        .flatten()
-        .unique()
+        .flat_map(|block| block.positions.iter())
         .collect();
     positions_vec.sort_by(sort_positions(direction));
     for position in positions_vec {
         if is_weak {
             board.move_object_no_countdown(position, direction);
-        }
-        else {
+        } else {
             board.move_object(position, direction);
         }
         let next_position = board.get_next_position_for_move(position, direction);
@@ -75,5 +71,7 @@ pub fn perform_move(
             direction,
         });
     }
+    for block in &blocks {
+        board.move_block(block, direction);
+    }
 }
-

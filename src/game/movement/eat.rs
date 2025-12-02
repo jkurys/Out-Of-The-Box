@@ -1,21 +1,24 @@
-use bevy::{prelude::*, utils::HashSet};
+use bevy::prelude::*;
 
 use crate::{
-    board::Board,
+    board::GameData,
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
 };
 
-use super::{events::EnteredFloorEvent, resources::DisplayButton, strong::move_strong, utils::perform_move};
+use super::{events::EnteredFloorEvent, strong::move_strong, utils::perform_move};
 
 pub fn perform_eat(
-    board: &mut ResMut<Board>,
+    game_data: &mut ResMut<GameData>,
     block: Block,
     next_pos: Position,
     direction: Direction,
     writer: &mut EventWriter<EnteredFloorEvent>,
-    display_button: &mut ResMut<DisplayButton>,
 ) {
-    board.delete_object(next_pos);
+    let GameData {
+        board,
+        entity_storage,
+    } = &mut **game_data;
+    board.delete_object(next_pos, entity_storage);
     let pos = next_pos.next_position(direction.opposite());
     let floor = board.get_floor_type(next_pos);
     board.delete_floor(next_pos);
@@ -35,14 +38,8 @@ pub fn perform_eat(
             next_position = next_position.position_above();
         }
     }
-    let moved_positions = HashSet::new();
-    for block in blocks_to_try_move.iter() {
-        let moved_copy = moved_positions.clone();
-        moved_copy.intersection(&block.positions);
-        if moved_copy.is_empty() {
-            moved_positions.union(&block.positions);
-            move_strong(board, block.clone(), block.get_last_pos(), direction, writer, false, display_button);
-        }
+    for &block in blocks_to_try_move.iter() {
+        move_strong(game_data, block, direction, writer);
     }
-    perform_move([block].to_vec(), board, direction, writer, false);
+    perform_move([block].to_vec(), game_data, direction, writer, false);
 }

@@ -1,19 +1,20 @@
 use bevy::prelude::*;
 
-use crate::{board::Board, state::MoveState};
+use crate::{board::GameData, state::MoveState};
 
 use super::{
     events::{EnteredFloorEvent, TryMoveEvent},
-    weak::move_weak, resources::{FireAnimation, DisplayButton}, strong::move_strong,
+    resources::FireAnimation,
+    strong::move_strong,
+    weak::move_weak,
 };
 
 pub fn try_move(
     mut reader: EventReader<TryMoveEvent>,
     mut writer: EventWriter<EnteredFloorEvent>,
-    mut board: ResMut<Board>,
+    mut game_data: ResMut<GameData>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut fire_animation: ResMut<FireAnimation>,
-    mut display_button: ResMut<DisplayButton>,
 ) {
     let mut was_moved = false;
     let mut events = Vec::new();
@@ -38,18 +39,21 @@ pub fn try_move(
     } in events.iter()
     {
         if *is_long {
-            let mut can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer, false, &mut display_button);
+            let mut can_block_move =
+                move_strong(&mut game_data, block.clone(), *direction, &mut writer);
             was_moved = was_moved || can_block_move;
             let mut next_position = position.next_position(*direction);
             let mut i = 0;
             while can_block_move && i < 20 {
                 i += 1;
-                let block = board.get_block(next_position);
-                can_block_move = move_strong(&mut board, block.clone(), next_position, *direction, &mut writer, false, &mut display_button);
+                let block = game_data.board.get_block(next_position);
+                can_block_move =
+                    move_strong(&mut game_data, block.clone(), *direction, &mut writer);
                 next_position = next_position.next_position(*direction);
             }
         } else {
-            let can_block_move = move_strong(&mut board, block.clone(), *position, *direction, &mut writer, false, &mut display_button);
+            let can_block_move =
+                move_strong(&mut game_data, block.clone(), *direction, &mut writer);
             was_moved = was_moved || can_block_move;
         }
     }
@@ -62,7 +66,7 @@ pub fn try_move(
     } in ice_events.iter()
     {
         let can_block_move = move_weak(
-            &mut board,
+            &mut game_data,
             block.clone(),
             &all_blocks,
             *direction,
@@ -70,9 +74,7 @@ pub fn try_move(
         );
         was_moved = was_moved || can_block_move;
     }
-    if was_moved
-        || fire_animation.0 
-    {
+    if was_moved || fire_animation.0 {
         app_state.set(MoveState::Animation);
     } else {
         app_state.set(MoveState::Static);

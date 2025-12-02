@@ -1,9 +1,10 @@
-use std::fmt;
+use std::fmt::{self, Debug};
 
+use crate::consts::MAX_BLOCK_SIZE;
 use bevy::prelude::*;
-use bevy::utils::HashSet;
-use serde::de::{self, Unexpected, Visitor};
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::de::{self, SeqAccess, Unexpected, Visitor};
+use serde::ser::SerializeSeq;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::resources::{CurrentSprite, Images};
 
@@ -12,12 +13,27 @@ pub enum GameObject {
     Box,
     TeleBox,
     Wall,
-    HidingWall { color: usize, hidden_toggle: bool, hidden_by_def: bool },
+    HidingWall {
+        color: usize,
+        hidden_toggle: bool,
+        hidden_by_def: bool,
+    },
+    Player {
+        direction: Direction,
+    },
+    Turtle {
+        direction: Direction,
+        color: usize,
+    },
+    TurtleRock {
+        direction: Direction,
+    },
+    TurtleHead {
+        direction: Direction,
+        color: usize,
+    },
+    #[serde(other)]
     Empty,
-    Player { powerup: Option<PowerUpType>, direction: Direction },
-    Turtle { direction: Direction, color: usize },
-    TurtleHead { direction: Direction, color: usize },
-    PowerUp { powerup_type: PowerUpType },
 }
 
 pub fn get_obj_indices(
@@ -28,32 +44,23 @@ pub fn get_obj_indices(
         GameObject::Box => (1, 0, 4),
         GameObject::Wall => (1, 0, 2),
         GameObject::TeleBox => (1, 0, 2),
-        GameObject::HidingWall { color, hidden_toggle: _, hidden_by_def: _ } => (
-            color * 3 + 1,
-            color * 3,
-            color * 3 + 2
-        ),
+        GameObject::HidingWall {
+            color,
+            hidden_toggle: _,
+            hidden_by_def: _,
+        } => (color * 3 + 1, color * 3, color * 3 + 2),
         GameObject::Empty => (0, 0, 0),
-        GameObject::Player { powerup, direction: _ } => 
-            match powerup {
-                None => (
-                    current_sprite.0 * 4 + 1,
-                    current_sprite.0 * 4,
-                    current_sprite.0 * 4 + 2,
-                ),
-                Some(PowerUpType::Rocket) => (
-                    current_sprite.0 * 4 + 1,
-                    current_sprite.0 * 4,
-                    current_sprite.0 * 4 + 2,
-                ),
-                Some(PowerUpType::Teleport) => (
-                    current_sprite.0 * 4 + 1,
-                    current_sprite.0 * 4,
-                    current_sprite.0 * 4 + 2,
-                ),
-            }
-        ,
+        GameObject::Player { direction: _ } => (
+            current_sprite.0 * 4 + 1,
+            current_sprite.0 * 4,
+            current_sprite.0 * 4 + 2,
+        ),
         GameObject::Turtle { direction, .. } => (
+            direction.to_num() * 6 + 1,
+            direction.to_num() * 6,
+            direction.to_num() * 6 + 2,
+        ),
+        GameObject::TurtleRock { direction } => (
             direction.to_num() * 6 + 1,
             direction.to_num() * 6,
             direction.to_num() * 6 + 2,
@@ -63,11 +70,6 @@ pub fn get_obj_indices(
             direction.to_num() * 6 + 3,
             direction.to_num() * 6 + 5,
         ),
-        GameObject::PowerUp { powerup_type } => (
-            powerup_type.to_num(),
-            3,      // empty img
-            3,
-        )
     }
 }
 
@@ -78,12 +80,16 @@ pub fn get_obj_img(
     match obj {
         GameObject::Box => images.box_images.clone(),
         GameObject::Wall => images.wall_images.clone(),
-        GameObject::HidingWall { color: _, hidden_toggle: _, hidden_by_def: _ } => images.hidden_wall_images.clone(),
+        GameObject::HidingWall {
+            color: _,
+            hidden_toggle: _,
+            hidden_by_def: _,
+        } => images.hidden_wall_images.clone(),
         GameObject::Empty => None,
         GameObject::Player { .. } => images.player_images.clone(),
         GameObject::TurtleHead { .. } => images.turtle_images.clone(),
         GameObject::Turtle { .. } => images.turtle_images.clone(),
-        GameObject::PowerUp { .. } => None,
+        GameObject::TurtleRock { .. } => images.turtle_images.clone(),
         GameObject::TeleBox => None,
     }
 }
@@ -103,45 +109,119 @@ pub enum Floor {
     Void,
     Obj(GameObject),
 }
-
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
-pub enum PowerUpType {
-    Rocket,
-    Teleport,
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct SmallSet<T: Copy + Eq, const N: usize> {
+    items: [Option<T>; N],
 }
 
-impl PowerUpType {
-    pub fn to_num(&self) -> usize {
-        match self {
-            Self::Rocket => {
-                0
-            },
-            Self::Teleport => {
-                1
-            },
+impl<T: Copy + Eq, const N: usize> SmallSet<T, N> {
+    pub const fn new() -> Self {
+        Self { items: [None; N] }
+    }
+
+    pub fn insert(&mut self, value: T) {
+        for slot in &mut self.items {
+            if slot.is_none() {
+                *slot = Some(value);
+                return;
+            }
         }
+        error!("SmallSet is full, cannot insert value");
+    }
+    pub fn contains(&self, value: T) -> bool {
+        self.items.iter().any(|slot| *slot == Some(value))
+    }
+
+    pub fn len(&self) -> usize {
+        self.items.iter().filter(|slot| slot.is_some()).count()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn is_full(&self) -> bool {
+        self.items.iter().all(|slot| slot.is_some())
+    }
+
+    pub fn remove(&mut self, value: T) {
+        for slot in &mut self.items {
+            if *slot == Some(value) {
+                *slot = None;
+            }
+        }
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = T> + '_ {
+        self.items.iter().flatten().copied()
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+impl<T, const N: usize> Serialize for SmallSet<T, N>
+where
+    T: Copy + Eq + Serialize,
+{
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut seq = serializer.serialize_seq(None)?;
+        for slot in &self.items {
+            if let Some(v) = slot {
+                seq.serialize_element(v)?;
+            }
+        }
+        seq.end()
+    }
+}
+
+impl<'de, T, const N: usize> Deserialize<'de> for SmallSet<T, N>
+where
+    T: Copy + Eq + Deserialize<'de>,
+{
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        struct SmallSetVisitor<T: Copy + Eq, const N: usize>(std::marker::PhantomData<T>);
+
+        impl<'de, T: Copy + Eq + Deserialize<'de>, const N: usize> Visitor<'de> for SmallSetVisitor<T, N> {
+            type Value = SmallSet<T, N>;
+
+            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                write!(f, "a sequence with at most {} items", N)
+            }
+
+            fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Self::Value, A::Error> {
+                let mut set = <SmallSet<T, N>>::new();
+                while let Some(value) = seq.next_element()? {
+                    // insert returns false if full or duplicate
+                    set.insert(value);
+                }
+                Ok(set)
+            }
+        }
+
+        deserializer.deserialize_seq(SmallSetVisitor::<T, N>(std::marker::PhantomData))
+    }
+}
+
+impl<T: Copy + Eq, const N: usize, const M: usize> From<[T; M]> for SmallSet<T, N> {
+    fn from(arr: [T; M]) -> Self {
+        let mut set = SmallSet::<T, N>::new();
+        for item in arr {
+            if set.is_full() {
+                break;
+            }
+            let _ = set.insert(item);
+        }
+        set
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Block {
-    pub positions: HashSet<Position>,
+    pub positions: SmallSet<Position, MAX_BLOCK_SIZE>,
 }
 
 impl Block {
     pub fn contains_position(&self, position: Position) -> bool {
-        self.positions.contains(&position)
+        self.positions.contains(position)
     }
-
-    pub fn get_last_pos(&self) -> Position {
-        let mut last_pos = None;
-        for pos in self.positions.iter() {
-            last_pos = Some(*pos)
-        }
-        return last_pos.unwrap();
-    }
-    // pub fn cmp_to_other(&self, other: &Block, dir: Direction) -> Ordering {
-    // }
 }
 
 impl std::hash::Hash for Block {
@@ -149,13 +229,16 @@ impl std::hash::Hash for Block {
     where
         H: std::hash::Hasher,
     {
-        let positions_vec: Vec<Position> = self.positions.iter().map(|&p| p).collect();
+        let positions_vec: Vec<Position> = self
+            .positions
+            .items
+            .iter()
+            .filter(|o| o.is_some())
+            .map(|o| o.unwrap())
+            .collect();
         positions_vec.hash(state);
     }
 }
-
-#[derive(Component, Clone)]
-pub struct PowerUp;
 
 #[derive(Component, Clone)]
 pub struct Button;
@@ -184,9 +267,6 @@ pub struct Player;
 #[derive(Component, Clone)]
 pub struct Ice;
 
-// #[derive(Component)]
-// pub struct BoxButton;
-//
 #[derive(Component, Clone)]
 pub struct Glue;
 
@@ -245,8 +325,7 @@ impl<'de> Visitor<'de> for PositionVisitor {
                 let z_char = z_char_opt.unwrap();
                 if let Ok(z) = z_char.parse::<i32>() {
                     Ok(Position { x, y, z })
-                }
-                else {
+                } else {
                     return Err(de::Error::invalid_value(Unexpected::Str(s), &self));
                 }
             } else {
@@ -337,7 +416,7 @@ impl Position {
             },
         }
     }
-        
+
     pub fn position_above(&self) -> Position {
         Position {
             x: self.x,
@@ -353,7 +432,7 @@ impl Position {
         Position {
             x: self.x,
             y: self.y,
-            z: self.z - 1
+            z: self.z - 1,
         }
     }
 }
@@ -365,7 +444,6 @@ impl Position {
 //             Direction::Right => other.x.cmp(&self.x),
 //         }
 //     }
-
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 pub enum Direction {

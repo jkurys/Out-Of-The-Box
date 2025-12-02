@@ -1,6 +1,3 @@
-#[cfg(test)]
-mod tests;
-
 use bevy::{
     prelude::*,
     utils::{HashMap, HashSet},
@@ -9,27 +6,73 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     components::GameEntity,
-    consts::EAT_COUNTER,
-    game::game_objects::{Block, Direction, Floor, GameObject, Position},
+    consts::*,
+    game::game_objects::{Block, Direction, Floor, GameObject, Position, SmallSet},
     menu::level_editor::resources::BoardSize,
     utils::offset_coordinate,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Resource)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct EntityStorage {
+    pub entities: HashMap<Position, [Vec<Entity>; 3]>,
+}
+
+impl EntityStorage {
+    pub fn new() -> Self {
+        EntityStorage {
+            entities: HashMap::new(),
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.entities.clear();
+    }
+
+    pub fn insert_entities(&mut self, position: Position, entities: [Vec<Entity>; 3]) {
+        self.entities.insert(position, entities);
+    }
+
+    pub fn append_entities(&mut self, position: Position, mut entities: [Vec<Entity>; 3]) {
+        let empty_entities = &mut [Vec::new(), Vec::new(), Vec::new()];
+        let mut entities_clone = self.entities.clone();
+        let old_entities = entities_clone.get_mut(&position).unwrap_or(empty_entities);
+
+        old_entities[0].append(&mut entities[0]);
+        old_entities[1].append(&mut entities[1]);
+        old_entities[2].append(&mut entities[2]);
+        self.entities.insert(position, old_entities.clone());
+    }
+
+    pub fn move_entity(&mut self, position: Position, dir: Direction) {
+        self.entities
+            .remove(&position)
+            .and_then(|entity| self.entities.insert(position.next_position(dir), entity));
+    }
+
+    pub fn remove(&mut self, position: &Position) {
+        self.entities.remove(position);
+    }
+
+    pub fn get(&self, position: Position) -> Option<[Vec<Entity>; 3]> {
+        self.entities.get(&position).cloned()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Board {
-    entities: HashMap<Position, [Vec<Entity>; 3]>,
+    entities: EntityStorage,
     objects: HashMap<Position, GameObject>,
     floors: HashMap<Position, Floor>,
     goals: Vec<Position>,
     map_size: BoardSize,
-    blocks: Vec<Block>,
+    blocks: HashSet<Block>,
     eaten_boxes: HashMap<Position, (GameObject, Option<Floor>, usize, Direction)>,
 }
 
 impl Board {
     pub fn new() -> Self {
         Board {
-            entities: HashMap::new(),
+            entities: EntityStorage::new(),
             objects: HashMap::new(),
             floors: HashMap::new(),
             goals: Vec::new(),
@@ -37,11 +80,12 @@ impl Board {
                 width: 0,
                 height: 0,
             },
-            blocks: Vec::new(),
+            blocks: HashSet::new(),
             eaten_boxes: HashMap::new(),
         }
     }
 
+    // used in level editor
     pub fn init_objs(&mut self) {
         let map_size = self.map_size;
         let bottom_border = offset_coordinate(0, map_size.height as i32);
@@ -50,12 +94,18 @@ impl Board {
         let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
         for x in left_border..=right_border {
             for y in bottom_border..=top_border {
-                self.objects.insert(Position {x, y, z: 0}, GameObject::Wall);
-                self.floors.insert(Position {x, y, z: 0}, Floor::Tile);
+                let pos = Position { x, y, z: 0 };
+                if self.objects.get(&pos).is_none() {
+                    self.objects.insert(pos, GameObject::Wall);
+                }
+                if self.floors.get(&pos).is_none() {
+                    self.floors.insert(pos, Floor::Tile);
+                }
             }
         }
     }
 
+    // Gets all non-empty z-coordinates at the given (x, y)
     pub fn get_column(&self, x: i32, y: i32) -> Vec<i32> {
         let mut res = Vec::new();
         for (&Position { x: x2, y: y2, z }, _) in self.objects.iter() {
@@ -83,81 +133,68 @@ impl Board {
             }
         }
         Block {
-            positions: HashSet::from([position]),
+            positions: SmallSet::from([position]),
         }
-    }
-    pub fn is_block_empty(&self, block: &Block) -> bool {
-        for &position in block.positions.iter() {
-            if self.get_object_type(position) != GameObject::Empty {
-                return false;
-            }
-        }
-        true
     }
 
     pub fn insert_block(&mut self, block: Block) {
+        for pos in block.positions.iter() {
+            if self.get_object_type(pos) == GameObject::Empty {
+                error!("Block {:?} contains empty position {:?}", block, pos);
+            }
+            if self.get_block(pos).positions.len() > 1 {
+                error!(
+                    "Block {:?} overlaps with existing block at position {:?}",
+                    block, pos
+                );
+            }
+        }
         if block.positions.len() > 1 {
-            self.blocks.push(block);
+            self.blocks.insert(block);
         }
     }
 
     pub fn delete_block(&mut self, block: &Block) {
-        self.blocks = self
-            .blocks
-            .clone()
-            .into_iter()
-            .filter(|b| b != block)
-            .filter(|b| !self.is_block_empty(b))
-            .collect();
+        if !self.blocks.contains(block) {
+            error!("Tried to delete non-existing block {:?}", block);
+        }
+        self.blocks.remove(block);
     }
 
-    pub fn remove_from_block(&mut self, block: &mut Block, position: Position) {
-        self.delete_block(&block);
-        block.positions.remove(&position);
-        self.insert_block(block.clone());
+    /*
+     * We assume that move_block is called after all objects in the block have been moved
+     */
+    pub fn move_block(&mut self, block: &Block, dir: Direction) {
+        if !self.blocks.contains(block) && block.positions.len() > 1 {
+            error!("Tried to move non-existing block {:?}", block);
+        }
+        self.blocks.remove(block);
+        let mut new_block = Block {
+            positions: SmallSet::new(),
+        };
+        for position in block.positions.iter() {
+            new_block.positions.insert(position.next_position(dir));
+        }
+        self.insert_block(new_block);
     }
 
-    pub fn add_to_block(&mut self, block: &mut Block, position: Position) {
-        self.delete_block(&block);
-        block.positions.insert(position);
-        self.insert_block(block.clone());
-    }
-
-    pub fn modify_position_in_block(&mut self, position: Position, dir: Direction) {
-        let mut block = self.get_block(position);
-        self.delete_block(&block);
-        block.positions.remove(&position);
-        block.positions.insert(position.next_position(dir));
-        self.insert_block(block);
-    }
-
-    // pub fn fall_block(&mut self, block: Block) -> Block {
-    //     self.delete_block(&block);
-    //     let mut any_pos = None;
-    //     for position in block.positions {
-    //         any_pos = Some(position.position_below());
-    //         let obj = self.get_object_type(position);
-    //         self.delete_object(position);
-    //         self.insert_floor(position.position_below(), Floor::Obj(obj));
-    //         self.insert_object(position.position_below(), obj);
-    //     }
-    //     self.get_block(any_pos.unwrap())
-    // }
-    //
     pub fn get_empty_below(&self) -> Vec<Position> {
         let mut res = Vec::new();
         for (position, obj) in self.objects.iter() {
             if self.get_object_type(position.position_below()) == GameObject::Empty
                 && *obj != GameObject::Wall
-                && !matches!(*obj, GameObject::HidingWall { hidden_toggle: false, .. }) {
+                && !matches!(
+                    *obj,
+                    GameObject::HidingWall {
+                        hidden_toggle: false,
+                        ..
+                    }
+                )
+            {
                 res.push(position.position_below());
             }
         }
         res
-    }
-
-    pub fn clear_entities(&mut self) {
-        self.entities.clear();
     }
 
     pub fn set_map_size(&mut self, map_size: BoardSize) {
@@ -171,32 +208,15 @@ impl Board {
     pub fn get_player_positions(&self) -> Vec<Position> {
         let mut positions = Vec::new();
         for (&pos, &obj) in self.objects.iter() {
-            if matches!(obj, GameObject::Player { powerup: _, direction: _ } ) {
+            if matches!(obj, GameObject::Player { direction: _ }) {
                 positions.push(pos);
             }
         }
         positions
     }
-    //
-    // pub fn get_all_positions(&self, floor_to_be_found: Floor) -> Vec<Position> {
-    //     let mut positions = Vec::new();
-    //     for (&pos, &floor) in self.floors.iter() {
-    //         if floor_to_be_found == floor {
-    //             positions.push(pos);
-    //         }
-    //     }
-    //     positions
-    // }
-    //
-    pub fn get_entities(&self, position: Position) -> Option<[Vec<Entity>; 3]> {
-        self.entities.get(&position).cloned()
-    }
 
     pub fn get_object_type(&self, position: Position) -> GameObject {
-        *self
-            .objects
-            .get(&position)
-            .unwrap_or(&GameObject::Empty)
+        *self.objects.get(&position).unwrap_or(&GameObject::Empty)
     }
 
     pub fn get_objects(&self) -> HashMap<Position, GameObject> {
@@ -204,10 +224,7 @@ impl Board {
     }
 
     pub fn get_floor_type(&self, position: Position) -> Floor {
-        *self
-            .floors
-            .get(&position)
-            .unwrap_or(&Floor::Tile)
+        *self.floors.get(&position).unwrap_or(&Floor::Tile)
     }
 
     pub fn get_floors(&self) -> HashMap<Position, Floor> {
@@ -224,8 +241,8 @@ impl Board {
         goals_vec
     }
 
-    pub fn get_all_buttons(&self) -> Vec<Vec<Position>> {
-        let mut buttons = vec![Vec::new(), Vec::new(), Vec::new()];
+    pub fn get_all_buttons(&self) -> [Vec<Position>; NUMBER_OF_COLORS] {
+        let mut buttons = [Vec::new(), Vec::new(), Vec::new()];
         for (&pos, &floor) in self.floors.iter() {
             if let Floor::Button(color) = floor {
                 buttons[color].push(pos);
@@ -234,8 +251,8 @@ impl Board {
         buttons
     }
 
-    pub fn get_all_turtles(&self) -> Vec<Vec<(Position, Direction)>> {
-        let mut turtle_vec = vec![Vec::new(), Vec::new(), Vec::new()];
+    pub fn get_all_turtles(&self) -> [Vec<(Position, Direction)>; NUMBER_OF_COLORS] {
+        let mut turtle_vec = [Vec::new(), Vec::new(), Vec::new()];
         for (&pos, &obj) in self.objects.iter() {
             if let GameObject::Turtle { color, direction } = obj {
                 turtle_vec[color].push((pos, direction));
@@ -244,8 +261,8 @@ impl Board {
         turtle_vec
     }
 
-    pub fn get_all_turtle_heads(&self) -> Vec<Vec<(Position, Direction)>> {
-        let mut all_heads_vec = vec![Vec::new(), Vec::new(), Vec::new()];
+    pub fn get_all_turtle_heads(&self) -> [Vec<(Position, Direction)>; NUMBER_OF_COLORS] {
+        let mut all_heads_vec = [Vec::new(), Vec::new(), Vec::new()];
         for (&pos, &obj) in self.objects.iter() {
             if let GameObject::TurtleHead {
                 direction: dir,
@@ -258,18 +275,6 @@ impl Board {
         all_heads_vec
     }
 
-    fn is_position_on_board(&self, position: Position) -> bool {
-        let map_size = self.map_size;
-        let bottom_border = offset_coordinate(0, map_size.height as i32);
-        let top_border = offset_coordinate(map_size.height as i32 - 1, map_size.height as i32);
-        let left_border = offset_coordinate(0, map_size.width as i32);
-        let right_border = offset_coordinate(map_size.width as i32 - 1, map_size.width as i32);
-        !(position.x < left_border
-            || position.x > right_border
-            || position.y < bottom_border
-            || position.y > top_border)
-    }
-
     pub fn insert(&mut self, position: Position, floor_or_object: GameEntity) {
         match floor_or_object {
             GameEntity::Floor(f) => self.insert_floor(position, f),
@@ -278,48 +283,28 @@ impl Board {
     }
 
     pub fn insert_object(&mut self, position: Position, object: GameObject) {
-        // if !self.is_position_on_board(position) {
-        //     return;
-        // }
-        if let GameObject::HidingWall { hidden_by_def: false, .. } = object {
+        if self.get_object_type(position) != GameObject::Empty {
+            error!(
+                "Tried to insert object {:?} at non-empty {:?} when there was {:?}",
+                object,
+                position,
+                self.get_object_type(position)
+            );
+        }
+        if let GameObject::HidingWall {
+            hidden_by_def: false,
+            ..
+        } = object
+        {
             self.objects.remove(&position.position_below());
         }
         self.objects.remove(&position);
         self.objects.insert(position, object);
-
-    }
-
-    pub fn insert_object_unchecked(
-        &mut self,
-        position: Position,
-        object: GameObject,
-    ) {
-        self.objects.remove(&position);
-        self.objects.insert(position, object);
-    }
-
-    pub fn insert_entities(&mut self, position: Position, entities: [Vec<Entity>; 3]) {
-        self
-            .entities
-            .insert(position, entities);
-    }
-
-    pub fn append_entities(&mut self, position: Position, mut entities: [Vec<Entity>; 3]) {
-        let empty_entities = &mut [Vec::new(), Vec::new(), Vec::new()];
-        let mut entities_clone = self.entities.clone();
-        let old_entities = entities_clone
-            .get_mut(&position)
-            .unwrap_or(empty_entities);
-
-        old_entities[0].append(&mut entities[0]);
-        old_entities[1].append(&mut entities[1]);
-        old_entities[2].append(&mut entities[2]);
-        self.entities.insert(position, old_entities.clone());
     }
 
     pub fn insert_floor(&mut self, position: Position, floor: Floor) {
-        if !self.is_position_on_board(position) {
-            return;
+        if self.get_floor_type(position) != Floor::Tile {
+            error!("Tried to insert floor at non-tile position {:?}", position);
         }
         self.floors.remove(&position);
         self.floors.insert(position, floor);
@@ -328,7 +313,7 @@ impl Board {
             Floor::Void => {
                 self.objects.remove(&position);
                 ()
-            },
+            }
             _ => (),
         };
     }
@@ -340,20 +325,15 @@ impl Board {
         object: GameObject,
         floor: Option<Floor>,
     ) {
-        self.eaten_boxes.insert(position, (object, floor, EAT_COUNTER, dir));
+        self.eaten_boxes
+            .insert(position, (object, floor, EAT_COUNTER, dir));
     }
 
-    pub fn remove_eat(
-        &mut self,
-        position: Position,
-    ) {
+    pub fn remove_eat(&mut self, position: Position) {
         self.eaten_boxes.remove(&position);
     }
 
-    pub fn get_eat_data(
-        &self,
-        position: Position
-    ) -> (GameObject, Option<Floor>, Direction) {
+    pub fn get_eat_data(&self, position: Position) -> (GameObject, Option<Floor>, Direction) {
         let (obj, floor, _, dir) = self.eaten_boxes.get(&position).unwrap();
         (*obj, *floor, *dir)
     }
@@ -362,10 +342,7 @@ impl Board {
         self.eaten_boxes.clone()
     }
 
-    pub fn get_eat_counter(
-        &self,
-        position: Position,
-    ) -> Option<usize> {
+    pub fn get_eat_counter(&self, position: Position) -> Option<usize> {
         let opt = self.eaten_boxes.get(&position);
         if let Some((_, _, counter, _)) = opt {
             return Some(*counter);
@@ -374,9 +351,15 @@ impl Board {
     }
 
     pub fn move_object_no_countdown(&mut self, position: Position, dir: Direction) {
-        self.modify_position_in_block(position, dir);
         if self.get_object_type(position) == GameObject::Empty {
-            return;
+            error!("Tried to move an empty object at position {:?}", position);
+        }
+        if self.get_object_type(position.next_position(dir)) != GameObject::Empty {
+            error!(
+                "Tried to move object at position {:?} to non-empty position {:?}",
+                position,
+                position.next_position(dir)
+            );
         }
         let mut object_opt = self.objects.remove(&position);
         let mut object = GameObject::Empty;
@@ -389,12 +372,11 @@ impl Board {
                 object = obj;
             }
         }
-        if let GameObject::Player { powerup, direction: _ } = object {
+        if let GameObject::Player { direction: _ } = object {
             let eaten_opt = self.eaten_boxes.get(&position);
-            if dir != Direction::Up 
-                && dir != Direction::Down {
+            if dir != Direction::Up && dir != Direction::Down {
                 if eaten_opt.is_none() || eaten_opt.unwrap().2 == EAT_COUNTER {
-                    object = GameObject::Player { powerup, direction: dir };
+                    object = GameObject::Player { direction: dir };
                 }
             }
         }
@@ -407,77 +389,74 @@ impl Board {
             }
         }
 
-        self
-            .objects
-            .insert(position.next_position(dir), object);
+        self.objects.insert(position.next_position(dir), object);
+        self.entities.move_entity(position, dir);
 
-        self
-            .entities
-            .remove(&position)
-            .and_then(|entity| {
-                self
-                    .entities
-                    .insert(position.next_position(dir), entity)
-            });
         let eaten_opt = self.eaten_boxes.remove(&position);
         if let Some(data) = eaten_opt {
             let (obj, floor, counter, dir2) = data;
             let new_counter = counter;
-            self.eaten_boxes.insert(position.next_position(dir), (obj, floor, new_counter, dir2));
+            self.eaten_boxes
+                .insert(position.next_position(dir), (obj, floor, new_counter, dir2));
         }
     }
 
     pub fn move_object(&mut self, position: Position, dir: Direction) {
         if dir == Direction::Down && position.z == 0 {
             return;
-        }       
+        }
         self.move_object_no_countdown(position, dir);
         let eaten_opt = self.eaten_boxes.remove(&position.next_position(dir));
         if let Some(data) = eaten_opt {
             let (obj, floor, counter, dir2) = data;
-            
+
             let mut new_counter = counter;
             if counter != 0 {
                 new_counter = counter - 1;
             }
-            self.eaten_boxes.insert(position.next_position(dir), (obj, floor, new_counter, dir2));
+            self.eaten_boxes
+                .insert(position.next_position(dir), (obj, floor, new_counter, dir2));
         }
-
     }
 
-    pub fn delete_object(&mut self, position: Position) {
+    pub fn delete_object(&mut self, position: Position, entities: &mut EntityStorage) {
         self.objects.remove(&position);
-        self.entities.remove(&position);
+        entities.remove(&position);
     }
 
     pub fn delete_floor(&mut self, position: Position) {
         self.floors.remove(&position);
     }
 
-    pub fn get_next_position_for_move(
-        &self,
-        position: Position,
-        direction: Direction,
-    ) -> Position {
+    pub fn get_next_position_for_move(&self, position: Position, direction: Direction) -> Position {
         let next_position = position.next_position(direction);
         next_position
     }
 
     pub fn clear(&mut self) {
-        self.entities.clear();
         self.objects.clear();
         self.floors.clear();
         self.goals.clear();
         self.blocks.clear();
     }
-    
-    pub fn get_hidden_walls_to_move(&self, moved_color: usize, clicked: bool) -> Vec<(Direction, Position)> {
+
+    pub fn get_hidden_walls_to_move(
+        &self,
+        moved_color: usize,
+        clicked: bool,
+    ) -> Vec<(Direction, Position)> {
         let mut res = Vec::new();
         for (&position, &obj) in self.objects.iter() {
-            if let GameObject::HidingWall { color, hidden_toggle: current_hid, hidden_by_def } = obj {
+            if let GameObject::HidingWall {
+                color,
+                hidden_toggle: current_hid,
+                hidden_by_def,
+            } = obj
+            {
                 if color != moved_color
-                || (clicked && hidden_by_def != current_hid)
-                || (!clicked && hidden_by_def == current_hid) {
+                    || (clicked && hidden_by_def != current_hid)
+                    || (!clicked && hidden_by_def == current_hid)
+                {
                     continue;
                 }
                 if hidden_by_def ^ clicked == false {
@@ -489,68 +468,41 @@ impl Board {
         }
         res
     }
+}
 
-    pub fn modify_toggle(&mut self, position: Position) {
-        let obj = self.get_object_type(position);
-        match obj {
-            GameObject::HidingWall { color, hidden_toggle: h, hidden_by_def } => {
-                self.delete_object(position);
-                self.insert_object(position, GameObject::HidingWall { color, hidden_toggle: !h, hidden_by_def });
-            },
-            _ => ()
-        };
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Resource)]
+pub struct GameData {
+    pub board: Board,
+    pub entity_storage: EntityStorage,
+}
+
+impl GameData {
+    pub fn new() -> Self {
+        GameData {
+            board: Board::new(),
+            entity_storage: EntityStorage::new(),
+        }
     }
 
-    // pub fn rise_hiding_wall(&mut self, moved_color: usize) {
-    //     let floors = self.floors.clone();
-    //     for (position, floor) in floors.iter() {
-    //         match *floor {
-    //             Floor::HiddenWall {
-    //                 hidden_by_default,
-    //                 color,
-    //             } if color == moved_color => {
-    //                 if self.get_object_type(position.position_above()) == GameObject::Empty && hidden_by_default
-    //                 {
-    //                     self
-    //                         .objects
-    //                         .insert(position.position_above(), GameObject::HidingWall { color: moved_color });
-    //                 } else if self.get_object_type(*position)
-    //                     == (GameObject::HidingWall { color: moved_color })
-    //                     && !hidden_by_default
-    //                 {
-    //                     self.objects.remove(position);
-    //                     self.floors.insert(position.position_below(), Floor::HiddenWall { hidden_by_default: false, color: moved_color });
-    //                 }
-    //             }
-    //             _ => (),
-    //         }
-    //     }
-    // }
-    //
-    // pub fn hide_hiding_wall(&mut self, moved_color: usize) {
-    //     let floors = self.floors.clone();
-    //     for (position, floor) in floors.iter() {
-    //         match *floor {
-    //             Floor::HiddenWall {
-    //                 hidden_by_default,
-    //                 color,
-    //             } if color == moved_color => {
-    //                 let floor = Floor::HiddenWall { hidden_by_default: false, color: moved_color };
-    //                 if self.get_floor_type(*position) == floor
-    //                     && !hidden_by_default
-    //                 {
-    //                     self
-    //                         .objects
-    //                         .insert(position.position_above(), GameObject::HidingWall { color: moved_color });
-    //                 } else if self.get_object_type(position.position_above())
-    //                     == (GameObject::HidingWall { color: moved_color })
-    //                     && hidden_by_default
-    //                 {
-    //                     self.objects.remove(&position.position_above());
-    //                 }
-    //             }
-    //             _ => (),
-    //         }
-    //     }
-    // }
+    pub fn modify_toggle(&mut self, position: Position) {
+        let obj = self.board.get_object_type(position);
+        match obj {
+            GameObject::HidingWall {
+                color,
+                hidden_toggle: h,
+                hidden_by_def,
+            } => {
+                self.board.delete_object(position, &mut self.entity_storage);
+                self.board.insert_object(
+                    position,
+                    GameObject::HidingWall {
+                        color,
+                        hidden_toggle: !h,
+                        hidden_by_def,
+                    },
+                );
+            }
+            _ => (),
+        };
+    }
 }

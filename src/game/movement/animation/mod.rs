@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{state::MoveState, game::display::{despawn_board, background::render_board, border::render_border}};
+use crate::{state::MoveState, game::display::{despawn_board, background::render_board}};
 
 use self::{cont::{continue_animation, continue_teleport_animation, end_rerender}, end::end_animation, frame::{move_animation, teleport_animation}};
 
@@ -18,7 +18,6 @@ impl Plugin for GameAnimationPlugin {
         (
             despawn_board,
             render_board,
-            render_border,
         )
         );
 

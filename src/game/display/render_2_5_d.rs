@@ -111,6 +111,88 @@ where
     [entity1, entity2, entity3]
 }
 
+pub fn render_object_gray<T>(
+    commands: &mut Commands,
+    atlas: (Handle<Image>, Handle<TextureAtlasLayout>),
+    indices: (usize, usize, usize),
+    x: i32,
+    y: i32,
+    z: i32,
+    z_index_mod: f32,
+    component: T,
+) -> [Entity; 3]
+where
+    T: Component + Clone,
+{
+    let (bottom_index, top_index, side_index) = indices;
+    let (texture, layout) = atlas;
+    let custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8 / 3., y: TILE_HEIGHT * 4.8 / 3. });
+    let (
+        (upper_x, upper_y, upper_z),
+        (lower_x, lower_y, lower_z),
+        (side_x, side_y, side_z),
+    ) = get_offsets(x, y, z, z_index_mod);
+    let entity1 = commands
+        .spawn((
+            SpriteBundle {
+                sprite: Sprite {
+                    color: Color::Srgba(Srgba { red: 0.6, green: 0.3, blue: 0.8, alpha: 1. }),
+                    custom_size,
+                    ..default()
+                },
+                texture: texture.clone(), 
+                transform: Transform::from_xyz(upper_x, upper_y, upper_z),
+                ..default()
+            },
+            TextureAtlas {
+                layout: layout.clone(),
+                index: top_index,
+            }
+        ))
+        .insert((component.clone(), GameItem))
+        .id();
+    let entity2 = commands
+        .spawn((
+            SpriteBundle {
+                sprite: Sprite {
+                    color: Color::Srgba(Srgba { red: 0.6, green: 0.3, blue: 0.8, alpha: 1. }),
+                    custom_size,
+                    ..default()
+                },
+                texture: texture.clone(),
+                transform: Transform::from_xyz(lower_x, lower_y, lower_z),
+                ..default()
+            },
+            TextureAtlas {
+                layout: layout.clone(),
+                index: bottom_index,
+            }
+        ))
+        .insert((component.clone(), GameItem))
+        .id();
+    let entity3 = commands
+        .spawn((
+            SpriteBundle {
+                sprite: Sprite {
+                    color: Color::Srgba(Srgba { red: 0.6, green: 0.3, blue: 0.8, alpha: 1. }),
+                    custom_size,
+                    ..default()
+                },
+                texture,
+                transform: Transform::from_xyz(side_x, side_y, side_z),
+                ..default()
+            }, 
+            TextureAtlas {
+                layout,
+                index: side_index,
+            }
+        ))
+        .insert((component.clone(), GameItem))
+        .id();
+
+    [entity1, entity2, entity3]
+}
+
 pub fn render_object_with_sticker<T>(
     commands: &mut Commands,
     atlas: (Handle<Image>, Handle<TextureAtlasLayout>),

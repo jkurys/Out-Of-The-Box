@@ -13,6 +13,7 @@ pub fn handle_menu_click(
     >,
     mut app_exit: EventWriter<AppExit>,
 ) {
+    
     query.iter_mut().for_each(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Pressed => match item.as_ref() {

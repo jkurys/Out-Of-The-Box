@@ -2,7 +2,7 @@ use background::render_board;
 use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowMode};
 
-use self::border::render_border;
+use self::border::insert_border;
 use self::level_background::render_background;
 use self::resources::{ButtonAnimationTimer, ButtonState};
 use self::text::{display_level_text, LevelText};
@@ -35,7 +35,7 @@ impl Plugin for DisplayPlugin {
         app.add_systems(Startup, window_set_fullscreen);
         app.add_systems(
             OnEnter(DisplayState::Game),
-            (render_background, display_level_text),
+            (render_background, display_level_text, insert_border),
         );
         app.add_systems(
             OnExit(DisplayState::Game),
@@ -43,7 +43,7 @@ impl Plugin for DisplayPlugin {
         );
         app.add_systems(
             Update,
-            (despawn_board, render_board, render_border, update_button)
+            (despawn_board, render_board, update_button)
                 .chain()
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::Static)),

@@ -1,27 +1,28 @@
-use bevy::color::palettes::css::{WHITE, LIMEGREEN, DARK_GREEN};
+use bevy::color::palettes::css::{DARK_GREEN, LIMEGREEN, WHITE};
 use bevy::prelude::*;
 
 use std::fs::File;
 use std::io::{Read, Write};
 
 use super::resources::VictoryTimer;
-use crate::board::Board;
+use crate::board::GameData;
 use crate::consts::{LEVEL_SAVE, MAIN_MENU_FONT};
 use crate::resources::{CurrentLevel, StateStack};
 use crate::state::DisplayState;
 
-use super::game_objects::{GameObject, Floor};
+use super::game_objects::{Floor, GameObject};
 
 #[derive(Component)]
 pub struct VictoryItem;
 
 pub fn handle_win(
-    board: Res<Board>,
+    board: Res<GameData>,
     mut display_state: ResMut<NextState<DisplayState>>,
     mut timer: ResMut<VictoryTimer>,
     time: Res<Time>,
     current_level: Res<CurrentLevel>,
 ) {
+    let board = &board.board;
     let mut is_win = true;
     for position in board.get_all_goals().iter() {
         if board.get_object_type(position.position_above()) != GameObject::Box {
@@ -96,7 +97,6 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
                     TextStyle {
                         font_size: 50.0,
                         color: WHITE.into(),
-                        // color: Color::WHITE,
                         font: menu_font.clone(),
                     },
                 )
@@ -108,7 +108,6 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
                     TextStyle {
                         font_size: 40.0,
                         color: DARK_GREEN.into(),
-                        // color: Color::DARK_GREEN.into(),
                         font: menu_font.clone(),
                     },
                 )

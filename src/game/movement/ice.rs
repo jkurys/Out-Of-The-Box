@@ -3,15 +3,16 @@ use itertools::Itertools;
 
 use super::events::{EnteredFloorEvent, TryMoveEvent};
 use crate::{
-    board::Board,
+    board::GameData,
     game::game_objects::{Block, Direction, Position},
 };
 
 pub fn handle_ice(
     mut writer: EventWriter<TryMoveEvent>,
     mut position_reader: EventReader<EnteredFloorEvent>,
-    board: Res<Board>,
+    game_data: Res<GameData>,
 ) {
+    let board = &game_data.board;
     let mut positions = Vec::new();
     for event in position_reader.read() {
         positions.push((event.position, event.direction));

@@ -1,15 +1,18 @@
 use bevy::prelude::*;
 
 use crate::{
-    board::Board,
-    game::game_objects::{Block, Direction, Floor, GameObject},
+    board::GameData,
+    game::game_objects::{Block, Direction, Floor},
 };
 
-use super::{events::EnteredFloorEvent, utils::{is_moveable, perform_move, is_position_in_blocks}};
-
+use super::{
+    events::EnteredFloorEvent,
+    strong::add_blocks_above_to_move,
+    utils::{is_moveable, is_position_in_blocks, perform_move},
+};
 
 fn can_block_move_weak(
-    board: &ResMut<Board>,
+    game_data: &ResMut<GameData>,
     block: Block,
     all_blocks: &Vec<Block>,
     dir: Direction,
@@ -17,17 +20,12 @@ fn can_block_move_weak(
     blocks_to_try_move: &mut Vec<Block>,
     blocks_that_must_move: &mut Vec<Block>,
 ) -> bool {
-    for &position in block.positions.iter() {
-        if dir != Direction::Up && dir != Direction:: Down {
-            let mut next_position = position.position_above();
-            while board.get_object_type(next_position) != GameObject::Empty {
-                blocks_to_try_move.push(board.get_block(next_position));
-                next_position = next_position.position_above();
-            }
-        }
-        let can_current_block_move_somehow = is_moveable(board.get_object_type(position), false, dir)
+    let board = &game_data.board;
+    for position in block.positions.iter() {
+        add_blocks_above_to_move(game_data, position, dir, blocks_to_try_move);
+        let can_current_block_move = is_moveable(board.get_object_type(position), false, dir)
             && board.get_floor_type(position.position_below()) == Floor::Ice;
-        if !can_current_block_move_somehow {
+        if !can_current_block_move {
             return false;
         }
 
@@ -36,17 +34,12 @@ fn can_block_move_weak(
         let mut curr_position;
         while next_block == block {
             curr_position = next_position;
-            next_position = board
-                .get_next_position_for_move(curr_position, dir);
+            next_position = board.get_next_position_for_move(curr_position, dir);
             next_block = board.get_block(next_position);
         }
 
-        if board.is_block_empty(&next_block) {
-            next_blocks.push(block.clone());
-            continue;
-        }
         if !can_block_move_weak(
-            board,
+            game_data,
             next_block.clone(),
             all_blocks,
             dir,
@@ -70,7 +63,7 @@ fn can_block_move_weak(
 }
 
 pub fn move_weak(
-    board: &mut ResMut<Board>,
+    game_data: &mut ResMut<GameData>,
     block: Block,
     all_blocks: &Vec<Block>,
     direction: Direction,
@@ -80,7 +73,7 @@ pub fn move_weak(
     let mut blocks_that_must_move = Vec::new();
     let mut blocks_to_try_move = Vec::new();
     let can_block_move = can_block_move_weak(
-        board,
+        game_data,
         block.clone(),
         all_blocks,
         direction,
@@ -89,12 +82,12 @@ pub fn move_weak(
         &mut blocks_that_must_move,
     );
     let was_moved = can_block_move || !blocks_that_must_move.is_empty();
-    perform_move(blocks_that_must_move, board, direction, writer, true);
+    perform_move(blocks_that_must_move, game_data, direction, writer, true);
     if can_block_move {
-        perform_move(next_blocks, board, direction, writer, true);
+        perform_move(next_blocks, game_data, direction, writer, true);
     }
     for block in blocks_to_try_move.iter() {
-        move_weak(board, block.clone(), all_blocks, direction, writer);
+        move_weak(game_data, block.clone(), all_blocks, direction, writer);
     }
     return was_moved;
 }
