@@ -70,7 +70,7 @@ pub fn setup_level_select(
             let spawn_children = |i: usize| {
                 let menu_font = menu_font.clone();
                 let file_paths = file_paths.clone();
-                move |parent: &mut ChildBuilder| {
+                move |parent: &mut ChildSpawnerCommands| {
                     for (level_number, level_name) in file_paths.iter().enumerate() {
                         if level_number % 3 == i {
                             spawn_button(

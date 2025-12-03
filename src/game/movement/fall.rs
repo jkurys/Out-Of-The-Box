@@ -76,7 +76,7 @@ fn fall_block(
         next_position = next_position.next_position(Direction::Up);
     }
     if can_fall {
-        writer.send(TryMoveEvent {
+        writer.write(TryMoveEvent {
             block,
             direction: Direction::Down,
             is_weak: false,

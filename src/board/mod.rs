@@ -1,8 +1,6 @@
-use bevy::{
-    prelude::*,
-    utils::{HashMap, HashSet},
-};
+use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 
 use crate::{
     components::GameEntity,

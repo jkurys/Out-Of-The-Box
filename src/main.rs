@@ -25,7 +25,7 @@ fn main() {
 }
 
 fn spawn_camera(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d::default());
 }
 
 fn update_images(mut current_sprite: ResMut<CurrentSprite>) {

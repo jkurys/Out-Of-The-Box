@@ -137,7 +137,7 @@ impl<T: Copy + Eq, const N: usize> SmallSet<T, N> {
         self.items.iter().filter(|slot| slot.is_some()).count()
     }
 
-    pub fn is_empty(&self) -> bool {
+    pub fn _is_empty(&self) -> bool {
         self.len() == 0
     }
 
@@ -145,7 +145,7 @@ impl<T: Copy + Eq, const N: usize> SmallSet<T, N> {
         self.items.iter().all(|slot| slot.is_some())
     }
 
-    pub fn remove(&mut self, value: T) {
+    pub fn _remove(&mut self, value: T) {
         for slot in &mut self.items {
             if *slot == Some(value) {
                 *slot = None;

@@ -52,14 +52,14 @@ pub fn handle_level_editor_input(
                     if width > MAX_WIDTH {
                         local_data.width = 0;
                     }
-                    let mut text = change_number.single_mut();
+                    let mut text = change_number.single_mut().expect("Number text not found");
                     *text = Text::new(local_data.width.to_string());
                 } else if c.is_ascii_digit() {
                     local_data.height = height * 10 + c.to_digit(10).unwrap();
                     if height > MAX_HEIGHT {
                         local_data.height = 0;
                     }
-                    let mut text = change_number.single_mut();
+                    let mut text = change_number.single_mut().expect("Number text not found");
                     *text = Text::new(local_data.height.to_string());
                 }
             }
@@ -69,9 +69,9 @@ pub fn handle_level_editor_input(
     if input.just_pressed(KeyCode::Enter) && !is_width_provided {
         local_data.is_width_provided = true;
         input.reset(KeyCode::Enter);
-        let mut text = change_prompt.single_mut();
+        let mut text = change_prompt.single_mut().expect("Asking text not found");
         *text = Text::new("Please provide the level height".to_string());
-        let mut text2 = change_number.single_mut();
+        let mut text2 = change_number.single_mut().expect("Number text not found");
         *text2 = Text::new(0.to_string());
     }
     if input.just_pressed(KeyCode::Enter) && is_width_provided {

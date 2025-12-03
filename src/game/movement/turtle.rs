@@ -82,7 +82,7 @@ pub fn handle_turtle(
                     }
                     _ => {
                         if can_block_move(&mut game_data, turtle_head_block, direction) {
-                            writer.send(TryMoveEvent {
+                            writer.write(TryMoveEvent {
                                 block: turtle_head_block,
                                 position: turtle_head_pos,
                                 direction,
@@ -91,7 +91,7 @@ pub fn handle_turtle(
                             });
                         } else if can_block_move(&mut game_data, turtle_block, direction.opposite())
                         {
-                            writer.send(TryMoveEvent {
+                            writer.write(TryMoveEvent {
                                 block: game_data.board.get_block(*turtle_pos),
                                 position: *turtle_pos,
                                 direction: direction.opposite(),

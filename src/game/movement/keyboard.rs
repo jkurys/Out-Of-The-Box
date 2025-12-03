@@ -22,7 +22,7 @@ fn handle_action_press(
             //what in case of a large player block?
             let player_pos = board.get_player_positions()[0];
             app_state.set(MoveState::TeleportAnimation);
-            teleport_writer.send(TeleportEvent {
+            teleport_writer.write(TeleportEvent {
                 position1: position,
                 position2: player_pos,
             });
@@ -73,7 +73,7 @@ pub fn handle_keypress(
         .collect();
 
     for (block, position) in blocks {
-        writer.send(TryMoveEvent {
+        writer.write(TryMoveEvent {
             position,
             block,
             direction,

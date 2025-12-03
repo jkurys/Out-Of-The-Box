@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-pub fn spawn_small_image(parent: &mut ChildBuilder, image: Handle<Image>) {
+pub fn spawn_small_image(parent: &mut ChildSpawnerCommands, image: Handle<Image>) {
     parent.spawn((
         ImageNode::new(image),
         Node {
@@ -11,7 +11,7 @@ pub fn spawn_small_image(parent: &mut ChildBuilder, image: Handle<Image>) {
     ));
 }
 
-pub fn spawn_small_button<T>(parent: &mut ChildBuilder, image: Handle<Image>, component: T)
+pub fn spawn_small_button<T>(parent: &mut ChildSpawnerCommands, image: Handle<Image>, component: T)
 where
     T: Component,
 {
@@ -29,7 +29,7 @@ where
 }
 
 pub fn spawn_small_button_with_sticker<T>(
-    parent: &mut ChildBuilder,
+    parent: &mut ChildSpawnerCommands,
     image: Handle<Image>,
     component: T,
     sticker_image: Handle<Image>,

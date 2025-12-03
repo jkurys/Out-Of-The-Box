@@ -75,7 +75,7 @@ fn spit_forwards(
     } = &mut **game_data;
     board.insert_object(position, old_obj);
     // this ensures that the animation is played
-    writer.send(EnteredFloorEvent {
+    writer.write(EnteredFloorEvent {
         floor: board.get_floor_type(new_pos),
         position: new_pos,
         object: obj,
@@ -114,7 +114,7 @@ fn spit_backwards(
     }
     let next_pos = position.next_position(dir.opposite());
     board.insert_object(next_pos, old_obj);
-    writer.send(EnteredFloorEvent {
+    writer.write(EnteredFloorEvent {
         floor: board.get_floor_type(next_pos),
         position: next_pos,
         object: old_obj,

@@ -64,7 +64,7 @@ pub fn perform_move(
             board.move_object(position, direction);
         }
         let next_position = board.get_next_position_for_move(position, direction);
-        writer.send(EnteredFloorEvent {
+        writer.write(EnteredFloorEvent {
             floor: board.get_floor_type(next_position),
             position: next_position,
             object: board.get_object_type(next_position),

@@ -1,5 +1,5 @@
-use bevy::{app::AppExit, prelude::*};
 use bevy::color::palettes::css::{GRAY, WHITE};
+use bevy::{app::AppExit, prelude::*};
 
 use crate::state::DisplayState;
 
@@ -13,7 +13,6 @@ pub fn handle_menu_click(
     >,
     mut app_exit: EventWriter<AppExit>,
 ) {
-    
     query.iter_mut().for_each(
         |(interaction, mut color, item)| match interaction.as_ref() {
             Interaction::Pressed => match item.as_ref() {
@@ -24,8 +23,7 @@ pub fn handle_menu_click(
                     app_state.set(DisplayState::SpriteSelect);
                 }
                 MenuItemType::Exit => {
-                    app_exit.send(AppExit::Success);
-                    // app_exit.send(AppExit);
+                    app_exit.write(AppExit::Success);
                 }
                 MenuItemType::LevelEditor => {
                     app_state.set(DisplayState::LevelEditorSelect);

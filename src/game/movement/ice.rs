@@ -24,7 +24,7 @@ pub fn handle_ice(
         .collect();
 
     for (block, direction, position) in blocks.into_iter() {
-        writer.send(TryMoveEvent {
+        writer.write(TryMoveEvent {
             block,
             direction,
             position,

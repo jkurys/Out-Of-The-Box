@@ -11,7 +11,7 @@ pub fn handle_esc(
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
         if state.get() == &DisplayState::MainMenu {
-            app_exit.send(AppExit::Success);
+            app_exit.write(AppExit::Success);
             // app_exit.send(AppExit);
             return; //just in case to avoid weird behaviour before event is parsed
         }

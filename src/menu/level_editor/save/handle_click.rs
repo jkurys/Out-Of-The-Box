@@ -20,7 +20,7 @@ pub fn handle_file_get(
             Key::Character(character) => {
                 let c = character.chars().last().unwrap();
                 if c.is_ascii_alphanumeric() {
-                    let mut text = change_name.single_mut();
+                    let mut text = change_name.single_mut().expect("File name text not found");
                     text.push(c);
                     file_name.push(c);
                 }
@@ -29,11 +29,11 @@ pub fn handle_file_get(
         }
     }
     if input.just_pressed(KeyCode::Enter) {
-        event_writer.send(FileSavedEvent(file_name.clone()));
+        event_writer.write(FileSavedEvent(file_name.clone()));
         *file_name = "".to_string();
     }
     if input.just_pressed(KeyCode::Backspace) {
-        let mut text = change_name.single_mut();
+        let mut text = change_name.single_mut().expect("File name text not found");
         text.pop();
         file_name.pop();
     }

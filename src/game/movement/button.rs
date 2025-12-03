@@ -33,7 +33,7 @@ pub fn handle_button(mut writer: EventWriter<TryMoveEvent>, mut game_data: ResMu
             if can_block_move(&mut game_data, block, dir) {
                 game_data.modify_toggle(pos);
             }
-            writer.send(TryMoveEvent {
+            writer.write(TryMoveEvent {
                 block,
                 direction: dir,
                 is_weak: false,

@@ -30,7 +30,7 @@ impl Plugin for MenusPlugin {
 }
 
 pub fn spawn_button<T>(
-    parent: &mut ChildBuilder,
+    parent: &mut ChildSpawnerCommands,
     entity: T,
     menu_font: Handle<Font>,
     value: &str,

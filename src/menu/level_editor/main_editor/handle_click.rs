@@ -74,7 +74,7 @@ pub fn get_frontmost_position(
     windows: &Query<&Window, With<PrimaryWindow>>,
     board: &Board,
 ) -> (Position, Option<MouseButton>) {
-    let window = windows.single();
+    let window = windows.single().expect("No primary window found");
     if let Some(position) = window.cursor_position() {
         let (bot_border, top_border, left_border, right_border) = calculate_borders(board);
         for y in (bot_border - 1)..=(top_border + 1) {

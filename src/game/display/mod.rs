@@ -1,6 +1,6 @@
 use background::render_board;
 use bevy::prelude::*;
-use bevy::window::{PrimaryWindow, WindowMode};
+use bevy::window::{MonitorSelection, PrimaryWindow, VideoModeSelection, WindowMode};
 
 use self::border::insert_border;
 use self::level_background::render_background;
@@ -67,7 +67,7 @@ pub fn update_button(
     display_button: Res<DisplayButton>,
 ) {
     for entity in query.iter() {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
     if !display_button.0 {
         return;
@@ -99,11 +99,11 @@ pub fn update_button(
 
 pub fn despawn_board(query: Query<Entity, With<GameItem>>, mut commands: Commands) {
     for entity in query.iter() {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }
 
 fn window_set_fullscreen(mut window_query: Query<&mut Window, With<PrimaryWindow>>) {
-    let mut window = window_query.get_single_mut().expect("Could not get window");
-    window.mode = WindowMode::Fullscreen(MonitorSelection::Primary);
+    let mut window = window_query.single_mut().expect("Could not get window");
+    window.mode = WindowMode::Fullscreen(MonitorSelection::Primary, VideoModeSelection::Current);
 }
