@@ -8,7 +8,7 @@ use super::utils::is_moveable;
 
 pub fn handle_fall(mut game_data: ResMut<GameData>, mut writer: EventWriter<TryMoveEvent>) {
     let board = &game_data.board;
-    let mut void_positions = board.get_empty_below();
+    let mut void_positions = board.get_positions_to_fall();
     void_positions = void_positions.iter().map(|&p| p.position_above()).collect();
     for pos in void_positions.clone().iter() {
         let mut pos_above = pos.position_above();

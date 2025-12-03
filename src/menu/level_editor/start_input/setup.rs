@@ -7,10 +7,9 @@ use super::{LevelEditorInputNumber, LevelEditorStartingPrompt};
 pub fn setup_level_editor(asset_server: Res<AssetServer>, mut commands: Commands) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
-        .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility::Visible,
-            style: Style {
+        .spawn((
+            BackgroundColor(Color::BLACK),
+            Node {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
@@ -18,28 +17,29 @@ pub fn setup_level_editor(asset_server: Res<AssetServer>, mut commands: Commands
                 justify_content: JustifyContent::SpaceEvenly,
                 ..default()
             },
-            ..default()
-        })
+        ))
         .insert(LevelEditorItem)
         .with_children(|parent| {
             parent
-                .spawn(TextBundle::from_section(
-                    "Please provide the level width",
-                    TextStyle {
+                .spawn((
+                    Text::new("Please provide the level width"),
+                    TextFont {
                         font: menu_font.clone(),
                         font_size: 50.,
-                        color: Color::WHITE,
+                        ..default()
                     },
+                    TextColor(Color::WHITE),
                 ))
                 .insert(LevelEditorStartingPrompt);
             parent
-                .spawn(TextBundle::from_section(
-                    "0",
-                    TextStyle {
+                .spawn((
+                    Text::new("0"),
+                    TextFont {
                         font: menu_font.clone(),
                         font_size: 50.,
-                        color: Color::WHITE,
+                        ..default()
                     },
+                    TextColor(Color::WHITE),
                 ))
                 .insert(LevelEditorInputNumber);
         });

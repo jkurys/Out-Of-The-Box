@@ -16,13 +16,13 @@ use super::movement::is_in_game;
 use super::movement::resources::DisplayButton;
 
 pub mod background;
-pub mod glue;
 pub mod border;
 pub mod floor;
+pub mod glue;
 mod level_background;
 pub mod render_2_5_d;
-mod text;
 mod resources;
+mod text;
 
 #[derive(Component)]
 pub struct ButtonPopup;
@@ -79,29 +79,22 @@ pub fn update_button(
         button_state.0 = !button_state.0;
         timer.0.reset();
     }
-    commands.spawn((SpriteBundle {
-        texture: button_press,
-        transform: Transform {
-            translation: Vec3 {
-                x: 150.,
-                y: -500.,
-                z: 200.,
-            },
+    commands
+        .spawn(Sprite {
+            image: button_press,
+            texture_atlas: Some(TextureAtlas {
+                layout: atlases.add(TextureAtlasLayout::from_grid(
+                    UVec2 { x: 480, y: 480 },
+                    2,
+                    2,
+                    Some(UVec2 { x: 20, y: 20 }),
+                    None,
+                )),
+                index: button_state.0 as usize,
+            }),
             ..default()
-        },
-        ..default()
-        
-    }, TextureAtlas {
-        layout: atlases.add(TextureAtlasLayout::from_grid(    
-            UVec2 { x: 480, y: 480 },
-            2,
-            2,
-            Some(UVec2 { x: 20, y: 20 }),
-            None,
-        )),
-        index: button_state.0 as usize,
-    })).insert(ButtonPopup);
-
+        })
+        .insert(ButtonPopup);
 }
 
 pub fn despawn_board(query: Query<Entity, With<GameItem>>, mut commands: Commands) {
@@ -112,5 +105,5 @@ pub fn despawn_board(query: Query<Entity, With<GameItem>>, mut commands: Command
 
 fn window_set_fullscreen(mut window_query: Query<&mut Window, With<PrimaryWindow>>) {
     let mut window = window_query.get_single_mut().expect("Could not get window");
-    window.mode = WindowMode::Fullscreen;
+    window.mode = WindowMode::Fullscreen(MonitorSelection::Primary);
 }

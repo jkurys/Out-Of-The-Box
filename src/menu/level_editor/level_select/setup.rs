@@ -39,10 +39,9 @@ pub fn setup(
     }
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
-        .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility::Visible,
-            style: Style {
+        .spawn((
+            BackgroundColor(Color::BLACK),
+            Node {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
@@ -50,21 +49,18 @@ pub fn setup(
                 justify_content: JustifyContent::SpaceEvenly,
                 ..default()
             },
-            ..default()
-        })
+        ))
         .insert(LevelSelectItem)
         .with_children(|parent| {
-            parent.spawn(
-                TextBundle::from_section(
-                    "Level Select",
-                    TextStyle {
-                        font: menu_font.clone(),
-                        font_size: 50.,
-                        color: Color::WHITE,
-                    },
-                )
-                .with_text_justify(JustifyText::Center),
-            );
+            parent.spawn((
+                Text::new("Level Select"),
+                TextFont {
+                    font: menu_font.clone(),
+                    font_size: 50.,
+                    ..default()
+                },
+                TextColor(Color::WHITE),
+            ));
             for (level_number, level_name) in file_paths.iter().enumerate() {
                 spawn_button(
                     parent,

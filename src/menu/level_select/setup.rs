@@ -1,4 +1,4 @@
-use std::{fs::read_dir, cmp::Ordering};
+use std::{cmp::Ordering, fs::read_dir};
 
 use bevy::prelude::*;
 
@@ -42,8 +42,7 @@ pub fn setup_level_select(
                 let num1 = path1.parse::<i32>().unwrap();
                 let num2 = path2.parse::<i32>().unwrap();
                 return num1.cmp(&num2);
-            }
-            else {
+            } else {
                 return Ordering::Less;
             }
         } else {
@@ -55,10 +54,9 @@ pub fn setup_level_select(
     });
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
-        .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility::Visible,
-            style: Style {
+        .spawn((
+            BackgroundColor(Color::BLACK),
+            Node {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
@@ -66,8 +64,7 @@ pub fn setup_level_select(
                 justify_content: JustifyContent::SpaceEvenly,
                 ..default()
             },
-            ..default()
-        })
+        ))
         .insert(LevelSelectItem)
         .with_children(|parent| {
             let spawn_children = |i: usize| {
@@ -88,48 +85,50 @@ pub fn setup_level_select(
                     }
                 }
             };
-            parent.spawn(
-                TextBundle::from_section(
-                    "Level Select",
-                    TextStyle {
-                        font: menu_font.clone(),
-                        font_size: 50.,
-                        color: Color::WHITE,
-                    },
-                )
-                .with_text_justify(JustifyText::Center),
-            );
-            parent.spawn(NodeBundle {
-                style: Style {
+            parent.spawn((
+                Text::new("Level Select"),
+                TextFont {
+                    font: menu_font.clone(),
+                    font_size: 50.,
+                    ..default()
+                },
+                TextColor(Color::WHITE),
+            ));
+            parent
+                .spawn(Node {
                     width: Val::Percent(100.0),
                     height: Val::Percent(80.0),
                     flex_direction: FlexDirection::Row,
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::SpaceEvenly,
                     ..default()
-                },
-                ..default()
+                })
+                .with_children(|parent| {
+                    for i in 0..3 {
+                        parent
+                            .spawn((
+                                BackgroundColor(Color::BLACK),
+                                Node {
+                                    width: Val::Percent(33.3),
+                                    height: Val::Percent(100.0),
+                                    flex_direction: FlexDirection::Column,
+                                    align_items: AlignItems::Center,
+                                    justify_content: JustifyContent::SpaceEvenly,
+                                    ..default()
+                                },
+                            ))
+                            .with_children(spawn_children(i));
+                    }
+                });
 
-            }).with_children(|parent|{
-                for i in 0..3 {
-                    parent.spawn(NodeBundle {
-                        background_color: BackgroundColor(Color::BLACK),
-                        visibility: Visibility::Visible,
-                        style: Style {
-                            width: Val::Percent(33.3),
-                            height: Val::Percent(100.0),
-                            flex_direction: FlexDirection::Column,
-                            align_items: AlignItems::Center,
-                            justify_content: JustifyContent::SpaceEvenly,
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .with_children(spawn_children(i));
-                }
-            });
-            
-            spawn_button(parent, LevelSelectItemType::Back, menu_font.clone(), "Back", Val::Percent(20.), Val::Percent(10.));
+            spawn_button(
+                parent,
+                LevelSelectItemType::Back,
+                menu_font.clone(),
+                "Back",
+                Val::Percent(20.),
+                Val::Percent(10.),
+            );
         });
     level_names.0 = file_paths;
     *current_level = CurrentLevel {

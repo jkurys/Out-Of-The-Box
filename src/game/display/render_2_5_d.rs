@@ -1,37 +1,30 @@
 use bevy::prelude::*;
 
-use crate::{
-    consts::*,
-    game::GameItem,
-};
+use crate::{consts::*, game::GameItem};
 
 pub fn get_offsets(
     x: i32,
     y: i32,
     z: i32,
     z_mod: f32,
-) -> (
-    (f32, f32, f32),
-    (f32, f32, f32),
-    (f32, f32, f32),
-) {
+) -> ((f32, f32, f32), (f32, f32, f32), (f32, f32, f32)) {
     let (upper_x, upper_y, upper_z) = (
-        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
+        (x as f32) * TILE_WIDTH + (y as f32 * (101. / 300.) * TILE_WIDTH),
         (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
-        UPPER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32
-         + (0.01 * x as f32) - (0.01 * y as f32) + (0.01 * z as f32),
+        UPPER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32 + (0.01 * x as f32) - (0.01 * y as f32)
+            + (0.01 * z as f32),
     );
     let (lower_x, lower_y, lower_z) = (
-        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
+        (x as f32) * TILE_WIDTH + (y as f32 * (101. / 300.) * TILE_WIDTH),
         (y as f32) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
-        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32
-         + (0.01 * x as f32) - (0.01 * y as f32) + (0.01 * z as f32),
+        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32 + (0.01 * x as f32) - (0.01 * y as f32)
+            + (0.01 * z as f32),
     );
     let (side_x, side_y, side_z) = (
-        (x as f32) * TILE_WIDTH + (y as f32 * (101./300.) * TILE_WIDTH),
+        (x as f32) * TILE_WIDTH + (y as f32 * (101. / 300.) * TILE_WIDTH),
         (y as f32 + 1.) * (TILE_HEIGHT - 3.) + ((z - 1) as f32 * (TILE_FRONT_HEIGHT - 3.)),
-        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32
-         + (0.01 * x as f32) - (0.01 * y as f32) + (0.01 * z as f32),
+        LOWER_HALF_OBJECT_Z_INDEX + z_mod + (z * 2) as f32 + (0.01 * x as f32) - (0.01 * y as f32)
+            + (0.01 * z as f32),
     );
     (
         (upper_x, upper_y, upper_z),
@@ -55,55 +48,59 @@ where
 {
     let (bottom_index, top_index, side_index) = indices;
     let (texture, layout) = atlas;
-    let mut sprite = Sprite::default();
-    sprite.custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8 / 3., y: TILE_HEIGHT * 4.8 / 3. });
-    let (
-        (upper_x, upper_y, upper_z),
-        (lower_x, lower_y, lower_z),
-        (side_x, side_y, side_z),
-    ) = get_offsets(x, y, z, z_index_mod);
+    let ((upper_x, upper_y, upper_z), (lower_x, lower_y, lower_z), (side_x, side_y, side_z)) =
+        get_offsets(x, y, z, z_index_mod);
     let entity1 = commands
         .spawn((
-            SpriteBundle {
-                sprite: sprite.clone(),
-                texture: texture.clone(), 
-                transform: Transform::from_xyz(upper_x, upper_y, upper_z),
+            Sprite {
+                custom_size: Some(Vec2 {
+                    x: TILE_WIDTH * 4.8 / 3.,
+                    y: TILE_HEIGHT * 4.8 / 3.,
+                }),
+                image: texture.clone(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: layout.clone(),
+                    index: top_index,
+                }),
                 ..default()
             },
-            TextureAtlas {
-                layout: layout.clone(),
-                index: top_index,
-            }
+            Transform::from_xyz(upper_x, upper_y, upper_z),
         ))
         .insert((component.clone(), GameItem))
         .id();
     let entity2 = commands
         .spawn((
-            SpriteBundle {
-                sprite: sprite.clone(),
-                texture: texture.clone(),
-                transform: Transform::from_xyz(lower_x, lower_y, lower_z),
+            Sprite {
+                custom_size: Some(Vec2 {
+                    x: TILE_WIDTH * 4.8 / 3.,
+                    y: TILE_HEIGHT * 4.8 / 3.,
+                }),
+                image: texture.clone(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: layout.clone(),
+                    index: bottom_index,
+                }),
                 ..default()
             },
-            TextureAtlas {
-                layout: layout.clone(),
-                index: bottom_index,
-            }
+            Transform::from_xyz(lower_x, lower_y, lower_z),
         ))
         .insert((component.clone(), GameItem))
         .id();
     let entity3 = commands
         .spawn((
-            SpriteBundle {
-                sprite,
-                texture,
-                transform: Transform::from_xyz(side_x, side_y, side_z),
+            Sprite {
+                custom_size: Some(Vec2 {
+                    x: TILE_WIDTH * 4.8 / 3.,
+                    y: TILE_HEIGHT * 4.8 / 3.,
+                }),
+                image: texture,
+                texture_atlas: Some(TextureAtlas {
+                    layout,
+                    index: side_index,
+                }),
                 ..default()
-            }, 
-            TextureAtlas {
-                layout,
-                index: side_index,
-            }
+            },
+            Transform::from_xyz(side_x, side_y, side_z),
         ))
         .insert((component.clone(), GameItem))
         .id();
@@ -126,66 +123,72 @@ where
 {
     let (bottom_index, top_index, side_index) = indices;
     let (texture, layout) = atlas;
-    let custom_size = Some(Vec2 { x: TILE_WIDTH * 4.8 / 3., y: TILE_HEIGHT * 4.8 / 3. });
-    let (
-        (upper_x, upper_y, upper_z),
-        (lower_x, lower_y, lower_z),
-        (side_x, side_y, side_z),
-    ) = get_offsets(x, y, z, z_index_mod);
+    let custom_size = Some(Vec2 {
+        x: TILE_WIDTH * 4.8 / 3.,
+        y: TILE_HEIGHT * 4.8 / 3.,
+    });
+    let ((upper_x, upper_y, upper_z), (lower_x, lower_y, lower_z), (side_x, side_y, side_z)) =
+        get_offsets(x, y, z, z_index_mod);
     let entity1 = commands
         .spawn((
-            SpriteBundle {
-                sprite: Sprite {
-                    color: Color::Srgba(Srgba { red: 0.6, green: 0.3, blue: 0.8, alpha: 1. }),
-                    custom_size,
-                    ..default()
-                },
-                texture: texture.clone(), 
-                transform: Transform::from_xyz(upper_x, upper_y, upper_z),
+            Sprite {
+                color: Color::Srgba(Srgba {
+                    red: 0.6,
+                    green: 0.3,
+                    blue: 0.8,
+                    alpha: 1.,
+                }),
+                custom_size,
+                image: texture.clone(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: layout.clone(),
+                    index: top_index,
+                }),
                 ..default()
             },
-            TextureAtlas {
-                layout: layout.clone(),
-                index: top_index,
-            }
+            Transform::from_xyz(upper_x, upper_y, upper_z),
         ))
         .insert((component.clone(), GameItem))
         .id();
     let entity2 = commands
         .spawn((
-            SpriteBundle {
-                sprite: Sprite {
-                    color: Color::Srgba(Srgba { red: 0.6, green: 0.3, blue: 0.8, alpha: 1. }),
-                    custom_size,
-                    ..default()
-                },
-                texture: texture.clone(),
-                transform: Transform::from_xyz(lower_x, lower_y, lower_z),
+            Sprite {
+                color: Color::Srgba(Srgba {
+                    red: 0.6,
+                    green: 0.3,
+                    blue: 0.8,
+                    alpha: 1.,
+                }),
+                custom_size,
+                image: texture.clone(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: layout.clone(),
+                    index: bottom_index,
+                }),
                 ..default()
             },
-            TextureAtlas {
-                layout: layout.clone(),
-                index: bottom_index,
-            }
+            Transform::from_xyz(lower_x, lower_y, lower_z),
         ))
         .insert((component.clone(), GameItem))
         .id();
     let entity3 = commands
         .spawn((
-            SpriteBundle {
-                sprite: Sprite {
-                    color: Color::Srgba(Srgba { red: 0.6, green: 0.3, blue: 0.8, alpha: 1. }),
-                    custom_size,
-                    ..default()
-                },
-                texture,
-                transform: Transform::from_xyz(side_x, side_y, side_z),
+            Sprite {
+                color: Color::Srgba(Srgba {
+                    red: 0.6,
+                    green: 0.3,
+                    blue: 0.8,
+                    alpha: 1.,
+                }),
+                custom_size,
+                image: texture,
+                texture_atlas: Some(TextureAtlas {
+                    layout,
+                    index: side_index,
+                }),
                 ..default()
-            }, 
-            TextureAtlas {
-                layout,
-                index: side_index,
-            }
+            },
+            Transform::from_xyz(side_x, side_y, side_z),
         ))
         .insert((component.clone(), GameItem))
         .id();
@@ -246,21 +249,23 @@ where
     T: Component + Clone,
 {
     let (texture, layout) = atlas;
-    let mut sprite = Sprite::default();
-    sprite.custom_size = Some(Vec2 { x: TILE_WIDTH * (4.8/3.), y: TILE_HEIGHT * (4.8/3.) });
-    let ((sticker_x, sticker_y, sticker_z), _, _) = get_offsets(x, y, z, z_index - UPPER_HALF_OBJECT_Z_INDEX);
+    let ((sticker_x, sticker_y, sticker_z), _, _) =
+        get_offsets(x, y, z, z_index - UPPER_HALF_OBJECT_Z_INDEX);
     commands
         .spawn((
-            SpriteBundle {
-                sprite,
-                texture,
-                transform: Transform::from_xyz(sticker_x, sticker_y, sticker_z),
+            Sprite {
+                custom_size: Some(Vec2 {
+                    x: TILE_WIDTH * 4.8 / 3.,
+                    y: TILE_HEIGHT * 4.8 / 3.,
+                }),
+                image: texture,
+                texture_atlas: Some(TextureAtlas {
+                    layout,
+                    index: sticker_index,
+                }),
                 ..default()
-            }, 
-            TextureAtlas {
-                layout,
-                index: sticker_index,
-            }
+            },
+            Transform::from_xyz(sticker_x, sticker_y, sticker_z),
         ))
         .insert((component, GameItem))
         .id()

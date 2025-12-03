@@ -178,7 +178,7 @@ impl Board {
         self.insert_block(new_block);
     }
 
-    pub fn get_empty_below(&self) -> Vec<Position> {
+    pub fn get_positions_to_fall(&self) -> Vec<Position> {
         let mut res = Vec::new();
         for (position, obj) in self.objects.iter() {
             if self.get_object_type(position.position_below()) == GameObject::Empty
@@ -229,50 +229,6 @@ impl Board {
 
     pub fn get_floors(&self) -> HashMap<Position, Floor> {
         self.floors.clone()
-    }
-
-    pub fn get_all_goals(&self) -> Vec<Position> {
-        let mut goals_vec = Vec::new();
-        for (&pos, &floor) in self.floors.iter() {
-            if floor == Floor::Goal {
-                goals_vec.push(pos);
-            }
-        }
-        goals_vec
-    }
-
-    pub fn get_all_buttons(&self) -> [Vec<Position>; NUMBER_OF_COLORS] {
-        let mut buttons = [Vec::new(), Vec::new(), Vec::new()];
-        for (&pos, &floor) in self.floors.iter() {
-            if let Floor::Button(color) = floor {
-                buttons[color].push(pos);
-            }
-        }
-        buttons
-    }
-
-    pub fn get_all_turtles(&self) -> [Vec<(Position, Direction)>; NUMBER_OF_COLORS] {
-        let mut turtle_vec = [Vec::new(), Vec::new(), Vec::new()];
-        for (&pos, &obj) in self.objects.iter() {
-            if let GameObject::Turtle { color, direction } = obj {
-                turtle_vec[color].push((pos, direction));
-            }
-        }
-        turtle_vec
-    }
-
-    pub fn get_all_turtle_heads(&self) -> [Vec<(Position, Direction)>; NUMBER_OF_COLORS] {
-        let mut all_heads_vec = [Vec::new(), Vec::new(), Vec::new()];
-        for (&pos, &obj) in self.objects.iter() {
-            if let GameObject::TurtleHead {
-                direction: dir,
-                color,
-            } = obj
-            {
-                all_heads_vec[color].push((pos, dir));
-            }
-        }
-        all_heads_vec
     }
 
     pub fn insert(&mut self, position: Position, floor_or_object: GameEntity) {

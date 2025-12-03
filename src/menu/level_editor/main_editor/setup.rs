@@ -40,24 +40,20 @@ pub fn setup_level_editor_board(
         asset_server.load(BUTTON_TEXTURES[2]),
     ];
     commands
-        .spawn(NodeBundle {
-            visibility: Visibility::Hidden,
-            background_color: BackgroundColor(Color::Srgba(BEIGE)),
-            style: Style {
+        .spawn((
+            BackgroundColor(Color::Srgba(BEIGE)),
+            Node {
                 width: Val::Percent(100.),
                 height: Val::Percent(100.),
                 ..default()
             },
-            ..default()
-        })
+        ))
         .insert(LevelEditorItem)
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    background_color: BackgroundColor(Color::Srgba(BEIGE)),
-                    // background_color: BackgroundColor(Color::BEIGE),
-                    visibility: Visibility::Visible,
-                    style: Style {
+                .spawn((
+                    BackgroundColor(Color::Srgba(BEIGE)),
+                    Node {
                         width: Val::Percent(10.0),
                         height: Val::Percent(100.0),
                         flex_direction: FlexDirection::Row,
@@ -66,16 +62,13 @@ pub fn setup_level_editor_board(
                         align_self: AlignSelf::End,
                         ..default()
                     },
-                    ..default()
-                })
+                ))
                 .insert(LevelEditorItem)
                 .with_children(|parent| {
                     parent
-                        .spawn(NodeBundle {
-                            background_color: BackgroundColor(Color::Srgba(DARK_GREEN)),
-                            // background_color: BackgroundColor(Color::DARK_GREEN),
-                            visibility: Visibility::Visible,
-                            style: Style {
+                        .spawn((
+                            BackgroundColor(Color::Srgba(DARK_GREEN)),
+                            Node {
                                 width: Val::Percent(100.0),
                                 height: Val::Percent(100.0),
                                 flex_direction: FlexDirection::Column,
@@ -84,8 +77,7 @@ pub fn setup_level_editor_board(
                                 align_self: AlignSelf::End,
                                 ..default()
                             },
-                            ..default()
-                        })
+                        ))
                         .insert(LevelEditorItem)
                         .with_children(|parent| {
                             spawn_small_button(
@@ -119,11 +111,9 @@ pub fn setup_level_editor_board(
                         });
 
                     parent
-                        .spawn(NodeBundle {
-                            background_color: BackgroundColor(Color::Srgba(GREEN)),
-                            // background_color: BackgroundColor(Color::GREEN),
-                            visibility: Visibility::Visible,
-                            style: Style {
+                        .spawn((
+                            BackgroundColor(Color::Srgba(GREEN)),
+                            Node {
                                 width: Val::Percent(100.0),
                                 height: Val::Percent(100.0),
                                 flex_direction: FlexDirection::Column,
@@ -132,8 +122,7 @@ pub fn setup_level_editor_board(
                                 align_self: AlignSelf::Start,
                                 ..default()
                             },
-                            ..default()
-                        })
+                        ))
                         .insert(LevelEditorItem)
                         .with_children(|parent| {
                             spawn_small_button(

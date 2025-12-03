@@ -53,7 +53,7 @@ pub const BUTTON_ATLAS: &str = "textures/button_atlas_big.png";
 pub const BACKGROUND_TEXTURE: &str = "textures/background.png";
 /** FONTS */
 
-pub const MAIN_MENU_FONT: &str = "fonts/njal_bold.otf";
+pub const MAIN_MENU_FONT: &str = "fonts/njal_bold.ttf";
 pub const LEVEL_FONT: &str = "fonts/pixel NES.otf";
 
 /** SAVES */

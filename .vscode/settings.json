@@ -1,6 +1,0 @@
-{
-    "rust-analyzer.runnableEnv": {
-        "ENV_ROOT_DIR": "${workspaceFolder}"
-    },
-    "rust-analyzer.showUnlinkedFileNotification": false
-}

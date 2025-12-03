@@ -29,13 +29,19 @@ impl Plugin for MenusPlugin {
     }
 }
 
-pub fn spawn_button<T>(parent: &mut ChildBuilder, entity: T, menu_font: Handle<Font>, value: &str, width: Val, height: Val)
-where
+pub fn spawn_button<T>(
+    parent: &mut ChildBuilder,
+    entity: T,
+    menu_font: Handle<Font>,
+    value: &str,
+    width: Val,
+    height: Val,
+) where
     T: Component,
 {
     parent
-        .spawn(ButtonBundle {
-            style: Style {
+        .spawn((
+            Node {
                 width,
                 height,
                 flex_direction: FlexDirection::ColumnReverse,
@@ -43,20 +49,18 @@ where
                 justify_content: JustifyContent::SpaceEvenly,
                 ..default()
             },
-            ..default()
-        })
+            Button,
+        ))
         .insert(entity)
         .with_children(|parent| {
-            parent.spawn(
-                TextBundle::from_section(
-                    value,
-                    TextStyle {
-                        font_size: 15.0,
-                        color: Color::BLACK,
-                        font: menu_font,
-                    },
-                )
-                .with_text_justify(JustifyText::Center),
-            );
+            parent.spawn((
+                Text::new(value),
+                TextFont {
+                    font_size: 15.0,
+                    font: menu_font,
+                    ..default()
+                },
+                TextColor(Color::BLACK),
+            ));
         });
 }

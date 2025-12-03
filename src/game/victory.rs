@@ -10,21 +10,31 @@ use crate::consts::{LEVEL_SAVE, MAIN_MENU_FONT};
 use crate::resources::{CurrentLevel, StateStack};
 use crate::state::DisplayState;
 
-use super::game_objects::{Floor, GameObject};
+use super::game_objects::{Floor, GameObject, Position};
 
 #[derive(Component)]
 pub struct VictoryItem;
 
 pub fn handle_win(
-    board: Res<GameData>,
+    game_data: Res<GameData>,
     mut display_state: ResMut<NextState<DisplayState>>,
     mut timer: ResMut<VictoryTimer>,
     time: Res<Time>,
     current_level: Res<CurrentLevel>,
 ) {
-    let board = &board.board;
+    let board = &game_data.board;
+    let floors = board.get_floors();
     let mut is_win = true;
-    for position in board.get_all_goals().iter() {
+    let goals: Vec<Position> = {
+        let mut temp: Vec<Position> = Vec::new();
+        for (position, floor) in floors.iter() {
+            if let Floor::Goal = floor {
+                temp.push(*position);
+            }
+        }
+        temp
+    };
+    for position in goals.iter() {
         if board.get_object_type(position.position_above()) != GameObject::Box {
             is_win = false;
         }
@@ -75,11 +85,9 @@ pub fn handle_win(
 pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
-        .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::Srgba(LIMEGREEN)),
-            // background_color: BackgroundColor(Color::LIME_GREEN),
-            visibility: Visibility::Visible,
-            style: Style {
+        .spawn((
+            BackgroundColor(Color::Srgba(LIMEGREEN)),
+            Node {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
@@ -87,32 +95,27 @@ pub fn setup_win(mut commands: Commands, asset_server: ResMut<AssetServer>) {
                 justify_content: JustifyContent::SpaceEvenly,
                 ..default()
             },
-            ..default()
-        })
+        ))
         .insert(VictoryItem)
         .with_children(|parent| {
-            parent.spawn(
-                TextBundle::from_section(
-                    "Level completed",
-                    TextStyle {
-                        font_size: 50.0,
-                        color: WHITE.into(),
-                        font: menu_font.clone(),
-                    },
-                )
-                .with_text_justify(JustifyText::Center),
-            );
-            parent.spawn(
-                TextBundle::from_section(
-                    "Press Enter to continue",
-                    TextStyle {
-                        font_size: 40.0,
-                        color: DARK_GREEN.into(),
-                        font: menu_font.clone(),
-                    },
-                )
-                .with_text_justify(JustifyText::Center),
-            );
+            parent.spawn((
+                Text::new("Level completed"),
+                TextFont {
+                    font_size: 50.0,
+                    font: menu_font.clone(),
+                    ..default()
+                },
+                TextColor(Color::Srgba(WHITE)),
+            ));
+            parent.spawn((
+                Text::new("Press Enter to continue"),
+                TextFont {
+                    font_size: 40.0,
+                    font: menu_font.clone(),
+                    ..default()
+                },
+                TextColor(Color::Srgba(DARK_GREEN)),
+            ));
         });
 }
 

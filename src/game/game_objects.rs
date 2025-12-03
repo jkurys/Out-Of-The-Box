@@ -8,6 +8,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::resources::{CurrentSprite, Images};
 
+// TODO: GAME OBJECTS SHOULD CONTAIN POSITION
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum GameObject {
     Box,

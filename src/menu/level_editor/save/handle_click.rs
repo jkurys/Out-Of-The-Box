@@ -1,4 +1,7 @@
-use bevy::{prelude::*, input::keyboard::{KeyboardInput, Key}};
+use bevy::{
+    input::keyboard::{Key, KeyboardInput},
+    prelude::*,
+};
 
 use super::{events::FileSavedEvent, LevelEditorFileName};
 
@@ -18,13 +21,12 @@ pub fn handle_file_get(
                 let c = character.chars().last().unwrap();
                 if c.is_ascii_alphanumeric() {
                     let mut text = change_name.single_mut();
-                    text.sections[0].value.push(c);
+                    text.push(c);
                     file_name.push(c);
                 }
-            },
+            }
             _ => (),
         }
-        
     }
     if input.just_pressed(KeyCode::Enter) {
         event_writer.send(FileSavedEvent(file_name.clone()));
@@ -32,7 +34,7 @@ pub fn handle_file_get(
     }
     if input.just_pressed(KeyCode::Backspace) {
         let mut text = change_name.single_mut();
-        text.sections[0].value.pop();
+        text.pop();
         file_name.pop();
     }
 }

@@ -7,18 +7,12 @@ use crate::{
 
 use super::handle_click::{SpriteSelectItem, SpriteSelectItemType};
 
-pub fn setup_sprite_select(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-
+pub fn setup_sprite_select(mut commands: Commands, asset_server: Res<AssetServer>) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
 
     commands
-        .spawn(NodeBundle {
-            background_color: BackgroundColor(Color::BLACK),
-            visibility: Visibility::Visible,
-            style: Style {
+        .spawn((
+            Node {
                 width: Val::Percent(100.0),
                 height: Val::Percent(100.0),
                 flex_direction: FlexDirection::Column,
@@ -26,21 +20,19 @@ pub fn setup_sprite_select(
                 justify_content: JustifyContent::SpaceEvenly,
                 ..default()
             },
-            ..default()
-        })
+            BackgroundColor(Color::BLACK),
+        ))
         .insert(SpriteSelectItem)
         .with_children(|parent| {
-            parent.spawn(
-                TextBundle::from_section(
-                    "Select Sprite",
-                    TextStyle {
-                        font: menu_font.clone(),
-                        font_size: 50.,
-                        color: Color::WHITE,
-                    },
-                )
-                .with_text_justify(JustifyText::Center),
-            );
+            parent.spawn((
+                Text::new("Select Sprite"),
+                TextFont {
+                    font: menu_font.clone(),
+                    font_size: 50.,
+                    ..default()
+                },
+                TextColor(Color::WHITE),
+            ));
             spawn_button(
                 parent,
                 SpriteSelectItemType::Back,
@@ -49,12 +41,8 @@ pub fn setup_sprite_select(
                 Val::Percent(20.),
                 Val::Percent(10.),
             );
-            parent.spawn(ImageBundle {
-                image: UiImage {
-                    texture: asset_server.load(PLAYER_TEXTURES[0]),
-                    ..default()
-                },
-                style: Style {
+            parent.spawn((
+                Node {
                     width: Val::Px(100.0),
                     height: Val::Px(100.0),
                     flex_direction: FlexDirection::ColumnReverse,
@@ -62,8 +50,8 @@ pub fn setup_sprite_select(
                     justify_content: JustifyContent::SpaceEvenly,
                     ..default()
                 },
-                ..default()
-            });
+                ImageNode::new(asset_server.load(PLAYER_TEXTURES[0])),
+            ));
             spawn_button(
                 parent,
                 SpriteSelectItemType::Select(0),
@@ -72,12 +60,8 @@ pub fn setup_sprite_select(
                 Val::Percent(20.),
                 Val::Percent(10.),
             );
-            parent.spawn(ImageBundle {
-                image: UiImage {
-                    texture: asset_server.load(PLAYER_TEXTURES[1]),
-                    ..default()
-                },
-                style: Style {
+            parent.spawn((
+                Node {
                     width: Val::Px(100.0),
                     height: Val::Px(100.0),
                     flex_direction: FlexDirection::ColumnReverse,
@@ -85,8 +69,8 @@ pub fn setup_sprite_select(
                     justify_content: JustifyContent::SpaceEvenly,
                     ..default()
                 },
-                ..default()
-            });
+                ImageNode::new(asset_server.load(PLAYER_TEXTURES[1])),
+            ));
             spawn_button(
                 parent,
                 SpriteSelectItemType::Select(1),
@@ -95,12 +79,8 @@ pub fn setup_sprite_select(
                 Val::Percent(20.),
                 Val::Percent(10.),
             );
-            parent.spawn(ImageBundle {
-                image: UiImage {
-                    texture: asset_server.load(PLAYER_TEXTURES[2]),
-                    ..default()
-                },
-                style: Style {
+            parent.spawn((
+                Node {
                     width: Val::Px(100.0),
                     height: Val::Px(100.0),
                     flex_direction: FlexDirection::ColumnReverse,
@@ -108,8 +88,8 @@ pub fn setup_sprite_select(
                     justify_content: JustifyContent::SpaceEvenly,
                     ..default()
                 },
-                ..default()
-            });
+                ImageNode::new(asset_server.load(PLAYER_TEXTURES[2])),
+            ));
             spawn_button(
                 parent,
                 SpriteSelectItemType::Select(2),

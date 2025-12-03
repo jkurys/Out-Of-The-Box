@@ -1,11 +1,21 @@
 use bevy::prelude::*;
 
-use crate::{board::GameData, game::game_objects::GameObject};
+use crate::{
+    board::GameData,
+    consts::NUMBER_OF_COLORS,
+    game::game_objects::{Floor, GameObject, Position},
+};
 
 use super::{events::TryMoveEvent, strong::can_block_move};
 
 pub fn handle_button(mut writer: EventWriter<TryMoveEvent>, mut game_data: ResMut<GameData>) {
-    let buttons = game_data.board.get_all_buttons();
+    let floors = game_data.board.get_floors();
+    let mut buttons: [Vec<Position>; NUMBER_OF_COLORS] = [const { Vec::new() }; NUMBER_OF_COLORS];
+    for (position, floor) in floors.iter() {
+        if let Floor::Button(color) = floor {
+            buttons[*color].push(*position);
+        }
+    }
     let mut is_clicked = false;
     for (color, button_color) in buttons.into_iter().enumerate() {
         for button_position in button_color {

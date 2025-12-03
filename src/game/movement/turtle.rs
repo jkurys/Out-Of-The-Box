@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    board::GameData,
-    consts::NUMBER_OF_COLORS,
-    game::game_objects::{Block, GameObject, SmallSet},
+    board::GameData, consts::NUMBER_OF_COLORS, game::game_objects::Direction, game::game_objects::*,
 };
 
 use super::{events::TryMoveEvent, strong::can_block_move};
@@ -13,8 +11,35 @@ pub fn handle_turtle(
     mut writer: EventWriter<TryMoveEvent>,
     mut button_state: Local<[bool; NUMBER_OF_COLORS]>,
 ) {
-    let buttons = game_data.board.get_all_buttons();
-    let turtles = game_data.board.get_all_turtles();
+    let objects = game_data.board.get_objects();
+    let floors = game_data.board.get_floors();
+    let mut buttons: [Vec<Position>; NUMBER_OF_COLORS] = [const { Vec::new() }; NUMBER_OF_COLORS];
+    for (position, floor) in floors.iter() {
+        if let Floor::Button(color) = floor {
+            buttons[*color].push(*position);
+        }
+    }
+    let turtles: [Vec<(Position, Direction)>; NUMBER_OF_COLORS] = {
+        let mut temp: [Vec<(Position, Direction)>; NUMBER_OF_COLORS] =
+            [const { Vec::new() }; NUMBER_OF_COLORS];
+        for (position, object) in objects.iter() {
+            if let GameObject::Turtle { direction, color } = object {
+                temp[*color].push((*position, *direction));
+            }
+        }
+        temp
+    };
+    let turtle_heads = {
+        let mut temp: [Vec<(Position, Direction)>; NUMBER_OF_COLORS] =
+            [const { Vec::new() }; NUMBER_OF_COLORS];
+        let objects = game_data.board.get_objects();
+        for (position, object) in objects.iter() {
+            if let GameObject::TurtleHead { direction, color } = object {
+                temp[*color].push((*position, *direction));
+            }
+        }
+        temp
+    };
     let mut is_clicked = false;
     for (color, button_color) in buttons.clone().into_iter().enumerate() {
         if button_state[color] {
@@ -88,7 +113,6 @@ pub fn handle_turtle(
                     }
                 }
             }
-            let turtle_heads = game_data.board.get_all_turtle_heads();
             for &(pos, dir) in turtle_heads[color].iter() {
                 match game_data.board.get_object_type(pos.prev_position(dir)) {
                     GameObject::Turtle {
@@ -110,7 +134,6 @@ pub fn handle_turtle(
             }
             button_state[color] = true;
         } else if !is_clicked && button_state[color] {
-            let turtle_heads = game_data.board.get_all_turtle_heads();
             for &(pos, dir) in turtle_heads[color].iter() {
                 let GameData {
                     board,

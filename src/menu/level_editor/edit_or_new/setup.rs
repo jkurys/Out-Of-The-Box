@@ -15,8 +15,8 @@ pub enum ButtonType {
 pub fn setup_level_editor_choose(mut commands: Commands, asset_server: Res<AssetServer>) {
     let menu_font = asset_server.load(MAIN_MENU_FONT);
     commands
-        .spawn(NodeBundle {
-            style: Style {
+        .spawn((
+            Node {
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::SpaceEvenly,
@@ -24,9 +24,8 @@ pub fn setup_level_editor_choose(mut commands: Commands, asset_server: Res<Asset
                 height: Val::Percent(100.),
                 ..default()
             },
-            background_color: BackgroundColor(Color::BLACK),
-            ..default()
-        })
+            BackgroundColor(Color::BLACK),
+        ))
         .insert(LevelEditorChooseElement)
         .with_children(|parent| {
             spawn_button(
