@@ -4,11 +4,11 @@ use bevy::prelude::*;
 
 use crate::{board::GameData, resources::StateStack, state::DisplayState};
 
-use super::events::FileSavedEvent;
+use super::events::FileSavedMessage;
 
 pub fn save_board_to_file(
     mut game_data: ResMut<GameData>,
-    mut reader: EventReader<FileSavedEvent>,
+    mut reader: MessageReader<FileSavedMessage>,
     mut app_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
 ) {

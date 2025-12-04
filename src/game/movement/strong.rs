@@ -7,7 +7,7 @@ use crate::{
 
 use super::{
     eat::perform_eat,
-    events::EnteredFloorEvent,
+    events::EnteredFloorMessage,
     utils::{is_moveable, perform_move},
 };
 
@@ -103,7 +103,7 @@ fn try_eat(
     game_data: &mut ResMut<GameData>,
     block: Block,
     direction: Direction,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    writer: &mut MessageWriter<EnteredFloorMessage>,
 ) -> bool {
     let board = &mut game_data.board;
     for position in block.positions.iter() {
@@ -128,7 +128,7 @@ pub fn move_strong(
     game_data: &mut ResMut<GameData>,
     block: Block,
     direction: Direction,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    writer: &mut MessageWriter<EnteredFloorMessage>,
 ) -> bool {
     let mut blocks_that_move = vec![block.clone()];
     let mut visited_blocks = Vec::new();

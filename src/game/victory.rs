@@ -52,7 +52,7 @@ pub fn handle_win(
     } else {
         timer.0.reset();
     }
-    if timer.0.finished() {
+    if timer.0.is_finished() {
         let file_read = File::open(LEVEL_SAVE);
         let level_amount = current_level.level_amount;
         let mut buf = vec![0_u8; level_amount];

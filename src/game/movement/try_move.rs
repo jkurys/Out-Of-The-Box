@@ -3,15 +3,15 @@ use bevy::prelude::*;
 use crate::{board::GameData, state::MoveState};
 
 use super::{
-    events::{EnteredFloorEvent, TryMoveEvent},
+    events::{EnteredFloorMessage, TryMoveMessage},
     resources::FireAnimation,
     strong::move_strong,
     weak::move_weak,
 };
 
 pub fn try_move(
-    mut reader: EventReader<TryMoveEvent>,
-    mut writer: EventWriter<EnteredFloorEvent>,
+    mut reader: MessageReader<TryMoveMessage>,
+    mut writer: MessageWriter<EnteredFloorMessage>,
     mut game_data: ResMut<GameData>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut fire_animation: ResMut<FireAnimation>,
@@ -30,7 +30,7 @@ pub fn try_move(
     }
     // TODO: trzeba zrobic zeby ruchy rzuwiowe dzialy sie po ruchu ktory nacisnal guzik + jakis priorytet
 
-    for TryMoveEvent {
+    for TryMoveMessage {
         block,
         direction,
         is_weak: _,
@@ -57,7 +57,7 @@ pub fn try_move(
             was_moved = was_moved || can_block_move;
         }
     }
-    for TryMoveEvent {
+    for TryMoveMessage {
         block,
         direction,
         is_weak: _,

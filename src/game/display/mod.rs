@@ -75,7 +75,7 @@ pub fn update_button(
 
     timer.0.tick(time.delta());
     let button_press = asset_server.load(BUTTON_PRESS_TEXTURE);
-    if timer.0.finished() {
+    if timer.0.is_finished() {
         button_state.0 = !button_state.0;
         timer.0.reset();
     }

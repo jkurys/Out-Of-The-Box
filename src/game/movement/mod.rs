@@ -1,6 +1,7 @@
 use crate::{
+    board::Board,
     consts::MOVE_ANIMATION_TIME,
-    state::{DisplayState, MoveState}, board::Board,
+    state::{DisplayState, MoveState},
 };
 use bevy::prelude::*;
 
@@ -11,36 +12,34 @@ use self::{
     animation::GameAnimationPlugin,
     button::handle_button,
     end_move::end_move,
-    events::{EnteredFloorEvent, TryMoveEvent, TeleportEvent},
-    resources::{AnimationTimer, FireAnimation, DisplayButton},
+    events::{EnteredFloorMessage, TeleportMessage, TryMoveMessage},
+    fall::handle_fall,
+    resources::{AnimationTimer, DisplayButton, FireAnimation},
+    spit::handle_spit,
     turtle::handle_turtle,
-    spit::handle_spit, fall::handle_fall,
 };
 
 mod animation;
 mod button;
 pub mod consts;
+mod eat;
 mod end_move;
 mod events;
+mod fall;
 mod ice;
 mod keyboard;
 pub mod resources;
 mod sort_positions;
+mod spit;
+mod strong;
 mod try_move;
 mod turtle;
 mod utils;
-mod spit;
-mod fall;
-mod strong;
 mod weak;
-mod eat;
 
 use crate::game::movement::try_move::try_move;
 
-use super::display::{
-    background::render_board,
-    despawn_board,
-};
+use super::display::{background::render_board, despawn_board};
 
 pub struct MovementPlugin;
 
@@ -52,21 +51,14 @@ impl Plugin for MovementPlugin {
         app.add_plugins(GameAnimationPlugin);
         app.add_systems(
             Update,
-            (
-                handle_keypress,
-            )
+            (handle_keypress,)
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::Static)),
         );
 
         app.add_systems(
             Update,
-            (
-                despawn_board,
-                render_board,
-                handle_spit,
-                try_move,
-            )
+            (despawn_board, render_board, handle_spit, try_move)
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::Calculating))
                 .chain(),
@@ -79,16 +71,16 @@ impl Plugin for MovementPlugin {
                 handle_turtle,
                 handle_button,
                 handle_ice,
-                end_move
+                end_move,
             )
                 .run_if(is_in_game)
                 .run_if(in_state(MoveState::AfterAnimationCalc))
                 .chain(),
         );
 
-        app.add_event::<TryMoveEvent>();
-        app.add_event::<TeleportEvent>();
-        app.init_resource::<Events<EnteredFloorEvent>>();
+        app.add_message::<TryMoveMessage>();
+        app.add_message::<TeleportMessage>();
+        app.add_message::<EnteredFloorMessage>();
         app.insert_resource(FireAnimation(false));
         app.insert_resource(BoardPreMove(Board::new()));
         app.insert_resource(AnimationTimer(Timer::from_seconds(

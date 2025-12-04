@@ -39,7 +39,7 @@ pub fn setup_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                     font: menu_font.clone(),
                     ..default()
                 },
-                TextColor(Color::WHITE),
+                TextColor(Color::BLACK),
             ));
             spawn_button(
                 parent,

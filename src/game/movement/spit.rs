@@ -4,14 +4,14 @@ use crate::board::GameData;
 use crate::game::game_objects::{Block, Position, SmallSet};
 use crate::state::MoveState;
 
-use super::events::EnteredFloorEvent;
+use super::events::EnteredFloorMessage;
 use super::resources::FireAnimation;
 use super::strong::get_affected_blocks;
 use super::utils::perform_move;
 
 pub fn handle_spit(
     mut game_data: ResMut<GameData>,
-    mut writer: EventWriter<EnteredFloorEvent>,
+    mut writer: MessageWriter<EnteredFloorMessage>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut fire_animation: ResMut<FireAnimation>,
 ) {
@@ -46,7 +46,7 @@ pub fn handle_spit(
 fn spit_forwards(
     position: Position,
     game_data: &mut ResMut<GameData>,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    writer: &mut MessageWriter<EnteredFloorMessage>,
     app_state: &mut ResMut<NextState<MoveState>>,
     fire_animation: &mut ResMut<FireAnimation>,
     blocks_to_move: &mut Vec<Block>,
@@ -75,7 +75,7 @@ fn spit_forwards(
     } = &mut **game_data;
     board.insert_object(position, old_obj);
     // this ensures that the animation is played
-    writer.write(EnteredFloorEvent {
+    writer.write(EnteredFloorMessage {
         floor: board.get_floor_type(new_pos),
         position: new_pos,
         object: obj,
@@ -89,7 +89,7 @@ fn spit_forwards(
 fn spit_backwards(
     position: Position,
     game_data: &mut ResMut<GameData>,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    writer: &mut MessageWriter<EnteredFloorMessage>,
     app_state: &mut ResMut<NextState<MoveState>>,
     fire_animation: &mut ResMut<FireAnimation>,
     blocks_to_move: &mut Vec<Block>,
@@ -114,7 +114,7 @@ fn spit_backwards(
     }
     let next_pos = position.next_position(dir.opposite());
     board.insert_object(next_pos, old_obj);
-    writer.write(EnteredFloorEvent {
+    writer.write(EnteredFloorMessage {
         floor: board.get_floor_type(next_pos),
         position: next_pos,
         object: old_obj,
@@ -127,7 +127,7 @@ fn spit_backwards(
 
 pub fn spit_out(
     position: Position,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    writer: &mut MessageWriter<EnteredFloorMessage>,
     game_data: &mut ResMut<GameData>,
     app_state: &mut ResMut<NextState<MoveState>>,
     fire_animation: &mut ResMut<FireAnimation>,

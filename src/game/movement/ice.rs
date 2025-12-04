@@ -1,21 +1,21 @@
 use bevy::prelude::*;
 use itertools::Itertools;
 
-use super::events::{EnteredFloorEvent, TryMoveEvent};
+use super::events::{EnteredFloorMessage, TryMoveMessage};
 use crate::{
     board::GameData,
     game::game_objects::{Block, Direction, Position},
 };
 
 pub fn handle_ice(
-    mut writer: EventWriter<TryMoveEvent>,
-    mut position_reader: EventReader<EnteredFloorEvent>,
+    mut writer: MessageWriter<TryMoveMessage>,
+    mut position_reader: MessageReader<EnteredFloorMessage>,
     game_data: Res<GameData>,
 ) {
     let board = &game_data.board;
     let mut positions = Vec::new();
-    for event in position_reader.read() {
-        positions.push((event.position, event.direction));
+    for message in position_reader.read() {
+        positions.push((message.position, message.direction));
     }
     let blocks: Vec<(Block, Direction, Position)> = positions
         .into_iter()
@@ -24,7 +24,7 @@ pub fn handle_ice(
         .collect();
 
     for (block, direction, position) in blocks.into_iter() {
-        writer.write(TryMoveEvent {
+        writer.write(TryMoveMessage {
             block,
             direction,
             position,

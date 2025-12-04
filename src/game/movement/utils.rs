@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::board::GameData;
 use crate::game::game_objects::{Block, Direction, GameObject, Position};
 
-use super::{events::EnteredFloorEvent, sort_positions::sort_positions};
+use super::{events::EnteredFloorMessage, sort_positions::sort_positions};
 
 /*
  * Returns whether the given object is moveable in the given direction.
@@ -48,7 +48,7 @@ pub fn perform_move(
     blocks: Vec<Block>,
     game_data: &mut ResMut<GameData>,
     direction: Direction,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    writer: &mut MessageWriter<EnteredFloorMessage>,
     is_weak: bool,
 ) {
     let board = &mut game_data.board;
@@ -64,7 +64,7 @@ pub fn perform_move(
             board.move_object(position, direction);
         }
         let next_position = board.get_next_position_for_move(position, direction);
-        writer.write(EnteredFloorEvent {
+        writer.write(EnteredFloorMessage {
             floor: board.get_floor_type(next_position),
             position: next_position,
             object: board.get_object_type(next_position),

@@ -6,9 +6,9 @@ use crate::{
     game::game_objects::{Floor, GameObject, Position},
 };
 
-use super::{events::TryMoveEvent, strong::can_block_move};
+use super::{events::TryMoveMessage, strong::can_block_move};
 
-pub fn handle_button(mut writer: EventWriter<TryMoveEvent>, mut game_data: ResMut<GameData>) {
+pub fn handle_button(mut writer: MessageWriter<TryMoveMessage>, mut game_data: ResMut<GameData>) {
     let floors = game_data.board.get_floors();
     let mut buttons: [Vec<Position>; NUMBER_OF_COLORS] = [const { Vec::new() }; NUMBER_OF_COLORS];
     for (position, floor) in floors.iter() {
@@ -33,7 +33,7 @@ pub fn handle_button(mut writer: EventWriter<TryMoveEvent>, mut game_data: ResMu
             if can_block_move(&mut game_data, block, dir) {
                 game_data.modify_toggle(pos);
             }
-            writer.write(TryMoveEvent {
+            writer.write(TryMoveMessage {
                 block,
                 direction: dir,
                 is_weak: false,

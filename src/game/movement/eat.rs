@@ -5,14 +5,14 @@ use crate::{
     game::game_objects::{Block, Direction, Floor, GameObject, Position},
 };
 
-use super::{events::EnteredFloorEvent, strong::move_strong, utils::perform_move};
+use super::{events::EnteredFloorMessage, strong::move_strong, utils::perform_move};
 
 pub fn perform_eat(
     game_data: &mut ResMut<GameData>,
     block: Block,
     next_pos: Position,
     direction: Direction,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    writer: &mut MessageWriter<EnteredFloorMessage>,
 ) {
     let GameData {
         board,

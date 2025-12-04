@@ -8,7 +8,7 @@ pub fn continue_animation(
     mut app_state: ResMut<NextState<MoveState>>,
     mut timer: ResMut<AnimationTimer>,
 ) {
-    if !timer.0.finished() {
+    if !timer.0.is_finished() {
         return;
     }
     timer.0.reset();
@@ -26,7 +26,7 @@ pub fn continue_teleport_animation(
         board,
         entity_storage,
     } = &mut *game_data;
-    if !timer.0.finished() {
+    if !timer.0.is_finished() {
         return;
     }
     timer.0.reset();

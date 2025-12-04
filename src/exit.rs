@@ -7,12 +7,11 @@ pub fn handle_esc(
     state: Res<State<DisplayState>>,
     mut next_state: ResMut<NextState<DisplayState>>,
     mut state_stack: ResMut<StateStack>,
-    mut app_exit: EventWriter<AppExit>,
+    mut app_exit: MessageWriter<AppExit>,
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
         if state.get() == &DisplayState::MainMenu {
             app_exit.write(AppExit::Success);
-            // app_exit.send(AppExit);
             return; //just in case to avoid weird behaviour before event is parsed
         }
         next_state.set(state_stack.0.pop().unwrap_or(DisplayState::MainMenu));

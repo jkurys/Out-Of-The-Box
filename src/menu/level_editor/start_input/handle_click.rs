@@ -27,7 +27,7 @@ pub struct InputTextData {
 }
 
 pub fn handle_level_editor_input(
-    mut char_reader: EventReader<KeyboardInput>,
+    mut char_reader: MessageReader<KeyboardInput>,
     mut input: ResMut<ButtonInput<KeyCode>>,
     mut local_data: Local<InputTextData>,
     mut app_state: ResMut<NextState<DisplayState>>,

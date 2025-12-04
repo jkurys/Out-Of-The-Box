@@ -5,13 +5,13 @@ use crate::board::GameData;
 use crate::game::game_objects::{Block, Direction, GameObject, Position};
 use crate::state::MoveState;
 
-use super::events::{TeleportEvent, TryMoveEvent};
+use super::events::{TeleportMessage, TryMoveMessage};
 use super::BoardPreMove;
 
 fn handle_action_press(
     game_data: Res<GameData>,
     mut app_state: ResMut<NextState<MoveState>>,
-    teleport_writer: &mut EventWriter<TeleportEvent>,
+    teleport_writer: &mut MessageWriter<TeleportMessage>,
     mut board_pre_move: ResMut<BoardPreMove>,
 ) {
     let board = &game_data.board;
@@ -22,7 +22,7 @@ fn handle_action_press(
             //what in case of a large player block?
             let player_pos = board.get_player_positions()[0];
             app_state.set(MoveState::TeleportAnimation);
-            teleport_writer.write(TeleportEvent {
+            teleport_writer.write(TeleportMessage {
                 position1: position,
                 position2: player_pos,
             });
@@ -36,8 +36,8 @@ fn handle_action_press(
 pub fn handle_keypress(
     keyboard_input: ResMut<ButtonInput<KeyCode>>,
     game_data: Res<GameData>,
-    mut writer: EventWriter<TryMoveEvent>,
-    mut teleport_writer: EventWriter<TeleportEvent>,
+    mut writer: MessageWriter<TryMoveMessage>,
+    mut teleport_writer: MessageWriter<TeleportMessage>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut board_pre_move: ResMut<BoardPreMove>,
 ) {
@@ -73,7 +73,7 @@ pub fn handle_keypress(
         .collect();
 
     for (block, position) in blocks {
-        writer.write(TryMoveEvent {
+        writer.write(TryMoveMessage {
             position,
             block,
             direction,

@@ -3,10 +3,10 @@ use bevy::prelude::*;
 use crate::board::GameData;
 use crate::game::game_objects::{Block, Direction, Floor, GameObject, Position};
 
-use super::events::TryMoveEvent;
+use super::events::TryMoveMessage;
 use super::utils::is_moveable;
 
-pub fn handle_fall(mut game_data: ResMut<GameData>, mut writer: EventWriter<TryMoveEvent>) {
+pub fn handle_fall(mut game_data: ResMut<GameData>, mut writer: MessageWriter<TryMoveMessage>) {
     let board = &game_data.board;
     let mut void_positions = board.get_positions_to_fall();
     void_positions = void_positions.iter().map(|&p| p.position_above()).collect();
@@ -55,7 +55,7 @@ pub fn handle_fall(mut game_data: ResMut<GameData>, mut writer: EventWriter<TryM
 fn fall_block(
     game_data: &mut ResMut<GameData>,
     block: Block,
-    writer: &mut EventWriter<TryMoveEvent>,
+    writer: &mut MessageWriter<TryMoveMessage>,
 ) {
     let board = &mut game_data.board;
     let mut can_fall = true;
@@ -76,7 +76,7 @@ fn fall_block(
         next_position = next_position.next_position(Direction::Up);
     }
     if can_fall {
-        writer.write(TryMoveEvent {
+        writer.write(TryMoveMessage {
             block,
             direction: Direction::Down,
             is_weak: false,

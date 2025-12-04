@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{exit::handle_esc, state::DisplayState, utils::delete_all_components};
 
 use self::{
-    events::FileSavedEvent,
+    events::FileSavedMessage,
     exit::{clear_board, save_board_to_file},
     handle_click::handle_file_get,
     setup::setup_file_name_getter,
@@ -24,7 +24,7 @@ pub struct LevelEditorSavePlugin;
 
 impl Plugin for LevelEditorSavePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<FileSavedEvent>();
+        app.add_message::<FileSavedMessage>();
         app.add_systems(
             OnEnter(DisplayState::LevelEditorSave),
             setup_file_name_getter,

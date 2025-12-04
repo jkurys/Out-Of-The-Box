@@ -4,11 +4,11 @@ use crate::{
     board::GameData, consts::NUMBER_OF_COLORS, game::game_objects::Direction, game::game_objects::*,
 };
 
-use super::{events::TryMoveEvent, strong::can_block_move};
+use super::{events::TryMoveMessage, strong::can_block_move};
 
 pub fn handle_turtle(
     mut game_data: ResMut<GameData>,
-    mut writer: EventWriter<TryMoveEvent>,
+    mut writer: MessageWriter<TryMoveMessage>,
     mut button_state: Local<[bool; NUMBER_OF_COLORS]>,
 ) {
     let objects = game_data.board.get_objects();
@@ -82,7 +82,7 @@ pub fn handle_turtle(
                     }
                     _ => {
                         if can_block_move(&mut game_data, turtle_head_block, direction) {
-                            writer.write(TryMoveEvent {
+                            writer.write(TryMoveMessage {
                                 block: turtle_head_block,
                                 position: turtle_head_pos,
                                 direction,
@@ -91,7 +91,7 @@ pub fn handle_turtle(
                             });
                         } else if can_block_move(&mut game_data, turtle_block, direction.opposite())
                         {
-                            writer.write(TryMoveEvent {
+                            writer.write(TryMoveMessage {
                                 block: game_data.board.get_block(*turtle_pos),
                                 position: *turtle_pos,
                                 direction: direction.opposite(),

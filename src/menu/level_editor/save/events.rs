@@ -1,4 +1,4 @@
-use bevy::prelude::Event;
+use bevy::prelude::Message;
 
-#[derive(Clone, PartialEq, Eq, Debug, Event)]
-pub struct FileSavedEvent(pub String);
+#[derive(Clone, PartialEq, Eq, Debug, Message)]
+pub struct FileSavedMessage(pub String);

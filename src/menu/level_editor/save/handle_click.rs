@@ -3,13 +3,13 @@ use bevy::{
     prelude::*,
 };
 
-use super::{events::FileSavedEvent, LevelEditorFileName};
+use super::{events::FileSavedMessage, LevelEditorFileName};
 
 pub fn handle_file_get(
-    mut char_reader: EventReader<KeyboardInput>,
+    mut char_reader: MessageReader<KeyboardInput>,
     input: ResMut<ButtonInput<KeyCode>>,
     mut file_name: Local<String>,
-    mut event_writer: EventWriter<FileSavedEvent>,
+    mut message_writer: MessageWriter<FileSavedMessage>,
     mut change_name: Query<&mut Text, With<LevelEditorFileName>>,
 ) {
     for ev in char_reader.read() {
@@ -29,7 +29,7 @@ pub fn handle_file_get(
         }
     }
     if input.just_pressed(KeyCode::Enter) {
-        event_writer.write(FileSavedEvent(file_name.clone()));
+        message_writer.write(FileSavedMessage(file_name.clone()));
         *file_name = "".to_string();
     }
     if input.just_pressed(KeyCode::Backspace) {

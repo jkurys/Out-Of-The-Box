@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
-use crate::{state::MoveState, game::resources::BoardStates};
+use crate::{game::resources::BoardStates, state::MoveState};
 
-use super::{events::TryMoveEvent, BoardPreMove};
+use super::{events::TryMoveMessage, BoardPreMove};
 
 pub fn end_move(
-    reader: EventReader<TryMoveEvent>, 
+    reader: MessageReader<TryMoveMessage>,
     mut app_state: ResMut<NextState<MoveState>>,
     mut boards: ResMut<BoardStates>,
     board_before_move: Res<BoardPreMove>,
@@ -14,7 +14,8 @@ pub fn end_move(
         app_state.set(MoveState::Static);
     } else {
         if boards.boards.len() == 0
-            || boards.boards[boards.boards.len() - 1] != board_before_move.clone().0 {
+            || boards.boards[boards.boards.len() - 1] != board_before_move.clone().0
+        {
             boards.boards.push(board_before_move.clone().0);
         }
         app_state.set(MoveState::Calculating);

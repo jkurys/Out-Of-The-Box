@@ -6,7 +6,7 @@ use crate::{
 };
 
 use super::{
-    events::EnteredFloorEvent,
+    events::EnteredFloorMessage,
     strong::add_blocks_above_to_move,
     utils::{is_moveable, is_position_in_blocks, perform_move},
 };
@@ -67,7 +67,7 @@ pub fn move_weak(
     block: Block,
     all_blocks: &Vec<Block>,
     direction: Direction,
-    writer: &mut EventWriter<EnteredFloorEvent>,
+    writer: &mut MessageWriter<EnteredFloorMessage>,
 ) -> bool {
     let mut next_blocks = Vec::new();
     let mut blocks_that_must_move = Vec::new();

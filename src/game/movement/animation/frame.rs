@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::game::display::render_2_5_d::get_offsets;
 use crate::game::game_objects::Direction;
-use crate::game::movement::events::TeleportEvent;
+use crate::game::movement::events::TeleportMessage;
 use crate::{
     board::GameData,
     consts::*,
@@ -10,7 +10,7 @@ use crate::{
         game_objects::Floor,
         movement::{
             consts::{INTERVAL_DISTANCE_1, SPEED_1, TIME_INTERVAL_1},
-            events::EnteredFloorEvent,
+            events::EnteredFloorMessage,
             resources::*,
         },
     },
@@ -91,7 +91,7 @@ fn get_z_mod(direction: Direction) -> f32 {
 
 pub fn move_event(
     game_data: &mut ResMut<GameData>,
-    event: &EnteredFloorEvent,
+    event: &EnteredFloorMessage,
     query: &mut Query<&mut Transform>,
     timer: &mut ResMut<AnimationTimer>,
     is_first: bool,
@@ -136,11 +136,11 @@ pub fn move_event(
 
 pub fn move_animation(
     time: Res<Time>,
-    mut moved: EventReader<EnteredFloorEvent>,
+    mut moved: MessageReader<EnteredFloorMessage>,
     mut query: Query<&mut Transform>,
     mut timer: ResMut<AnimationTimer>,
     mut game_data: ResMut<GameData>,
-    mut events: Local<Vec<EnteredFloorEvent>>,
+    mut events: Local<Vec<EnteredFloorMessage>>,
 ) {
     timer.0.tick(time.delta());
     if !moved.is_empty() {
@@ -157,7 +157,7 @@ pub fn move_animation(
 }
 
 pub fn teleport_frame(
-    event: &TeleportEvent,
+    event: &TeleportMessage,
     game_data: &Res<GameData>,
     query: &mut Query<&mut Sprite>,
     timer: &ResMut<AnimationTimer>,
@@ -207,11 +207,11 @@ pub fn teleport_frame(
 
 pub fn teleport_animation(
     time: Res<Time>,
-    mut reader: EventReader<TeleportEvent>,
+    mut reader: MessageReader<TeleportMessage>,
     mut query: Query<&mut Sprite>,
     mut timer: ResMut<AnimationTimer>,
     game_data: Res<GameData>,
-    mut events: Local<Vec<TeleportEvent>>,
+    mut events: Local<Vec<TeleportMessage>>,
     mut teleport_pos: ResMut<TeleportPositions>,
     is_first: Res<TeleportFirst>,
 ) {
